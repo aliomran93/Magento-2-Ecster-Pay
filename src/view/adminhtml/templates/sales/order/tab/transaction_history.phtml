@@ -1,0 +1,72 @@
+<?php
+/**
+ * Copyright © Evalent Group AB, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/** @var \Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Tab\TransactionHistory $block */
+?>
+<div class="fieldset-wrapper transaction-information">
+    <div class="fieldset-wrapper-title">
+        <span class="title"><?php /* @escapeNotVerified */ echo __('Transaction for %1', $block->getOrderIncrementId()) ?></span>
+    </div>
+    <table class="admin__table-secondary">
+        <tbody>
+            <tr>
+                <td><?php /* @escapeNotVerified */ echo __('Ecster Reference') ?></td>
+                <td><?php /* @escapeNotVerified */ echo $block->getOrder()->getEcsterInternalReference() ?></td>  
+            </tr>
+            <?php if(!is_null($block->getOrder()->getEcsterExtraFee())): ?>             
+            <tr>
+                <td><?php /* @escapeNotVerified */ echo __('Ecster Extra Fee') ?></td>
+                <td><?php /* @escapeNotVerified */ echo $block->getAmountWithFormat($block->getOrder()->getEcsterExtraFee()) ?></td>  
+            </tr> 
+            <?php endif ?>
+            <?php if(!is_null($block->getOrder()->getEcsterPaymentType())): ?>                 
+            <tr>
+                <td><?php /* @escapeNotVerified */ echo __('Ecster Payment Type') ?></td>
+                <td><?php /* @escapeNotVerified */ echo $block->getOrder()->getEcsterPaymentType() ?></td>  
+            </tr>
+            <?php endif ?>
+            <?php if(!is_null($block->getOrder()->getEcsterProperties())
+                    && $block->getTransactionMode() == Evalent\EcsterPay\Model\Api\Ecster::MODE_TEST): ?>            
+            <tr>
+                <td style="vertical-align: top"><?php /* @escapeNotVerified */ echo __('Ecster Properties') ?></td>
+                <td><textarea readonly style="width: 250px; height: 350px"><?php /* @escapeNotVerified */ echo $block->getOrder()->getEcsterProperties() ?></textarea></td>
+            </tr> 
+            <?php endif ?>
+        </tbody>
+    </table>
+    <?php $transactions = $block->getTransactionHistory(); ?>
+    <?php if(count($transactions) > 0): ?>
+    <hr/>    
+    <table class="admin__table-secondary">
+        <thead>
+            <th><?php /* @escapeNotVerified */ echo __('Entity Type') ?></th>
+            <th><?php /* @escapeNotVerified */ echo __('Amount') ?></th>
+            <th><?php /* @escapeNotVerified */ echo __('Transaction Type') ?></th>
+            <th><?php /* @escapeNotVerified */ echo __('Transaction Id') ?></th>
+            <th><?php /* @escapeNotVerified */ echo __('Order Status') ?></th>
+            <?php if($block->getTransactionMode() == Evalent\EcsterPay\Model\Api\Ecster::MODE_TEST): ?>
+            <th><?php /* @escapeNotVerified */ echo __('Request Params') ?></th>
+            <th><?php /* @escapeNotVerified */ echo __('Response Params') ?></th>
+            <?php endif ?>
+            <th><?php /* @escapeNotVerified */ echo __('Created Date') ?></th>            
+        </thead>
+    <?php foreach($transactions as $transaction): ?>
+        <tr>
+            <td style="vertical-align: top"><?php echo $block->getEntityType($transaction->getEntityType()) ?></td>
+            <td style="vertical-align: top"><?php echo $block->getAmountWithFormat($transaction->getAmount()) ?></td>
+            <td style="vertical-align: top"><?php echo $block->getTransactionType($transaction->getTransactionType()) ?></td>
+            <td style="vertical-align: top"><?php echo $transaction->getTransactionId() ?></td>
+            <td style="vertical-align: top"><?php echo $transaction->getOrderStatus() ?></td>
+            <?php if($block->getTransactionMode() == Evalent\EcsterPay\Model\Api\Ecster::MODE_TEST): ?>
+            <td style="vertical-align: top"><?php if(!is_null($transaction->getRequestParams())): ?><textarea readonly style="width: 250px; height: 350px"><?php echo $transaction->getRequestParams() ?></textarea><?php endif ?></td>
+            <td style="vertical-align: top"><?php if(!is_null($transaction->getResponseParams())): ?><textarea readonly style="width: 250px; height: 350px"><?php echo $transaction->getResponseParams() ?></textarea><?php endif ?></td>
+            <?php endif ?>
+            <td style="vertical-align: top"><?php echo $block->getFormattedDate($transaction->getCreatedAt()) ?></td>
+        </tr>
+    <?php endforeach ?>
+    </table>
+    <?php endif ?>
+</div>
+

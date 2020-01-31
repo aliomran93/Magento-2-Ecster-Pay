@@ -1,0 +1,12 @@
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<div class="ecsterpay-checkout-fieldset-title fieldset-title" data-bind="i18n: 'Shop as'" data-role="title"></div>
+<form class="ecsterpay-checkout-step-title-for-address-form" id="co-purchase-type-form" data-bind="attr: {'data-hasrequired': $t('* Required Fields')}">
+    <!-- ko foreach: getRegion('address-purchase-type-fieldset') -->
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <!--/ko-->
+</form>

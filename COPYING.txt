@@ -1,0 +1,5 @@
+Copyright © 2020-present Evalent Group AB.
+
+Each source file included in this distribution is licensed under the OSL 3.0 license
+http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+Please see LICENSE.txt for the full text of the OSL 3.0 license.

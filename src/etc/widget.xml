@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget class="Evalent\EcsterPay\Block\Widget\Badge" id="ecster_checkout_payment_badge">
+        <label>Ecster Checkout Payment Badge</label>
+        <description></description>
+        <parameters>
+            <parameter name="graphic" xsi:type="select" required="true" visible="true"
+                       source_model="Evalent\EcsterPay\Model\Config\Source\Badge\Graphic" sort_order="10">
+                <label>Please Select</label>
+                <description>Select badge logo type</description>
+            </parameter>
+            <parameter name="format" xsi:type="select" required="true" visible="true"
+                       source_model="Evalent\EcsterPay\Model\Config\Source\Badge\Format" sort_order="20">
+                <label>Please Select</label>
+                <description>Select badge logo format</description>
+            </parameter>
+            <parameter name="width" xsi:type="text" required="true" visible="true" sort_order="30">
+                <label>Width</label>
+                <description>Minimum allowed width: Ecster Pay badge: 180 px, Ecster Pay badge 2: 120 px. For SVG you need to prepare an element on your site with a specific width. The width parameter is written in integer without px.
+Please note: you may not set height since it can deform the logotype.</description>
+            </parameter>
+            <parameter name="style" xsi:type="block" visible="true" sort_order="40">
+                <label>Custom Style</label>
+                <block class="Evalent\EcsterPay\Block\Adminhtml\Widget\TextField"/>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

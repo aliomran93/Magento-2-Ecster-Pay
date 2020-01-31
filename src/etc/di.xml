@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\Checkout\Controller\Index\Index" type="Evalent\EcsterPay\Controller\Checkout\Index"/>
+    <preference for="Magento\Checkout\Model\ShippingInformationManagement"
+                type="Evalent\EcsterPay\Override\Checkout\Model\ShippingInformationManagement"/>
+    <preference for="Magento\Quote\Model\CouponManagement"
+                type="Evalent\EcsterPay\Override\Quote\Model\CouponManagement"/>
+    <preference for="Magento\Sales\Model\Order\Creditmemo\Total\Discount"
+                type="Evalent\EcsterPay\Override\Sales\Model\Order\Creditmemo\Total\Discount"/>
+
+    <type name="Magento\Checkout\Block\Checkout\LayoutProcessor">
+        <plugin name="ecsterpay_checkout_national_id" type="Evalent\EcsterPay\Plugin\Checkout\Block\LayoutProcessor"
+                sortOrder="10"/>
+    </type>
+    <type name="Magento\Checkout\Block\Checkout\DirectoryDataProcessor">
+        <plugin name="ecsterpay_checkout_restricted_country"
+                type="Evalent\EcsterPay\Plugin\Checkout\Block\DirectoryDataProcessor" sortOrder="10"/>
+    </type>
+    <type name="Magento\Checkout\Model\DefaultConfigProvider">
+        <plugin name="ecsterpay_checkout_config_provider"
+                type="Evalent\EcsterPay\Plugin\Checkout\Model\DefaultConfigProvider" sortOrder="10"/>
+    </type>
+</config>

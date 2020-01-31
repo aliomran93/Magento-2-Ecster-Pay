@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright © Evalent Group AB, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+// todo: phpdoc for $block
+?>
+<style>
+.ecster_checkout_payment_badge {float: right; margin-top: -75px; margin-right: 105px;}    
+@media only screen and (max-width: 736px) { 
+    .ecster_checkout_payment_badge {float: none; margin: 0; text-align: center}
+} 
+@media only screen and (min-width: 737px) and (max-width: 1024px) { 
+    .ecster_checkout_payment_badge {float: right; margin-right: 20px}
+}
+<?= $block->getData('style') ?>
+</style>
+<div id="ecster_checkout_payment_badge" class="ecster_checkout_payment_badge">
+    <img src="https://ecster.se/content/shared/images/logos/<?= $block->getData('graphic') ?>/<?= $block->getData('format') ?>/<?= $block->getData('width') ?>" />
+</div>

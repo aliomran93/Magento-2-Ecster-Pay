@@ -1,0 +1,238 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="checkout_index_index"/>
+    <head>
+        <css src="Evalent_EcsterPay::css/onepage.css"/>
+    </head>    
+    <body>
+        <referenceBlock name="checkout.root">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Evalent_EcsterPay::checkout/onepage.phtml</argument>
+            </action>            
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="checkout" xsi:type="array">
+                            <item name="component" xsi:type="string">uiComponent</item>
+                            <item name="config" xsi:type="array">
+                                <item name="template" xsi:type="string">Evalent_EcsterPay/checkout</item>
+                            </item>                            
+                            <item name="children" xsi:type="array">                                
+                                <item name="progressBar" xsi:type="array">
+                                    <item name="config" xsi:type="array">
+                                        <item name="componentDisabled" xsi:type="boolean">true</item>
+                                    </item>
+                                </item>
+                                <item name="authentication" xsi:type="array">
+                                    <item name="componentDisabled" xsi:type="boolean">true</item>
+                                </item>
+                                <item name="mode" xsi:type="array">
+                                    <item name="sortOrder" xsi:type="string">0</item>
+                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/mode</item>
+                                    <item name="displayArea" xsi:type="string">mode</item>
+                                </item>
+                                <item name="steps" xsi:type="array">
+                                    <item name="children" xsi:type="array">                                     
+                                        <item name="shipping-step" xsi:type="array"> 
+                                           <item name="children" xsi:type="array">                                                                                                                                                                       
+                                                <item name="shippingAddress" xsi:type="array">
+                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/shipping</item>                                                    
+                                                    <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                    <item name="sortOrder" xsi:type="string">1</item>
+                                                    <item name="children" xsi:type="array">                                                      
+                                                        <item name="shipping-address-fieldset" xsi:type="array">
+                                                            <item name="component" xsi:type="string">uiComponent</item>
+                                                            <item name="config" xsi:type="array">
+                                                                <item name="deps" xsi:type="array">
+                                                                    <item name="0" xsi:type="string">checkoutProvider</item>
+                                                                </item>
+                                                            </item>
+                                                            <item name="displayArea" xsi:type="string">address-fieldsets</item>
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="country_id" xsi:type="array">
+                                                                    <item name="sortOrder" xsi:type="string">115</item>
+                                                                    <item name="component" xsi:type="string">Magento_Ui/js/form/element/country</item>
+                                                                    <item name="config" xsi:type="array">
+                                                                        <item name="template" xsi:type="string">ui/form/field</item>
+                                                                        <item name="elementTmpl" xsi:type="string">ui/form/element/select</item>
+                                                                    </item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
+                                                        <item name="address-purchase-type-fieldset" xsi:type="array">
+                                                            <item name="component" xsi:type="string">uiComponent</item>
+                                                            <item name="config" xsi:type="array">
+                                                                <item name="deps" xsi:type="array">
+                                                                    <item name="0" xsi:type="string">checkoutProvider</item>
+                                                                </item>
+                                                            </item>
+                                                            <item name="displayArea" xsi:type="string">address-purchase-type-fieldset</item>
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="country_id" xsi:type="array">
+                                                                    <item name="sortOrder" xsi:type="string">115</item>
+                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/form/element/purchase-type</item>
+                                                                    <item name="config" xsi:type="array">
+                                                                        <item name="template" xsi:type="string">ui/form/field</item>
+                                                                        <item name="elementTmpl" xsi:type="string">ui/form/element/select</item>
+                                                                    </item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
+                                                        <item name="after-shipping-method-form" xsi:type="array">
+                                                            <item name="component" xsi:type="string">uiComponent</item>
+                                                            <item name="displayArea" xsi:type="string">after-shipping-method-form</item>
+                                                            <item name="children" xsi:type="array">
+                                                                <item  name="discount" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/discount</item>
+                                                                    <item name="children" xsi:type="array">
+                                                                        <item name="errors" xsi:type="array">
+                                                                            <item name="sortOrder" xsi:type="string">0</item>
+                                                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/discount/messages</item>
+                                                                            <item name="displayArea" xsi:type="string">messages</item>
+                                                                        </item>
+                                                                    </item>                                                                    
+                                                                </item>
+                                                                <item  name="summary" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/review</item>
+                                                                    <item name="children" xsi:type="array">
+                                                                        <item name="summary" xsi:type="array">
+                                                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary</item>
+                                                                            <item name="displayArea" xsi:type="string">summary</item>
+                                                                            <item name="children" xsi:type="array">
+                                                                                <item name="itemsBefore" xsi:type="array">
+                                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                                    <item name="children" xsi:type="array">
+                                                                                        <!-- merge your components here -->
+                                                                                    </item>
+                                                                                </item>                                                                                
+                                                                                <item name="cartItems" xsi:type="array">
+                                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items</item>
+                                                                                    <item name="children" xsi:type="array">
+                                                                                        <item name="details" xsi:type="array">
+                                                                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items/details</item>
+                                                                                            <item name="children" xsi:type="array">
+                                                                                                <item name="thumbnail" xsi:type="array">
+                                                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items/details/thumbnail</item>
+                                                                                                    <item name="displayArea" xsi:type="string">before_details</item>
+                                                                                                </item>
+                                                                                                <item name="subtotal" xsi:type="array">
+                                                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items/details/subtotal</item>
+                                                                                                    <item name="displayArea" xsi:type="string">after_details</item>                                                                                                    
+                                                                                                    <item name="children" xsi:type="array">
+                                                                                                        <item name="weee_row_incl_tax" xsi:type="array">
+                                                                                                            <item name="component" xsi:type="string">Magento_Weee/js/view/checkout/summary/item/price/row_incl_tax</item>
+                                                                                                        <item name="displayArea" xsi:type="string">row_incl_tax</item>
+                                                                                                        </item>
+                                                                                                        <item name="weee_row_excl_tax" xsi:type="array">
+                                                                                                            <item name="component" xsi:type="string">Magento_Weee/js/view/checkout/summary/item/price/row_excl_tax</item>
+                                                                                                            <item name="displayArea" xsi:type="string">row_excl_tax</item>
+                                                                                                        </item>
+                                                                                                    </item>                                                                                                    
+                                                                                                </item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                    </item>
+                                                                                </item>
+                                                                                <item name="itemsAfter" xsi:type="array">
+                                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                                    <item name="children" xsi:type="array">
+                                                                                        <!-- merge your components here -->
+                                                                                    </item>
+                                                                                </item>
+                                                                                <item name="totals" xsi:type="array">
+                                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/totals</item>
+                                                                                    <item name="displayArea" xsi:type="string">totals</item>
+                                                                                    <item name="children" xsi:type="array">
+                                                                                        <item name="subtotal" xsi:type="array">
+                                                                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/subtotal</item>
+                                                                                            <item name="config" xsi:type="array">
+                                                                                                <item name="title" xsi:type="string" translate="true">Subtotal</item>                                                                                                
+                                                                                                <item name="excludingTaxMessage" xsi:type="string" translate="true">Excl. Tax</item>
+                                                                                                <item name="includingTaxMessage" xsi:type="string" translate="true">Incl. Tax</item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                        <item name="shipping" xsi:type="array">
+                                                                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/shipping</item>
+                                                                                            <item name="sortOrder" xsi:type="string">20</item>
+                                                                                            <item name="config" xsi:type="array">
+                                                                                                <item name="title" xsi:type="string" translate="true">Shipping</item>
+                                                                                                <item name="notCalculatedMessage" xsi:type="string" translate="true">Not yet calculated</item>                                                                                                
+                                                                                                <item name="excludingTaxMessage" xsi:type="string" translate="true">Excl. Tax</item>
+                                                                                                <item name="includingTaxMessage" xsi:type="string" translate="true">Incl. Tax</item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                        <item name="before_grandtotal" xsi:type="array">
+                                                                                            <item name="component" xsi:type="string">uiComponent</item>
+                                                                                            <item name="sortOrder" xsi:type="string">30</item>
+                                                                                            <item name="children" xsi:type="array">
+                                                                                                <!-- merge your components here -->
+                                                                                            </item>
+                                                                                        </item>                                                                                        
+                                                                                        <item name="tax" xsi:type="array">
+                                                                                            <item name="component"  xsi:type="string">Evalent_EcsterPay/js/view/tax</item>
+                                                                                            <item name="sortOrder" xsi:type="string">40</item>                                                                                            
+                                                                                            <item name="config" xsi:type="array">
+                                                                                                <item name="title" xsi:type="string" translate="true">Tax</item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                        <item name="discount" xsi:type="array">
+                                                                                            <item name="component"  xsi:type="string">Evalent_EcsterPay/js/view/summary/discount</item>
+                                                                                            <item name="sortOrder" xsi:type="string">50</item>
+                                                                                            <item name="config" xsi:type="array">
+                                                                                                <item name="title" xsi:type="string" translate="true">Discount</item>
+                                                                                            </item>
+                                                                                        </item>
+                                                                                        <item name="grand-total" xsi:type="array">
+                                                                                                <item name="component"  xsi:type="string">Magento_Tax/js/view/checkout/summary/grand-total</item>
+                                                                                                <item name="sortOrder" xsi:type="string">60</item>
+                                                                                                <item name="config" xsi:type="array">
+                                                                                                    <item name="exclTaxLabel" xsi:type="string" translate="true">Order Total Excl. Tax</item>
+                                                                                                    <item name="inclTaxLabel" xsi:type="string" translate="true">Order Total Incl. Tax</item>
+                                                                                                    <item name="basicCurrencyMessage" xsi:type="string" translate="true">Your credit card will be charged for</item>
+                                                                                                    <item name="title" xsi:type="string" translate="true">Order Total</item>
+                                                                                                </item>
+                                                                                        </item>
+                                                                                    </item>
+                                                                                </item>                                                                                
+                                                                            </item>
+                                                                        </item>                                                                                                                                            
+                                                                    </item>
+                                                                </item>                                                                
+                                                            </item>
+                                                        </item>
+                                                    </item>                                                    
+                                                </item>                                                                                               
+                                            </item>
+                                        </item>
+                                        <item name="billing-step" xsi:type="array">
+                                            <item name="config" xsi:type="array">
+                                                <item name="componentDisabled" xsi:type="boolean">true</item>
+                                            </item>
+                                        </item>
+                                        <item name="payment" xsi:type="array">                                                                                                
+                                            <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/payment</item>
+                                            <item name="provider" xsi:type="string">checkoutProvider</item>
+                                            <item name="sortOrder" xsi:type="string">20</item>
+                                        </item>                                                                                                                          
+                                    </item>                                   
+                                </item>
+                                <item name="sidebar" xsi:type="array">
+                                    <item name="config" xsi:type="array">
+                                        <item name="componentDisabled" xsi:type="boolean">true</item>
+                                    </item>
+                                </item>                                
+                            </item>                            
+                        </item>
+                    </item>
+                </argument>
+            </arguments>            
+        </referenceBlock>        
+    </body>
+</page>
+

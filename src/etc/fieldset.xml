@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:DataObject/etc/fieldset.xsd">
+    <scope id="global">
+        <fieldset id="sales_convert_quote">
+            <field name="ecster_internal_reference">
+                <aspect name="to_order"/>
+            </field>
+            <field name="ecster_extra_fee">
+                <aspect name="to_order"/>
+            </field>
+            <field name="ecster_payment_type">
+                <aspect name="to_order"/>
+            </field>
+            <field name="ecster_properties">
+                <aspect name="to_order"/>
+            </field>
+        </fieldset>
+        <fieldset id="sales_convert_quote_address">
+            <field name="national_id">
+                <aspect name="to_order_address"/>
+            </field>
+        </fieldset>
+        <fieldset id="sales_convert_order">
+            <field name="ecster_internal_reference">
+                <aspect name="to_invoice"/>
+            </field>
+        </fieldset>
+    </scope>
+</config>

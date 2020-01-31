@@ -1,0 +1,21 @@
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<div class="items-in-cart">
+    <div class="content minicart-items" data-role="content">
+        <div class="minicart-items-wrapper overflowed">
+            <ol class="minicart-items">
+                <each args="items()">
+                    <li class="product-item">
+                        <div class="product">
+                            <each args="$parent.elems()" render=""/>
+                        </div>
+                    </li>
+                </each>
+            </ol>
+        </div>
+    </div>
+</div>

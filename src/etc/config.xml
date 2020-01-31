@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <ecsterpay>
+                <active>0</active>
+                <title>Ecster Checkout</title>
+                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <purchase_type>b2c</purchase_type>
+                <mode>live</mode>
+                <order_status>pending_payment</order_status>
+                <min_order_total>1</min_order_total>
+                <max_order_total>1000000</max_order_total> 
+                <allowspecific>0</allowspecific>
+                <specificcountry>SE</specificcountry>
+                <debug>0</debug>                                                                         
+                <display_cart>1</display_cart>
+                <display_delivery_methods>0</display_delivery_methods>
+                <display_logo_on_footer>1</display_logo_on_footer>
+                <sort_order>10</sort_order>
+                <default_country>SE</default_country>
+                <!--<default_shipping_method>flatrate_flatrate</default_shipping_method>-->
+                <order_status_ready>processing</order_status_ready>
+                <order_status_pending_payment>pending_payment</order_status_pending_payment>
+                <order_status_pending_decision>payment_review</order_status_pending_decision>
+                <order_status_pending_signature>payment_review</order_status_pending_signature>
+                <order_status_pending_processing>processing</order_status_pending_processing>
+                <order_status_fully_delivered>processing</order_status_fully_delivered>
+                <order_status_denied>canceled</order_status_denied>
+                <order_status_failed>canceled</order_status_failed>
+                <order_status_aborted>canceled</order_status_aborted>
+                <order_status_blocked>fraud</order_status_blocked>
+                <order_status_expired>canceled</order_status_expired>
+                <model>Evalent\EcsterPay\Model\Gateway</model>                                                                                                                                              
+            </ecsterpay>            
+        </payment>
+        <dev>
+            <js>
+                <minify_exclude>
+                    <ecsterpaytestjs>https://labs.ecster.se/pay/integration/ecster-pay-labs.js</ecsterpaytestjs>
+                    <ecsterpaylivejs>https://secure.ecster.se/pay/integration/ecster-pay.js</ecsterpaylivejs>
+                </minify_exclude>
+            </js>
+        </dev>        
+    </default>
+</config>

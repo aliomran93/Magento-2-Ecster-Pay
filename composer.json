@@ -1,0 +1,23 @@
+{
+    "name": "evalent/module-ecsterpay",
+    "description": "Ecster Checkout Extension",
+    "type": "magento2-module",
+    "license": [
+        "OSL-3.0"
+    ],
+    "require": {
+      "magento/module-checkout": "100.*",
+      "guzzlehttp/guzzle": "~6.3"
+    },
+    "autoload": {
+      "files": [
+          "src/registration.php"
+      ],
+      "psr-4": {
+        "Evalent\\EcsterPay\\": "src/"
+      }
+    },
+    "extra": {
+        "evalent-repo": "public"
+    }
+}

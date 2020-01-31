@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="ecsterpay" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label><![CDATA[<div class="logo"></div><div class="section-title">Your customers can make quick and easy order payments with Ecster Checkout.</div>]]></label>
+                <fieldset_css>complex ecsterpay-section</fieldset_css>
+                <frontend_model>Evalent\EcsterPay\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <group id="credentials" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Credentials</label>
+                    <field id="merchant_key" translate="label" type="text" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Merchant ID</label>
+                        <config_path>payment/ecsterpay/merchant_key</config_path>
+                    </field>
+                    <field id="api_key" translate="label" type="obscure" sortOrder="20" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Api Key</label>
+                        <config_path>payment/ecsterpay/api_key</config_path>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    </field>
+                </group>
+                <group id="options" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Options</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/active</config_path>
+                    </field>
+                    <field id="purchase_type" translate="label" type="select" sortOrder="20" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Purchase Type</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\PurchaseType</source_model>
+                        <config_path>payment/ecsterpay/purchase_type</config_path>
+                    </field>
+                    <field id="purchase_type_preselected" translate="label" type="select" sortOrder="22" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Preselected Purchase Type</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\PreselectedPurchaseType</source_model>
+                        <config_path>payment/ecsterpay/preselected_purchase_type</config_path>
+                        <depends>
+                            <field id="purchase_type">OPTIONAL</field>
+                        </depends>
+                    </field>
+                    <field id="mode" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1"
+                           showInStore="1" canRestore="1">
+                        <label>Mode</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\TransactionMode</source_model>
+                        <config_path>payment/ecsterpay/mode</config_path>
+                    </field>
+                    <field id="order_status" translate="label" type="select" sortOrder="50" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>New Order Status</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status</config_path>
+                    </field>
+                    <field id="shop_terms_page_content" translate="label" type="select" sortOrder="60" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Shop Terms Page Content</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Cms\Block</source_model>
+                        <config_path>payment/ecsterpay/shop_terms_page_content</config_path>
+                    </field>
+                    <field id="min_order_total" translate="label" type="text" sortOrder="90" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Minimum Order Total</label>
+                        <config_path>payment/ecsterpay/min_order_total</config_path>
+                    </field>
+                    <field id="max_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Maximum Order Total</label>
+                        <config_path>payment/ecsterpay/max_order_total</config_path>
+                    </field>
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="110" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                        <config_path>payment/ecsterpay/allowspecific</config_path>
+                    </field>
+                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="120" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Payment from Specific Countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/ecsterpay/specificcountry</config_path>
+                    </field>
+                    <!--<field id="debug" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/debug</config_path>
+                    </field>-->
+                </group>
+                <group id="default" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Default Settings</label>
+                    <field id="default_country" translate="label" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Default Country</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/ecsterpay/default_country</config_path>
+                    </field>
+                    <!--<field id="default_shipping_method" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Default Shipping Method</label>
+                        <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                        <config_path>payment/ecsterpay/default_shipping_method</config_path>
+                    </field>-->
+                </group>
+                <group id="opn" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>OPN Order Statuses</label>
+                    <field id="order_status_ready" translate="label" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Ready</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_ready</config_path>
+                    </field>
+                    <field id="order_status_pending_payment" translate="label" type="select" sortOrder="20"
+                           showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Pending Payment</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_pending_payment</config_path>
+                    </field>
+                    <field id="order_status_pending_decision" translate="label" type="select" sortOrder="30"
+                           showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Pending, Awaiting Decision</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_pending_decision</config_path>
+                    </field>
+                    <field id="order_status_pending_signature" translate="label" type="select" sortOrder="40"
+                           showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Pending, Awating Signature</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_pending_signature</config_path>
+                    </field>
+                    <field id="order_status_pending_processing" translate="label" type="select" sortOrder="50"
+                           showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Pending, Awaiting</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_pending_processing</config_path>
+                    </field>
+                    <field id="order_status_fully_delivered" translate="label" type="select" sortOrder="55"
+                           showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Delivered</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_fully_delivered</config_path>
+                    </field>
+                    <field id="order_status_denied" translate="label" type="select" sortOrder="60" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Denied</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_denied</config_path>
+                    </field>
+                    <field id="order_status_failed" translate="label" type="select" sortOrder="70" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Failed</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_failed</config_path>
+                    </field>
+                    <field id="order_status_aborted" translate="label" type="select" sortOrder="80" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Aborted</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_aborted</config_path>
+                    </field>
+                    <field id="order_status_blocked" translate="label" type="select" sortOrder="90" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Block</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_blocked</config_path>
+                    </field>
+                    <field id="order_status_expired" translate="label" type="select" sortOrder="100" showInDefault="1"
+                           showInWebsite="1" showInStore="1">
+                        <label>Order Status - Expired</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_expired</config_path>
+                    </field>
+                </group>
+                <group id="display" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Display And Design</label>
+                    <field id="display_cart" translate="label" type="select" sortOrder="10" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Show Cart on Ecster Checkout iFrame</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/display_cart</config_path>
+                    </field>
+                    <!--<field id="display_delivery_methods" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Show Delivery Methods On Ecster Checkout iFrame</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/display_delivery_methods</config_path>
+                    </field>-->
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

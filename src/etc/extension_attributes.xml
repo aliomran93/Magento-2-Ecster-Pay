@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
+    <extension_attributes for="Magento\Customer\Api\Data\AddressInterface">
+        <attribute code="national_id" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\AddressInterface">
+        <attribute code="national_id" type="string"/>
+        <attribute code="firstname" type="string"/>
+        <attribute code="lastname" type="string"/>
+        <attribute code="address" type="string"/>
+        <attribute code="city" type="string"/>
+        <attribute code="region" type="string"/>
+        <attribute code="zip" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Checkout\Api\Data\ShippingInformationInterface">
+        <attribute code="national_id" type="string"/>
+        <attribute code="firstname" type="string"/>
+        <attribute code="lastname" type="string"/>
+        <attribute code="address" type="string"/>
+        <attribute code="city" type="string"/>
+        <attribute code="region" type="string"/>
+        <attribute code="zip" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderAddressInterface">
+        <attribute code="national_id" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Checkout\Api\Data\PaymentDetailsInterface">
+        <attribute code="ecster_cart_key" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Quote\Api\Data\CartInterface">
+        <attribute code="ecster_internal_reference" type="string"/>
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
+        <attribute code="ecster_internal_reference" type="string"/>
+    </extension_attributes>
+</config>

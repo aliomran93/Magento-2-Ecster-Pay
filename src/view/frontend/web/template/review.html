@@ -1,0 +1,17 @@
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<div id="ecsterpay-checkout-step-review" class="step-content review" data-role="content">
+<div class="ecsterpay-checkout-fieldset-title fieldset-title" data-bind="i18n: 'Summary'" data-role="title"></div>
+<div class="ecsterpay-checkout-cart-link">
+    <a data-bind="attr: {href: cartUrl}">
+        <span data-bind="i18n: 'Edit Cart'"></span>
+    </a>
+</div>
+    <!-- ko foreach: getRegion('summary') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+    <!--/ko-->
+</div>

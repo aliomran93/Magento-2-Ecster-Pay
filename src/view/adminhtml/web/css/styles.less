@@ -1,0 +1,40 @@
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+
+.complex.ecsterpay-section {
+  .button-container {
+    float: right;
+  }
+
+  .logo {
+    display: inline-block;
+    background: url('https://www.ecster.se/content/shared/images/logos/ecster_logo/png/180') 0 0 no-repeat;
+    width: 180px;
+    height: 45px
+  }
+
+  .section-title {
+    display: inline-block;
+    vertical-align: top;
+    height: 34px;
+    line-height: 34px;
+    margin-left: 20px;
+    font-size: 15px;
+  }
+}
+
+.section-config {
+  &.ecsterpay-section {
+    &.active > .admin__collapsible-block + input + fieldset {
+      margin-left: 40px;
+      width: 95.5%
+    }
+
+    &.with-button .config-heading strong {
+      font-weight: normal;
+      margin-bottom: 2rem;
+    }
+  }
+}

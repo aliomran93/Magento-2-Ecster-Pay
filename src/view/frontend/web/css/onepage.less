@@ -1,0 +1,222 @@
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+
+@checkoutThemeColor: #00ac79;
+
+.checkout-index-index {
+
+  .page-title-wrapper {
+    width: 100%;
+    border-bottom: 1px solid #dfdfdf;
+    line-height: initial;
+    height: 35px;
+    overflow: visible;
+    position: inherit;
+  }
+
+  .page-title-wrapper {
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 400;
+      color: @checkoutThemeColor;
+    }
+  }
+}
+
+.ecsterpay-checkout-container {
+
+  width: 100%;
+  margin-top: 20px;
+
+  .ecsterpay-checkout-wrapper {
+
+    .opc {
+
+      select,
+      input[type="text"],
+      input[type="password"],
+      input[type="url"],
+      input[type="tel"],
+      input[type="search"],
+      input[type="number"],
+      input[type="datetime"],
+      input[type="email"] {
+        width: 90%
+      }
+
+      .field {
+
+        margin-bottom: 5px;
+
+        .control {
+          &._with-tooltip input {
+            width: calc(90% - 36px);
+          }
+        }
+
+        .message.warning {
+          width: 74%;
+        }
+      }
+
+      .field-tooltip {
+        right: 45px;
+      }
+
+      .step-title {
+        font-weight: 400;
+        font-size: 24px;
+        border-bottom: 3px solid @checkoutThemeColor;
+        width: 92%;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .ecsterpay-checkout-payment-step-title {
+        width: 100%;
+      }
+
+      .ecsterpay-checkout-left {
+        width: 33%;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .ecsterpay-checkout-right {
+        width: 66%;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .step-content {
+
+        border: 1px solid #cccccc;
+        border-radius: 10px;
+        padding: 20px;
+        width: 92%;
+        box-sizing: border-box;
+
+        .fieldset-title {
+          display: inline-block;
+          width: 50%;
+          padding-bottom: 10px;
+          font-weight: 700;
+        }
+
+        .ecsterpay-checkout-cart-link {
+
+          display: inline-block;
+          width: 48%;
+          text-align: right;
+
+          a {
+            font-size: 12px;
+          }
+        }
+
+        &.shipping-method {
+
+          margin-top: 20px;
+
+          .table-checkout-shipping-method {
+            min-width: initial;
+            width: 100%;
+          }
+        }
+
+        &.purchase-type {
+
+          margin-top: 20px;
+
+        }
+
+        &.discount {
+
+          margin-top: 20px;
+
+          button.action-apply {
+            width: 100px;
+            margin-top: 10px;
+          }
+
+          button.action-cancel {
+            width: 100px;
+            margin-top: 10px;
+          }
+
+          .messages {
+            width: 90%;
+            padding-top: 10px;
+          }
+        }
+
+        &.review {
+          margin-top: 20px;
+        }
+
+        &.payment {
+          width: 100%;
+          border: none;
+          padding: 0;
+        }
+
+        .minicart-items {
+
+          .ecster-checkout-opc-product-details {
+            padding-bottom: 0;
+          }
+
+          .minicart-items-wrapper {
+
+            border-bottom: none;
+            margin: 0;
+          }
+
+          .product-item-details {
+
+            .product-item-name-block {
+
+              .options {
+                margin-left: 10px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+
+  .ecsterpay-checkout-container {
+
+    .ecsterpay-checkout-wrapper {
+
+      .opc {
+
+        select,
+        input[type="text"],
+        input[type="password"],
+        input[type="url"],
+        input[type="tel"],
+        input[type="search"],
+        input[type="number"],
+        input[type="datetime"],
+        input[type="email"] {
+          width: 100%;
+        }
+
+        .ecsterpay-checkout-left,
+        .ecsterpay-checkout-right,
+        .step-title,
+        .step-content {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

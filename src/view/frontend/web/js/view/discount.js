@@ -1,0 +1,66 @@
+/**
+ * Copyright © Evalent Group AB, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+define(
+    [
+        'jquery',
+        'ko',
+        'uiComponent',
+        'Evalent_EcsterPay/js/model/quote',
+        'Evalent_EcsterPay/js/action/apply-discount',
+        'Evalent_EcsterPay/js/action/cancel-discount',
+        'Evalent_EcsterPay/js/model/discount'
+    ],
+    function (
+        $,
+        ko,
+        Component,
+        quote,
+        setCouponCodeAction,
+        cancelCouponAction
+    ) {
+
+        'use strict';
+
+        var totals = quote.getTotals();
+        var couponCode = ko.observable(null);
+
+        if (totals()) {
+            couponCode(totals()['coupon_code']);
+        }
+
+        var isApplied = ko.observable(couponCode() != null);
+        var isLoading = ko.observable(false);
+
+        return Component.extend({
+            defaults: {
+                template: 'Evalent_EcsterPay/discount'
+            },
+            couponCode: couponCode,
+            isApplied: isApplied,
+            isLoading: isLoading,
+
+            apply: function () {
+                if (this.validate()) {
+                    isLoading(true);
+                    setCouponCodeAction(couponCode(), isApplied, isLoading);
+                }
+            },
+
+            cancel: function () {
+                if (this.validate()) {
+                    isLoading(true);
+                    couponCode('');
+                    cancelCouponAction(isApplied, isLoading);
+                }
+            },
+
+            validate: function () {
+                var form = '#discount-form';
+                return $(form).validation() && $(form).validation('isValid');
+            }
+
+        });
+    }
+);

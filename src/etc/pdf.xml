@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Copyright © Evalent Group AB, Inc. All rights reserved.
+* See COPYING.txt for license details.
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/pdf_file.xsd">
+    <totals>
+        <total name="ecster_extra_fee">
+            <title translate="true">Extra Fee</title>
+            <source_field>ecster_extra_fee</source_field>
+            <model>Evalent\EcsterPay\Model\Sales\Order\Pdf\Total\ExtraFee</model>
+            <font_size>7</font_size>
+            <display_zero>false</display_zero>
+            <sort_order>160</sort_order>
+        </total>
+    </totals>
+</config>
+
