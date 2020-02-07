@@ -28,11 +28,49 @@ use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 
 class Index extends CheckoutIndex
 {
-    protected $resultForwardFactory;
-    protected $_checkoutSession;
-    protected $_helper;
-    protected $_ecsterApi;
 
+    /**
+     * @var \Magento\Framework\Controller\Result\ForwardFactory
+     */
+    protected $resultForwardFactory;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $ecsterPayHelper;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\Api\Ecster
+     */
+    protected $ecsterApi;
+
+    /**
+     * Index constructor.
+     *
+     * @param \Magento\Framework\App\Action\Context               $context
+     * @param \Magento\Customer\Model\Session                     $customerSession
+     * @param \Magento\Checkout\Model\Session                     $checkoutSession
+     * @param \Magento\Customer\Api\CustomerRepositoryInterface   $customerRepository
+     * @param \Magento\Customer\Api\AccountManagementInterface    $accountManagement
+     * @param \Magento\Framework\Registry                         $coreRegistry
+     * @param \Magento\Framework\Translate\InlineInterface        $translateInline
+     * @param \Magento\Framework\Data\Form\FormKey\Validator      $formKeyValidator
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface  $scopeConfig
+     * @param \Magento\Framework\View\LayoutFactory               $layoutFactory
+     * @param \Magento\Quote\Api\CartRepositoryInterface          $quoteRepository
+     * @param \Magento\Framework\View\Result\PageFactory          $resultPageFactory
+     * @param \Magento\Framework\View\Result\LayoutFactory        $resultLayoutFactory
+     * @param \Magento\Framework\Controller\Result\RawFactory     $resultRawFactory
+     * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
+     * @param \Magento\Framework\Controller\Result\ForwardFactory $resultForwardFactory
+     * @param \Evalent\EcsterPay\Helper\Data                      $helper
+     * @param \Evalent\EcsterPay\Model\Api\Ecster                 $ecsterApi
+     */
     public function __construct(
         Context $context,
         CustomerSession $customerSession,
@@ -70,15 +108,15 @@ class Index extends CheckoutIndex
             $resultJsonFactory
         );
 
-        $this->_helper = $helper;
-        $this->_ecsterApi = $ecsterApi;
-        $this->_checkoutSession = $checkoutSession;
+        $this->ecsterPayHelper = $helper;
+        $this->ecsterApi = $ecsterApi;
+        $this->checkoutSession = $checkoutSession;
         $this->resultForwardFactory = $resultForwardFactory;
     }
 
     protected function getQuote()
     {
-        return $this->_checkoutSession->getQuote();
+        return $this->checkoutSession->getQuote();
     }
 
     protected function getStoreId()
@@ -99,7 +137,7 @@ class Index extends CheckoutIndex
     {
         if (!$this->getQuote()->getIsVirtual()
             && (is_null($this->getAddress()->getCountryId())
-                || (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() == $this->_helper->getDefaultCountry($this->getStoreId())))
+                || (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() == $this->ecsterPayHelper->getDefaultCountry($this->getStoreId())))
             && is_null($this->getQuote()->getData('ecster_cart_key'))) {
 
             $this->getAddress()->setCollectShippingRates(true);
@@ -122,45 +160,45 @@ class Index extends CheckoutIndex
             return $resultPage;
         }
 
-        if ($this->_helper->isEnabled($this->getQuote()->getStore()->getStoreId())) {
+        if ($this->ecsterPayHelper->isEnabled($this->getQuote()->getStore()->getStoreId())) {
             try {
                 $storeId = $this->getStoreId();
 
-                if (is_null($this->_helper->getTermsPageContent($storeId))) {
-                    throw new \Exception($this->_helper->getNotDefinedTermsPageContentNotification());
+                if (is_null($this->ecsterPayHelper->getTermsPageContent($storeId))) {
+                    throw new \Exception($this->ecsterPayHelper->getNotDefinedTermsPageContentNotification());
                 }
 
-                if ((count($this->_helper->getAllowedCountries($storeId)) > 0
+                if ((count($this->ecsterPayHelper->getAllowedCountries($storeId)) > 0
                     && !in_array(
-                        $this->_helper->getDefaultCountry($storeId),
-                        $this->_helper->getAllowedCountries($storeId)
+                        $this->ecsterPayHelper->getDefaultCountry($storeId),
+                        $this->ecsterPayHelper->getAllowedCountries($storeId)
                     ))) {
                     throw new \Exception(__(
                         "Ecster Checkout payment method does not support this country, %1.",
-                        $this->_helper->getCountryName($this->_helper->getDefaultCountry($storeId))
+                        $this->ecsterPayHelper->getCountryName($this->ecsterPayHelper->getDefaultCountry($storeId))
                     ));
                 }
 
                 if ((!is_null($this->getAddress()->getCountryId())
                     && !is_null($this->getAddress()->getCustomerId())
-                    && count($this->_helper->getAllowedCountries($storeId)) > 0
-                    && !in_array($this->getAddress()->getCountryId(), $this->_helper->getAllowedCountries($storeId)))) {
+                    && count($this->ecsterPayHelper->getAllowedCountries($storeId)) > 0
+                    && !in_array($this->getAddress()->getCountryId(), $this->ecsterPayHelper->getAllowedCountries($storeId)))) {
                     throw new \Exception(__("Ecster Checkout payment method does not support this country, %1. Please change your default %2 country.",
-                        $this->_helper->getCountryName($this->getAddress()->getCountryId()),
+                        $this->ecsterPayHelper->getCountryName($this->getAddress()->getCountryId()),
                         ($this->getQuote()->getIsVirtual() ? 'billing' : 'shipping')));
                 }
 
                 if (is_null($this->getAddress()->getCountryId())) {
                     if (!$this->getQuote()->getIsVirtual()) {
-                        $this->getQuote()->getShippingAddress()->setCountryId($this->_helper->getDefaultCountry($this->getQuote()->getStore()->getStoreId()))->save();
+                        $this->getQuote()->getShippingAddress()->setCountryId($this->ecsterPayHelper->getDefaultCountry($this->getQuote()->getStore()->getStoreId()))->save();
                     }
-                    $this->getQuote()->getBillingAddress()->setCountryId($this->_helper->getDefaultCountry($this->getQuote()->getStore()->getStoreId()))->save();
+                    $this->getQuote()->getBillingAddress()->setCountryId($this->ecsterPayHelper->getDefaultCountry($this->getQuote()->getStore()->getStoreId()))->save();
                 }
 
                 if (!$this->isShippingMethods()) {
                     throw new \Exception(__(
                         "We could not find a valid delivery method for %1. Please contact the site administration.",
-                        $this->_helper->getCountryName(!is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->_helper->getDefaultCountry($storeId))
+                        $this->ecsterPayHelper->getCountryName(!is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->ecsterPayHelper->getDefaultCountry($storeId))
                     ));
                 }
 
@@ -174,11 +212,11 @@ class Index extends CheckoutIndex
 //                }
 
                 if (is_null($this->getQuote()->getData('ecster_cart_key'))) {
-                    if ($ecsterCartKey = $this->_ecsterApi->initCart($this->getQuote())) {
+                    if ($ecsterCartKey = $this->ecsterApi->initCart($this->getQuote())) {
                         $this->getQuote()->setData('ecster_cart_key', $ecsterCartKey)->save();
                     }
                 } else {
-                    if ($ecsterCartKey = $this->_ecsterApi->updateCart($this->getQuote())) {
+                    if ($ecsterCartKey = $this->ecsterApi->updateCart($this->getQuote())) {
                         $this->getQuote()->setData('ecster_cart_key', $ecsterCartKey)->save();
                     }
                 }

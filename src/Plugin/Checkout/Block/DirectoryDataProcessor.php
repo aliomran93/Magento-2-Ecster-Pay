@@ -14,28 +14,38 @@ use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 
 class DirectoryDataProcessor
 {
-    protected $_helper;
+
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $ecsterpayHelper;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
 
     public function __construct(
-        \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollection,
-        \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $regionCollection,
         StoreResolverInterface $storeResolver,
         DirectoryHelper $directoryHelper,
         CheckoutSession $checkoutSession,
         EcsterPayHelper $ecsterpayHelper,
         StoreManagerInterface $storeManager = null
     ) {
-        $this->countryCollectionFactory = $countryCollection;
-        $this->regionCollectionFactory = $regionCollection;
         $this->directoryHelper = $directoryHelper;
-        $this->_checkoutSession = $checkoutSession;
         $this->storeManager = $storeManager ?: ObjectManager::getInstance()->get(StoreManagerInterface::class);
-        $this->_helper = $ecsterpayHelper;
+        $this->ecsterpayHelper = $ecsterpayHelper;
+        $this->checkoutSession = $checkoutSession;
     }
 
     protected function getQuote()
     {
-        return $this->_checkoutSession->getQuote();
+        return $this->checkoutSession->getQuote();
     }
 
     protected function getAddress()
@@ -51,14 +61,14 @@ class DirectoryDataProcessor
         \Magento\Checkout\Block\Checkout\DirectoryDataProcessor $subject,
         array $jsLayout
     ) {
-        if ($this->_helper->isEnabled()) {
+        if ($this->ecsterpayHelper->isEnabled()) {
             if (isset($jsLayout['components']['checkoutProvider']['dictionaries']['country_id'])) {
                 $countryList = [];
-                $selectedCountries = $this->_helper->getAllowedCountries($this->storeManager->getStore()->getId());
+                $selectedCountries = $this->ecsterpayHelper->getAllowedCountries($this->storeManager->getStore()->getId());
                 foreach ($jsLayout['components']['checkoutProvider']['dictionaries']['country_id'] as &$country) {
                     if ((count($selectedCountries) < 1 || in_array($country['value'], $selectedCountries))
                         && $country['value'] != '') {
-                        if ($country['value'] == !is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->_helper->getDefaultCountry()) {
+                        if ($country['value'] == !is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->ecsterpayHelper->getDefaultCountry()) {
                             $country["is_default"] = true;
                         }
                         $countryList[] = $country;

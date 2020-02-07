@@ -14,18 +14,37 @@ use Magento\Ui\Component\Form\Element\Multiline;
 
 class DefaultConfigProvider
 {
-    protected $_helper;
-    protected $_checkoutSession;
-    protected $_addressMetadata;
 
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $ecsterpayHelper;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var \Magento\Customer\Api\AddressMetadataInterface
+     */
+    protected $addressMetadata;
+
+    /**
+     * DefaultConfigProvider constructor.
+     *
+     * @param \Magento\Checkout\Model\Session                $checkoutSession
+     * @param \Evalent\EcsterPay\Helper\Data                 $ecsterpayHelper
+     * @param \Magento\Customer\Api\AddressMetadataInterface $addressMetadata
+     */
     public function __construct(
         CheckoutSession $checkoutSession,
         EcsterPayHelper $ecsterpayHelper,
         AddressMetadataInterface $addressMetadata
     ) {
-        $this->_helper = $ecsterpayHelper;
-        $this->_checkoutSession = $checkoutSession;
-        $this->_addressMetadata = $addressMetadata;
+        $this->ecsterpayHelper = $ecsterpayHelper;
+        $this->checkoutSession = $checkoutSession;
+        $this->addressMetadata = $addressMetadata;
     }
 
     protected function getAddress($quote)
@@ -41,30 +60,30 @@ class DefaultConfigProvider
         \Magento\Checkout\Model\DefaultConfigProvider $subject,
         $result
     ) {
-        if ($this->_helper->isEnabled()
+        if ($this->ecsterpayHelper->isEnabled()
             && empty($result['shippingAddressFromData'])) {
-            $quote = $this->_checkoutSession->getQuote();
+            $quote = $this->checkoutSession->getQuote();
 
             if (is_null($this->getAddress($quote)->getCountryId())) {
                 $quote->getShippingAddress()
-                    ->setCountryId($this->_helper->getDefaultCountry($quote->getStoreId()))
+                    ->setCountryId($this->ecsterpayHelper->getDefaultCountry($quote->getStoreId()))
                     ->save();
 
                 $quote->getBillingAddress()
-                    ->setCountryId($this->_helper->getDefaultCountry($quote->getStoreId()))
+                    ->setCountryId($this->ecsterpayHelper->getDefaultCountry($quote->getStoreId()))
                     ->save();
             }
 
-            $result['shippingAddressFromData'] = $this->_getAddressFromData($quote->getShippingAddress());
+            $result['shippingAddressFromData'] = $this->getAddressFromData($quote->getShippingAddress());
         }
 
         return $result;
     }
 
-    protected function _getAddressFromData(AddressInterface $address)
+    protected function getAddressFromData(AddressInterface $address)
     {
         $addressData = [];
-        $attributesMetadata = $this->_addressMetadata->getAllAttributesMetadata();
+        $attributesMetadata = $this->addressMetadata->getAllAttributesMetadata();
         foreach ($attributesMetadata as $attributeMetadata) {
             if (!$attributeMetadata->isVisible()) {
                 continue;

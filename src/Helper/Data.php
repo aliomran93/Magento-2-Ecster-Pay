@@ -230,7 +230,6 @@ class Data extends PaymentHelper
             $ecsterApiClient = new \GuzzleHttp\Client(
                 ['base_uri' => $baseUri]
             );
-
             $response = $ecsterApiClient->request(
                 $method,
                 $url,
