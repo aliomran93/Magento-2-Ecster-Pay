@@ -23,7 +23,7 @@ class Block implements OptionSourceInterface
     public function toOptionArray()
     {
         if (!$this->options) {
-            $this->options = $this->collectionFactory->create()->toOptionIdArray();
+            $this->options =  $this->toOptionIdArray($this->collectionFactory->create());
         }
 
         $options = [['value' => '', 'label' => __('-- Please Select --')]];
@@ -32,5 +32,36 @@ class Block implements OptionSourceInterface
         }
 
         return $options;
+    }
+
+    /**
+     * Returns pairs identifier - title for unique identifiers
+     * and pairs identifier|entity_id - title for non-unique after first
+     *
+     * @param \Magento\Cms\Model\ResourceModel\Block\Collection $collection
+     *
+     * @return array
+     */
+    private function toOptionIdArray($collection)
+    {
+        $res = [];
+        $existingIdentifiers = [];
+        /** @var \Magento\Cms\Api\Data\BlockInterface $item */
+        foreach ($collection as $item) {
+            $identifier = $item->getData('identifier');
+
+            $data['value'] = $identifier;
+            $data['label'] = $item->getData('title');
+
+            if (in_array($identifier, $existingIdentifiers)) {
+                $data['value'] .= '|' . $item->getData($collection->getIdFieldName());
+            } else {
+                $existingIdentifiers[] = $identifier;
+            }
+
+            $res[] = $data;
+        }
+
+        return $res;
     }
 }
