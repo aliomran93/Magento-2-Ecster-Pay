@@ -5,7 +5,20 @@
  */
 namespace Evalent\EcsterPay\Override\Checkout\Model;
 
+use Exception;
+use Magento\Checkout\Api\Data\PaymentDetailsExtensionInterfaceFactory;
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+use Magento\Checkout\Model\PaymentDetailsFactory;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Api\Data\CartExtensionFactory;
+use Magento\Quote\Api\PaymentMethodManagementInterface;
+use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\QuoteAddressValidator;
 use Magento\Quote\Model\QuoteRepository;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
@@ -34,36 +47,42 @@ class ShippingInformationManagement extends \Magento\Checkout\Model\ShippingInfo
     private $ecsterpayHelper;
 
     /**
+     * @var \Magento\Checkout\Api\Data\PaymentDetailsExtensionInterfaceFactory
+     */
+    private $paymentDetailsExtensionInterfaceFactory;
+
+    /**
      * ShippingInformationManagement constructor.
      *
-     * @param \Magento\Quote\Model\QuoteRepository                             $quoteRepository
-     * @param \Evalent\EcsterPay\Model\Api\Ecster                              $ecsterApi
-     * @param \Evalent\EcsterPay\Helper\Data                                   $ecsterpayHelper
-     * @param \Magento\Checkout\Model\PaymentDetailsFactory                     $paymentMethodManagement
-     * @param \Evalent\EcsterPay\Override\Checkout\Model\PaymentDetailsFactory $paymentDetailsFactory
-     * @param \Magento\Quote\Api\CartTotalRepositoryInterface                  $cartTotalsRepository
-     * @param \Magento\Quote\Api\CartRepositoryInterface                       $quoteRepository
-     * @param \Magento\Quote\Model\QuoteAddressValidator                       $addressValidator
-     * @param \Psr\Log\LoggerInterface                                         $logger
-     * @param \Magento\Customer\Api\AddressRepositoryInterface                 $addressRepository
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface               $scopeConfig
-     * @param \Magento\Quote\Model\Quote\TotalsCollector                       $totalsCollector
-     * @param \Magento\Quote\Api\Data\CartExtensionFactory|null                $cartExtensionFactory
-     * @param \Magento\Quote\Model\ShippingAssignmentFactory|null              $shippingAssignmentFactory
-     * @param \Magento\Quote\Model\ShippingFactory|null                        $shippingFactory
+     * @param \Evalent\EcsterPay\Model\Api\Ecster                                $ecsterApi
+     * @param \Evalent\EcsterPay\Helper\Data                                     $ecsterpayHelper
+     * @param \Magento\Quote\Api\PaymentMethodManagementInterface                $paymentMethodManagement
+     * @param \Magento\Checkout\Model\PaymentDetailsFactory                      $paymentDetailsFactory
+     * @param \Magento\Quote\Api\CartTotalRepositoryInterface                    $cartTotalsRepository
+     * @param \Magento\Quote\Api\CartRepositoryInterface                         $quoteRepository
+     * @param \Magento\Quote\Model\QuoteAddressValidator                         $addressValidator
+     * @param \Magento\Checkout\Api\Data\PaymentDetailsExtensionInterfaceFactory $paymentDetailsExtensionInterfaceFactory
+     * @param \Psr\Log\LoggerInterface                                           $logger
+     * @param \Magento\Customer\Api\AddressRepositoryInterface                   $addressRepository
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface                 $scopeConfig
+     * @param \Magento\Quote\Model\Quote\TotalsCollector                         $totalsCollector
+     * @param \Magento\Quote\Api\Data\CartExtensionFactory|null                  $cartExtensionFactory
+     * @param \Magento\Quote\Model\ShippingAssignmentFactory|null                $shippingAssignmentFactory
+     * @param \Magento\Quote\Model\ShippingFactory|null                          $shippingFactory
      */
     public function __construct(
         EcsterApi $ecsterApi,
         EcsterPayHelper $ecsterpayHelper,
-        \Magento\Quote\Api\PaymentMethodManagementInterface $paymentMethodManagement,
-        \Magento\Checkout\Model\PaymentDetailsFactory $paymentDetailsFactory,
-        \Magento\Quote\Api\CartTotalRepositoryInterface $cartTotalsRepository,
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        PaymentMethodManagementInterface $paymentMethodManagement,
+        PaymentDetailsFactory $paymentDetailsFactory,
+        CartTotalRepositoryInterface $cartTotalsRepository,
+        CartRepositoryInterface $quoteRepository,
         QuoteAddressValidator $addressValidator,
+        PaymentDetailsExtensionInterfaceFactory $paymentDetailsExtensionInterfaceFactory,
         Logger $logger,
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
+        AddressRepositoryInterface $addressRepository,
+        ScopeConfigInterface $scopeConfig,
+        TotalsCollector $totalsCollector,
         CartExtensionFactory $cartExtensionFactory = null,
         ShippingAssignmentFactory $shippingAssignmentFactory = null,
         ShippingFactory $shippingFactory = null
@@ -76,15 +95,17 @@ class ShippingInformationManagement extends \Magento\Checkout\Model\ShippingInfo
         $this->quoteRepository = $quoteRepository;
         $this->ecsterApi = $ecsterApi;
         $this->ecsterpayHelper = $ecsterpayHelper;
+        $this->paymentDetailsExtensionInterfaceFactory = $paymentDetailsExtensionInterfaceFactory;
     }
 
     public function saveAddressInformation(
         $cartId,
-        \Magento\Checkout\Api\Data\ShippingInformationInterface $addressInformation
+        ShippingInformationInterface $addressInformation
     ) {
         if (!$this->ecsterpayHelper->isEnabled()) {
             return parent::saveAddressInformation($cartId,$addressInformation);
         }
+        /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
 
         try {
@@ -129,70 +150,66 @@ class ShippingInformationManagement extends \Magento\Checkout\Model\ShippingInfo
                 }
             }
 
-            if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
-                $cartExtension = $result->getExtensionAttributes();
-                $quote->setData('ecster_cart_key', $ecsterCartKey)->save();
-                $cartExtension->setEcsterCartKey($ecsterCartKey);
-                $result->setExtensionAttributes($cartExtension);
-            }
+            $result= $this->setEcsterKey($result, $quote);
 
             return $result;
 
-        } catch (\Magento\Framework\Exception\StateException $e) {
+        } catch (StateException $e) {
             $paymentDetails = $this->paymentDetailsFactory->create();
             $paymentDetails->setPaymentMethods($this->paymentMethodManagement->getList($cartId));
             $paymentDetails->setTotals($this->cartTotalsRepository->get($cartId));
 
-            if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
-                $cartExtension = $paymentDetails->getExtensionAttributes();
-                $quote->setData('ecster_cart_key', $ecsterCartKey)->save();
-                $cartExtension->setEcsterCartKey($ecsterCartKey);
-                $paymentDetails->setExtensionAttributes($cartExtension);
-            }
+            $paymentDetails= $this->setEcsterKey($paymentDetails, $quote);
 
             return $paymentDetails;
 
-        } catch (\Magento\Framework\Exception\InputException $e) {
+        } catch (InputException $e) {
             $paymentDetails = $this->paymentDetailsFactory->create();
             $paymentDetails->setPaymentMethods($this->paymentMethodManagement->getList($cartId));
             $paymentDetails->setTotals($this->cartTotalsRepository->get($cartId));
 
-            if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
-                $cartExtension = $paymentDetails->getExtensionAttributes();
-                $quote->setData('ecster_cart_key', $ecsterCartKey)->save();
-                $cartExtension->setEcsterCartKey($ecsterCartKey);
-                $paymentDetails->setExtensionAttributes($cartExtension);
-            }
+            $paymentDetails= $this->setEcsterKey($paymentDetails, $quote);
 
             return $paymentDetails;
 
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+        } catch (NoSuchEntityException $e) {
             $paymentDetails = $this->paymentDetailsFactory->create();
             $paymentDetails->setPaymentMethods($this->paymentMethodManagement->getList($cartId));
             $paymentDetails->setTotals($this->cartTotalsRepository->get($cartId));
 
-            if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
-                $cartExtension = $paymentDetails->getExtensionAttributes();
-                $quote->setData('ecster_cart_key', $ecsterCartKey)->save();
-                $cartExtension->setEcsterCartKey($ecsterCartKey);
-                $paymentDetails->setExtensionAttributes($cartExtension);
-            }
+            $paymentDetails= $this->setEcsterKey($paymentDetails, $quote);
 
             return $paymentDetails;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $paymentDetails = $this->paymentDetailsFactory->create();
             $paymentDetails->setPaymentMethods($this->paymentMethodManagement->getList($cartId));
             $paymentDetails->setTotals($this->cartTotalsRepository->get($cartId));
 
-            if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
-                $cartExtension = $paymentDetails->getExtensionAttributes();
-                $quote->setData('ecster_cart_key', $ecsterCartKey)->save();
-                $cartExtension->setEcsterCartKey($ecsterCartKey);
-                $paymentDetails->setExtensionAttributes($cartExtension);
-            }
+            $paymentDetails = $this->setEcsterKey($paymentDetails, $quote);
 
             return $paymentDetails;
         }
+    }
+
+    /**
+     * @param \Magento\Checkout\Api\Data\PaymentDetailsInterface $paymentDetails
+     * @param \Magento\Quote\Model\Quote             $quote
+     *
+     * @return mixed
+     */
+    private function setEcsterKey($paymentDetails, $quote)
+    {
+        if ($ecsterCartKey = $this->ecsterApi->cartProcess($quote)) {
+            $cartExtension = $paymentDetails->getExtensionAttributes();
+            if ($cartExtension == null) {
+                $cartExtension = $this->paymentDetailsExtensionInterfaceFactory->create();
+            }
+            $quote->setData('ecster_cart_key', $ecsterCartKey);
+            $this->quoteRepository->save($quote);
+            $cartExtension->setEcsterCartKey($ecsterCartKey);
+            $paymentDetails->setExtensionAttributes($cartExtension);
+        }
+        return $paymentDetails;
     }
 }
