@@ -5,13 +5,11 @@
  */
 namespace Evalent\EcsterPay\Controller\Adminhtml\Order\Creditmemo;
 
-use Magento\Framework\App\Action\HttpGetActionInterface as HttpGetActionInterface;
-
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 
-class Start extends \Magento\Backend\App\Action implements HttpGetActionInterface
+class Start extends \Magento\Backend\App\Action
 {
     protected $_resultPageFactory;
 
