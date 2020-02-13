@@ -14,9 +14,7 @@
         <referenceBlock name="sales_order_tabs">
             <action method="addTab">
                 <argument name="name" xsi:type="string">Ecster Transaction History</argument>
-                <argument name="block" xsi:type="string">
-                    Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Tab\TransactionHistory
-                </argument>
+                <argument name="block" xsi:type="string">Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Tab\TransactionHistory</argument>
             </action>
         </referenceBlock>
     </body>
