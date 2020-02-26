@@ -14,7 +14,7 @@ use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 
 class Grid extends Extended
 {
-    protected $_request;
+    protected $request;
     protected $_collectionFactory;
     protected $_pageLayoutBuilder;
 
@@ -26,7 +26,7 @@ class Grid extends Extended
         BuilderInterface $pageLayoutBuilder,
         array $data = []
     ) {
-        $this->_request = $request;
+        $this->request = $request;
         $this->_collectionFactory = $collectionFactory;
         $this->_pageLayoutBuilder = $pageLayoutBuilder;
         parent::__construct($context, $backendHelper, $data);
@@ -45,7 +45,7 @@ class Grid extends Extended
         $collection = $this->_collectionFactory->create();
         $collection->addFieldToFilter('main_table.ecster_creditmemo_status', ['in' => ['new', 'partial']]);
 
-        if ($orderId = $this->_request->getParam('order_id')) {
+        if ($orderId = $this->request->getParam('order_id')) {
             $collection->addFieldToFilter('main_table.order_id', $orderId);
         }
 

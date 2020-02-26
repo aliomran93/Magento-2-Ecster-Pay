@@ -12,8 +12,8 @@ use Magento\Tax\Model\Config;
 class ExtraFee extends Template
 {
     protected $_config;
-    protected $_order;
-    protected $_source;
+    protected $order;
+    protected $source;
 
     public function __construct(
         Context $context,
@@ -24,10 +24,6 @@ class ExtraFee extends Template
         parent::__construct($context, $data);
     }
 
-    public function displayFullSummary()
-    {
-        return true;
-    }
 
     public function getLabelProperties()
     {
@@ -42,10 +38,10 @@ class ExtraFee extends Template
     public function initTotals()
     {
         $parent = $this->getParentBlock();
-        $this->_order = $parent->getOrder();
-        $this->_source = $parent->getSource();
+        $this->order = $parent->getOrder();
+        $this->source = $parent->getSource();
 
-        $ecsterExtraFeeVal = $this->_order->getEcsterExtraFee() - $this->_order->getEcsterExtraCreditmemoRemainFee();
+        $ecsterExtraFeeVal = $this->order->getEcsterExtraFee() - $this->order->getEcsterExtraCreditmemoRemainFee();
 
         if ($ecsterExtraFeeVal > 0) {
 
