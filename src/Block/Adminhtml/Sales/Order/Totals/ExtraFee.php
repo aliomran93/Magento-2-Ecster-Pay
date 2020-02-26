@@ -24,11 +24,6 @@ class ExtraFee extends Template
         parent::__construct($context, $data);
     }
 
-    public function displayFullSummary()
-    {
-        return true;
-    }
-
     public function getLabelProperties()
     {
         return $this->getParentBlock()->getLabelProperties();

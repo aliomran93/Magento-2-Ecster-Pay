@@ -27,4 +27,8 @@
         <plugin name="ecsterpay_checkout_config_provider"
                 type="Evalent\EcsterPay\Plugin\Checkout\Model\DefaultConfigProvider" sortOrder="10"/>
     </type>
+    <type name="Magento\Framework\View\Asset\Minification">
+        <plugin name="ecsterpay_minification_backwards_compatibility"
+                type="Evalent\EcsterPay\Plugin\Framework\View\Asset\Minification" sortOrder="10"/>
+    </type>
 </config>

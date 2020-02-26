@@ -7,7 +7,8 @@
     ],
     "require": {
       "magento/module-checkout": "100.*",
-      "guzzlehttp/guzzle": "~6.3"
+      "guzzlehttp/guzzle": "~6.3",
+      "ext-json": "*"
     },
     "autoload": {
       "files": [

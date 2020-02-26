@@ -40,13 +40,5 @@
                 <model>Evalent\EcsterPay\Model\Gateway</model>                                                                                                                                              
             </ecsterpay>            
         </payment>
-        <dev>
-            <js>
-                <minify_exclude>
-                    <ecsterpaytestjs>https://labs.ecster.se/pay/integration/ecster-pay-labs.js</ecsterpaytestjs>
-                    <ecsterpaylivejs>https://secure.ecster.se/pay/integration/ecster-pay.js</ecsterpaylivejs>
-                </minify_exclude>
-            </js>
-        </dev>        
     </default>
 </config>

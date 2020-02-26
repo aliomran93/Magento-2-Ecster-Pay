@@ -6,7 +6,6 @@
 namespace Evalent\EcsterPay\Controller\Checkout;
 
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\Action;
@@ -14,7 +13,7 @@ use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\SalesOrderStatusUpdate;
 use Psr\Log\LoggerInterface;
 
-class Opn extends Action implements CsrfAwareActionInterface
+class Opn extends Action
 {
     protected $_helper;
     protected $_orderStatusUpdate;

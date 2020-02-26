@@ -10,9 +10,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="evalent_ecsterpay_payment_configprovider" xsi:type="object">
-                    Evalent\EcsterPay\Model\PaymentConfigProvider
-                </item>
+                <item name="evalent_ecsterpay_payment_configprovider" xsi:type="object">Evalent\EcsterPay\Model\PaymentConfigProvider</item>
             </argument>
         </arguments>
     </type>

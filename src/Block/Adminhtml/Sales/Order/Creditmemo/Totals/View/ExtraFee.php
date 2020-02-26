@@ -10,8 +10,16 @@ use Magento\Tax\Model\Config;
 
 class ExtraFee extends \Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Creditmemo\Totals\ExtraFee
 {
-    protected $_order;
-    protected $_source;
+
+    /**
+     * @var
+     */
+    protected $order;
+
+    /**
+     * @var
+     */
+    protected $source;
 
     public function __construct(
         Context $context,
@@ -24,10 +32,11 @@ class ExtraFee extends \Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Creditmemo
     public function initTotals()
     {
         $parent = $this->getParentBlock();
-        $this->_order = $parent->getOrder();
-        $this->_source = $parent->getSource();
+        $this->order = $parent->getOrder();
+        echo get_class($this->order);exit;
+        $this->source = $parent->getSource();
 
-        $ecsterExtraFeeVal = $this->_source->getEcsterExtraFee();
+        $ecsterExtraFeeVal = $this->source->getEcsterExtraFee();
 
         if ($ecsterExtraFeeVal > 0) {
 

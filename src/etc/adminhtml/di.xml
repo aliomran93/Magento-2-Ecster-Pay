@@ -10,9 +10,7 @@
     <type name="Magento\Framework\Notification\MessageList">
         <arguments>
             <argument name="messages" xsi:type="array">
-                <item name="TermsUrlNotification" xsi:type="string">
-                    Evalent\EcsterPay\Model\System\Message\TermsUrlNotification
-                </item>
+                <item name="TermsUrlNotification" xsi:type="string">Evalent\EcsterPay\Model\System\Message\TermsUrlNotification</item>
             </argument>
         </arguments>
     </type>

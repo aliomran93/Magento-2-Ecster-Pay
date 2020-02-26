@@ -13,24 +13,37 @@ class LayoutProcessor
     const visibleAddressFields = ['country_id'];
     const visibleAddressFieldSortOrder = ['country_id' => 10];
 
-    protected $_helper;
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $ecsterHelper;
 
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
+    /**
+     * LayoutProcessor constructor.
+     *
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Evalent\EcsterPay\Helper\Data  $ecsterpayHelper
+     */
     public function __construct(
         CheckoutSession $checkoutSession,
         EcsterPayHelper $ecsterpayHelper
     ) {
-        $this->_checkoutSession = $checkoutSession;
-        $this->_helper = $ecsterpayHelper;
+        $this->ecsterHelper = $ecsterpayHelper;
+        $this->checkoutSession = $checkoutSession;
     }
 
     protected function getQuote()
     {
-        return $this->_checkoutSession->getQuote();
+        return $this->checkoutSession->getQuote();
     }
 
     protected function getAddress()
     {
-
         if ($this->getQuote()->getIsVirtual()) {
             return $this->getQuote()->getBillingAddress();
         }
@@ -43,9 +56,12 @@ class LayoutProcessor
         \Closure $proceed,
         array $jsLayout
     ) {
+        if (!$this->ecsterHelper->isEnabled()) {
+            return $proceed($jsLayout);
+        }
         $ret = $proceed($jsLayout);
 
-        if ($this->_helper->isEnabled()) {
+        if ($this->ecsterHelper->isEnabled()) {
             if (isset($ret['components']['checkout']['children']['steps']['children']['shipping-step']['children']
                 ['shippingAddress'])) {
                 $returnLayout = [];
@@ -55,7 +71,7 @@ class LayoutProcessor
 
                 foreach ($addressLayout as $key => $field) {
                     if ($key == 'country_id') {
-                        $field['value'] = !is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->_helper->getDefaultCountry();
+                        $field['value'] = !is_null($this->getAddress()->getCountryId()) ? $this->getAddress()->getCountryId() : $this->ecsterHelper->getDefaultCountry();
                     }
                     if (in_array($key, self::visibleAddressFields)) {
                         $returnLayout[$key] = $field;

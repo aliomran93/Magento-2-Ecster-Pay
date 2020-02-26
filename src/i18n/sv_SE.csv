@@ -1,80 +1,81 @@
-Action,Åtgärd,module,Evalent_EcsterPay
-Configure,Konfigurera,module,Evalent_EcsterPay
-Test mode,Testläge,module,Evalent_EcsterPay
-Debit,Debet,module,Evalent_EcsterPay
-Ecster Checkout / Shop Terms,Ecster Checkout / Köpvillkor,module,Evalent_EcsterPay
-Ecster Payment Type,Ecster betalsätt,module,Evalent_EcsterPay
-Invoice Fee,Fakturaavgift,module,Evalent_EcsterPay
-Payment,Betalning,module,Evalent_EcsterPay
 Invoice(s),Fakturor,module,Evalent_EcsterPay
-Order Canceled,Order avbruten,module,Evalent_EcsterPay
-Ecster Transaction ID,Ecster transaktions-id,module,Evalent_EcsterPay
-Your coupon was successfully applied,Din rabattkod lades till,module,Evalent_EcsterPay
-Credit Memo Remainin Amount,"Kreditmemo, återstående belopp",module,Evalent_EcsterPay
-You must define the Shopping Terms Url Content,Du måste ange url till köpvillkoren,module,Evalent_EcsterPay
-Ecster OPN: Can not be found any order by %1 ecster reference number.,Ecster OPN: kan inte hitta order med %1 Ecster referensnummer.,module,Evalent_EcsterPay
-Transaction for %1,Transaktion för %1,module,Evalent_EcsterPay
-OEN Update,OEN Uppdatering,module,Evalent_EcsterPay
-Ordered,Beställt,module,Evalent_EcsterPay
-Something went wrong. Try again and if the problem persists please contact the support for more information,"Någonting gick fel. Prova igen, om problemet kvarstår, kontakta supporten för mer information",module,Evalent_EcsterPay
-"Ecster Checkout payment method does not support this country, %1.","Ecster Checkout betalmetod stöder inte detta land, %1.",module,Evalent_EcsterPay
-Ecster Properties,Ecster egenskaper,module,Evalent_EcsterPay
-Order Total Incl. Tax,Ordersumma ink moms,module,Evalent_EcsterPay
+Discount,Rabatt,module,Evalent_EcsterPay
+Cancel,Avbryt,module,Evalent_EcsterPay
+Edit Cart,Ändra varukorgen,module,Evalent_EcsterPay
 Select Shipping Address,Välj leveransadress,module,Evalent_EcsterPay
-Invoice,Faktura,module,Evalent_EcsterPay
-"Ecster payment integration requires the definition of the contents of terms condition. You can define it by clicking the <a href=""%1"">link.</a>","Ecster betalintegration kräver att man definierar köpvillkort. Du kan definiera villkoren genom att klicka  <a href=""%1"">här.</a>",module,Evalent_EcsterPay
-Created Date,Skapad datum,module,Evalent_EcsterPay
-Excl. Tax,Ex moms,module,Evalent_EcsterPay
-Invoice Date,Fakturadatum,module,Evalent_EcsterPay
-Back,Tillbaka,module,Evalent_EcsterPay
-We could not find a valid delivery method for %1. Please contact the site administration.,Vi kunde inte hitta en lämplig fraktmetod för %1. Var god kontakta kundtjänst.,module,Evalent_EcsterPay
-Ecster Checkout: Shop Terms,Ecster Checkout: Köpvillkor,module,Evalent_EcsterPay
--- Please Select --,-- Välj --,module,Evalent_EcsterPay
-"Sorry, no quotes are available for this order at this time",Det finns ingen offert tillgänglig för tillfället,module,Evalent_EcsterPay
 Select Shipment Method,Välj fraktsätt,module,Evalent_EcsterPay
+View Details,Visa detaljer,module,Evalent_EcsterPay
+Qty,Antal,module,Evalent_EcsterPay
+Invoice Date,Fakturadatum,module,Evalent_EcsterPay
 Amount,Belopp,module,Evalent_EcsterPay
+Invoice,Faktura,module,Evalent_EcsterPay
+Extra Fee,Extra avgifter,module,Evalent_EcsterPay
+Select,Välj,module,Evalent_EcsterPay
+OEN Update,OEN Uppdatering,module,Evalent_EcsterPay
+EcsterPay Transaction History,Ecster Pay transaktionshistorik,module,Evalent_EcsterPay
+Back,Tillbaka,module,Evalent_EcsterPay
+Action,Åtgärd,module,Evalent_EcsterPay
+Credit Memo Status,"Kreditmemo, status",module,Evalent_EcsterPay
+Credit Memo Remainin Amount,"Kreditmemo, återstående belopp",module,Evalent_EcsterPay
+Ordered,Beställt,module,Evalent_EcsterPay
+Invoiced,Fakturerat,module,Evalent_EcsterPay
+Credited,Krediterat,module,Evalent_EcsterPay
+Order Canceled,Order avbruten,module,Evalent_EcsterPay
+Configure,Konfigurera,module,Evalent_EcsterPay
 Close,Stäng,module,Evalent_EcsterPay
+This is test mode!,Testläge,module,Evalent_EcsterPay
+Test mode,Testläge,module,Evalent_EcsterPay
+You must define the Shopping Terms Url Content,Du måste ange url till köpvillkoren,module,Evalent_EcsterPay
+Private,Privatperson,module,Evalent_EcsterPay
+Business,Företag,module,Evalent_EcsterPay
+Preselected Purchase Type,Förinställd köptyp,module,Evalent_EcsterPay
+Something went wrong. Try again and if the problem persists please contact the support for more information,"Någonting gick fel. Prova igen, om problemet kvarstår, kontakta supporten för mer information",module,Evalent_EcsterPay
+Debit,Debet,module,Evalent_EcsterPay
+Credit,Kredit,module,Evalent_EcsterPay
+Annul,Annulerad,module,Evalent_EcsterPay
+Learn More,Läs mer,module,Evalent_EcsterPay
+Ecster Checkout / Shop Terms,Ecster Checkout / Köpvillkor,module,Evalent_EcsterPay
+"Ecster Checkout payment method does not support this country, %1.","Ecster Checkout betalmetod stöder inte detta land, %1.",module,Evalent_EcsterPay
+"Ecster Checkout payment method does not support this country, %1. Please change your default %2 country.","Ecster Checkout betalmetod stöder inte detta land, %1. Ändra ditt förinställda %2 land. ",module,Evalent_EcsterPay
+We could not find a valid delivery method for %1. Please contact the site administration.,Vi kunde inte hitta en lämplig fraktmetod för %1. Var god kontakta kundtjänst.,module,Evalent_EcsterPay
 The Internal Reference does not match the Order Reference.,Den interna referensen matchar inte orderreferensen.,module,Evalent_EcsterPay
+Ecster Checkout: Shop Terms,Ecster Checkout: Köpvillkor,module,Evalent_EcsterPay
 You must define Shopping Terms Url Content,Du måste ange köpvillkorens url-innehåll,module,Evalent_EcsterPay
+Ecster Payment Type,Ecster betalsätt,module,Evalent_EcsterPay
+Ecster Transaction ID,Ecster transaktions-id,module,Evalent_EcsterPay
+Ecster OPN: Can not be found any order by %1 ecster reference number.,Ecster OPN: kan inte hitta order med %1 Ecster referensnummer.,module,Evalent_EcsterPay
+-- Please Select --,-- Välj --,module,Evalent_EcsterPay
+"Ecster payment integration requires the definition of the contents of terms condition. You can define it by clicking the <a href=""%1"">link.</a>","Ecster betalintegration kräver att man definierar köpvillkort. Du kan definiera villkoren genom att klicka  <a href=""%1"">här.</a>",module,Evalent_EcsterPay
+Invoice Fee,Fakturaavgift,module,Evalent_EcsterPay
+You can not refund shipping if there is no shipping amount.,Du kan inte återbetala frakt när fraktkostnad saknas.,module,Evalent_EcsterPay
+Transaction for %1,Transaktion för %1,module,Evalent_EcsterPay
+Ecster Reference,Ecster referens,module,Evalent_EcsterPay
 Ecster Extra Fee,Ecster extraavgift,module,Evalent_EcsterPay
+Ecster Properties,Ecster egenskaper,module,Evalent_EcsterPay
+Order Status,Orderstatus,module,Evalent_EcsterPay
+Created Date,Skapad datum,module,Evalent_EcsterPay
+Loading...,Laddar...,module,Evalent_EcsterPay
+Payment,Betalning,module,Evalent_EcsterPay
+Summary,Summering,module,Evalent_EcsterPay
+Your coupon was successfully applied,Din rabattkod lades till,module,Evalent_EcsterPay
+Coupon was removed successfully.,Din rabattkod togs bort,module,Evalent_EcsterPay
+"<div class=""logo""></div><div class=""section-title"">Your customers can make quick and easy order payments with Ecster Checkout.</div>","<div class=""logo""></div><div class=""section-title"">Dina kunder kan göra snabba och enkla betalningar med Ecster Checkout.</div>",module,Evalent_EcsterPay
 Shop Terms Page Content,Köpvillkorens sidinnehåll,module,Evalent_EcsterPay
+Minimum Order Total,Minsta ordervärde,module,Evalent_EcsterPay
+Maximum Order Total,Högsta ordervärde,module,Evalent_EcsterPay
 Default Settings,Standardinställningar,module,Evalent_EcsterPay
+Default Country,Standardland,module,Evalent_EcsterPay
 Apply,Tillämpa,module,Evalent_EcsterPay
 Review,Redigera,module,Evalent_EcsterPay
-Your credit card will be charged for,Ditt kreditkort kommer att debiteras,module,Evalent_EcsterPay
-Credited,Krediterat,module,Evalent_EcsterPay
-"Ecster Checkout payment method does not support this country, %1. Please change your default %2 country.","Ecster Checkout betalmetod stöder inte detta land, %1. Ändra ditt förinställda %2 land. ",module,Evalent_EcsterPay
-Incl. Tax,Ink moms,module,Evalent_EcsterPay
-Cancel,Avbryt,module,Evalent_EcsterPay
-View Details,Visa detaljer,module,Evalent_EcsterPay
-Private,Privat,module,Evalent_EcsterPay
-Business,Företag,module,Evalent_EcsterPay
-Annul,Annulerad,module,Evalent_EcsterPay
-Extra Fee,Extra avgifter,module,Evalent_EcsterPay
-EcsterPay Transaction History,Ecster Pay transaktionshistorik,module,Evalent_EcsterPay
-Loading...,Laddar...,module,Evalent_EcsterPay
-"<div class=""logo""></div><div class=""section-title"">Your customers can make quick and easy order payments with Ecster Checkout.</div>","<div class=""logo""></div><div class=""section-title"">Dina kunder kan göra snabba och enkla betalningar med Ecster Checkout.</div>",module,Evalent_EcsterPay
-Minimum Order Total,Minsta ordervärde,module,Evalent_EcsterPay
-Shipping,Frakt,module,Evalent_EcsterPay
-Invoiced,Fakturerat,module,Evalent_EcsterPay
-This is test mode!,Testläge,module,Evalent_EcsterPay
-Preselected Purchase Type,Förinställd köptyp,module,Evalent_EcsterPay
-Coupon was removed successfully.,Din rabattkod togs bort,module,Evalent_EcsterPay
-Discount,Rabatt,module,Evalent_EcsterPay
-Qty,Antal,module,Evalent_EcsterPay
-Tax,Moms,module,Evalent_EcsterPay
-Unable to update Ecster cart. Please contact the support,Kunde inte uppdatera Ecsters varukorg. Vg kontakta supporten,module,Evalent_EcsterPay
-Learn More,Läs mer,module,Evalent_EcsterPay
-You can not refund shipping if there is no shipping amount.,Du kan inte återbetala frakt när fraktkostnad saknas.,module,Evalent_EcsterPay
-Order Status,Orderstatus,module,Evalent_EcsterPay
-Maximum Order Total,Högsta ordervärde,module,Evalent_EcsterPay
-Order Total Excl. Tax,Ordersumma ex moms,module,Evalent_EcsterPay
-Select,Välj,module,Evalent_EcsterPay
-Credit Memo Status,"Kreditmemo, status",module,Evalent_EcsterPay
-Default Country,Standardland,module,Evalent_EcsterPay
-Summary,Summering,module,Evalent_EcsterPay
+"Sorry, no quotes are available for this order at this time",Det finns ingen offert tillgänglig för tillfället,module,Evalent_EcsterPay
 Options Details,"Alternativ, detaljer",module,Evalent_EcsterPay
+Excl. Tax,Ex moms,module,Evalent_EcsterPay
+Incl. Tax,Ink moms,module,Evalent_EcsterPay
+Shipping,Frakt,module,Evalent_EcsterPay
 Not yet calculated,Ej beräknat än,module,Evalent_EcsterPay
-Edit Cart,Ändra varukorgen,module,Evalent_EcsterPay
-Credit,Kredit,module,Evalent_EcsterPay
-Ecster Reference,Ecster referens,module,Evalent_EcsterPay
+Tax,Moms,module,Evalent_EcsterPay
+Order Total Excl. Tax,Ordersumma ex moms,module,Evalent_EcsterPay
+Order Total Incl. Tax,Ordersumma ink moms,module,Evalent_EcsterPay
+Your credit card will be charged for,Ditt kreditkort kommer att debiteras,module,Evalent_EcsterPay
+Unable to update Ecster cart. Please contact the support,Kunde inte uppdatera Ecsters varukorg. Vg kontakta supporten,module,Evalent_EcsterPay
+Shop as,Handla som,module,Evalent_EcsterPay
