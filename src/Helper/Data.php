@@ -21,10 +21,29 @@ use Evalent\EcsterPay\Model\TransactionHistoryFactory;
 
 class Data extends PaymentHelper
 {
-    protected $_storeManager;
-    protected $_scopeConfig;
-    protected $_country;
-    protected $_transactionHistoryFactory;
+
+    const XML_PATH_ECSTER_PAYMENT_METHODS = 'payment/ecsterpay/';
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var \Magento\Directory\Model\Country
+     */
+    protected $country;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\TransactionHistoryFactory
+     */
+    protected $transactionHistoryFactory;
+
 
     public function __construct(
         Context $context,
@@ -38,10 +57,10 @@ class Data extends PaymentHelper
         Country $country,
         TransactionHistoryFactory $transactionHistoryFactory
     ) {
-        $this->_storeManager = $storeManager;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_country = $country;
-        $this->_transactionHistoryFactory = $transactionHistoryFactory;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->country = $country;
+        $this->transactionHistoryFactory = $transactionHistoryFactory;
 
         parent::__construct(
             $context,
@@ -63,64 +82,147 @@ class Data extends PaymentHelper
         return json_last_error() === JSON_ERROR_NONE;
     }
 
+    /**
+     * @param $value
+     *
+     * @return string
+     */
     public function ecsterFormatPrice($value)
     {
         return number_format($value, 2, "", "");
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return bool
+     */
     public function isEnabled($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('payment/ecsterpay/active', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'active', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getApiKey($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/api_key', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'api_key', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getMerchantKey($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/merchant_key', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'merchant_key', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return \Magento\Framework\Phrase
+     */
     public function getTestModeMessage($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return __('Test mode');
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getTransactionMode($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/mode', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'mode', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getPurchaseType($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/purchase_type', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'purchase_type', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getPreselectedPurchaseType($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/preselected_purchase_type', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'preselected_purchase_type', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
     public function getTermsPageContent($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/shop_terms_page_content', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function getShowCart($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('payment/ecsterpay/display_cart', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_cart', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
+    public function getShowDiscount($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_discount', $scopeType, $storeId);
+    }
+
+
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function getShowDeliveryMethods($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('payment/ecsterpay/display_delivery_methods', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_delivery_methods', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return mixed
+     */
     public function getDefaultCountry($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/default_country', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'default_country', $scopeType, $storeId);
     }
 
     public function getDefaultShippingMethod(
@@ -131,6 +233,11 @@ class Data extends PaymentHelper
         return null;
     }
 
+    /**
+     * @param $quote
+     *
+     * @return array
+     */
     public function getSingleShippingMethod($quote)
     {
         if (count($quote->getShippingAddress()->getAllShippingRates()) == 1) {
@@ -150,9 +257,15 @@ class Data extends PaymentHelper
         }
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return array
+     */
     public function getAllowedCountries($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        $allowspecific = $this->_scopeConfig->getValue('payment/ecsterpay/allowspecific', $scopeType, $storeId);
+        $allowspecific = $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'allowspecific', $scopeType, $storeId);
 
         if (!(bool)$allowspecific) {
             return [];
@@ -160,15 +273,27 @@ class Data extends PaymentHelper
 
         return explode(
             ",",
-            $this->_scopeConfig->getValue('payment/ecsterpay/specificcountry', $scopeType, $storeId)
+            $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'specificcountry', $scopeType, $storeId)
         );
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function isMultipleCountry($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return !empty($this->getAllowedCountries($storeId, $scopeType));
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function isDefinedTermsPageContent($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         return $this->isEnabled($storeId, $scopeType)
@@ -177,6 +302,9 @@ class Data extends PaymentHelper
             : false;
     }
 
+    /**
+     * @return \Magento\Framework\Phrase
+     */
     public function getNotDefinedTermsPageContentNotification()
     {
         return __('You must define the Shopping Terms Url Content');
@@ -187,41 +315,83 @@ class Data extends PaymentHelper
         return true;
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return mixed
+     */
     public function getTermsBlockId($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('payment/ecsterpay/shop_terms_page_content', $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
     }
 
+    /**
+     * @param        $status
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return mixed
+     */
     public function getAssignedOrderStatus($status, $storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
         $path = "order_status_" . $status;
 
-        return $this->_scopeConfig->getValue('payment/ecsterpay/' . $path, $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . $path, $scopeType, $storeId);
     }
 
+    /**
+     * @param $countryId
+     *
+     * @return string
+     */
     public function getCountryName($countryId)
     {
-        return $this->_country->load($countryId)->getName();
+        return $this->country->load($countryId)->getName();
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function getApplyDiscountMethod($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('tax/calculation/apply_after_discount', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag('tax/calculation/apply_after_discount', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return mixed
+     */
     public function getShippingTaxId($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->_scopeConfig->getValue('tax/classes/shipping_tax_class', $scopeType, $storeId);
+        return $this->scopeConfig->getValue('tax/classes/shipping_tax_class', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function getCatalogTaxCalculationMethod($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('tax/calculation/price_includes_tax', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag('tax/calculation/price_includes_tax', $scopeType, $storeId);
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
     public function getShippingTaxCalculationMethod($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return (bool)$this->_scopeConfig->getValue('tax/calculation/shipping_includes_tax', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag('tax/calculation/shipping_includes_tax', $scopeType, $storeId);
     }
 
     public function getDataWithGuzzle($baseUri, $url, $header, $method = "POST", $params = [])
@@ -254,7 +424,7 @@ class Data extends PaymentHelper
     public function addTransactionHistory($data)
     {
         try {
-            $transactionHistoryFactory = $this->_transactionHistoryFactory->create();
+            $transactionHistoryFactory = $this->transactionHistoryFactory->create();
             $transactionHistoryFactory->addData($data)->save();
 
             return $transactionHistoryFactory;

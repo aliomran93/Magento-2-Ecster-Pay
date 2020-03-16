@@ -16,6 +16,7 @@ define(
         var shopTermsUrl = window.checkoutConfig.payment.ecsterpay.shopTermsUrl;
         var successUrl = window.checkoutConfig.payment.ecsterpay.successUrl;
         var showCart = window.checkoutConfig.payment.ecsterpay.showCart;
+        var showDiscount = window.checkoutConfig.payment.ecsterpay.showDiscount;
         var cartUrl = window.checkoutConfig.payment.ecsterpay.cartUrl;
         var showDelivery = window.checkoutConfig.payment.ecsterpay.showDelivery;
         var showPaymentResult = window.checkoutConfig.payment.ecsterpay.showPaymentResult;
@@ -33,6 +34,7 @@ define(
             shopTermsUrl: shopTermsUrl,
             successUrl: successUrl,
             showCart: showCart,
+            showDiscount: showDiscount,
             cartUrl: cartUrl,
             showDelivery: showDelivery,
             showPaymentResult: showPaymentResult,

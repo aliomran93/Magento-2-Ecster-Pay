@@ -66,6 +66,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
                         'purchaseType' => $this->ecsterHelper->getPurchaseType(),
                         'preselectedPurchaseType' => $this->ecsterHelper->getPreselectedPurchaseType(),
                         'showCart' => $this->ecsterHelper->getShowCart($this->cart->getQuote()->getStoreId()),
+                        'showDiscount' => $this->ecsterHelper->getShowDiscount($this->cart->getQuote()->getStoreId()),
                         'showDelivery' => $this->ecsterHelper->getShowDeliveryMethods($this->cart->getQuote()->getStoreId()),
                         'showPaymentResult' => $this->ecsterHelper->showPaymentResult($this->cart->getQuote()->getStoreId()),
                         'isMultipleCountry' => $this->ecsterHelper->isMultipleCountry($this->cart->getQuote()->getStoreId()),

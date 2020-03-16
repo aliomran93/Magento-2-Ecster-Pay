@@ -4,7 +4,7 @@
 * See COPYING.txt for license details.
 */
 -->
-<div id="ecsterpay-checkout-step-discount" class="step-content discount" data-role="content">
+<div id="ecsterpay-checkout-step-discount" class="step-content discount" data-role="content" data-bind="visible: isVisible()">
 <div class="ecsterpay-checkout-fieldset-title fieldset-title" data-bind="i18n: 'Discount'" data-role="title"></div>
     <form class="form methods-discount" id="discount-form" data-bind="blockLoader: isLoading">
         <div class="field">

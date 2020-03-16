@@ -37,7 +37,8 @@
                 <order_status_aborted>canceled</order_status_aborted>
                 <order_status_blocked>fraud</order_status_blocked>
                 <order_status_expired>canceled</order_status_expired>
-                <model>Evalent\EcsterPay\Model\Gateway</model>                                                                                                                                              
+                <display_discount>1</display_discount>
+                <model>Evalent\EcsterPay\Model\Gateway</model>
             </ecsterpay>            
         </payment>
     </default>

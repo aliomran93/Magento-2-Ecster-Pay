@@ -141,19 +141,19 @@ define([
             return total;
         },
 
-        getShippingAddressFromData() {
+        getShippingAddressFromData: function() {
             return shippingAddressFromData;
         },
 
-        getBillingAddressFromData() {
+        getBillingAddressFromData: function() {
             return billingAddressFromData;
         },
 
-        setSelectedShippingRate(value) {
+        setSelectedShippingRate: function(value) {
             selectedShippingRate = value;
         },
 
-        getSelectedShippingRate() {
+        getSelectedShippingRate: function() {
             return selectedShippingRate;
         },
 

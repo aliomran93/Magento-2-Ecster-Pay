@@ -31,4 +31,17 @@
         <plugin name="ecsterpay_minification_backwards_compatibility"
                 type="Evalent\EcsterPay\Plugin\Framework\View\Asset\Minification" sortOrder="10"/>
     </type>
+
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="payment/search/ecsterpay/merchant_key" xsi:type="string">1</item>
+                <item name="payment/search/ecsterpay/api_key" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="payment/search/ecsterpay/merchant_key" xsi:type="string">1</item>
+                <item name="payment/search/ecsterpay/api_key" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
