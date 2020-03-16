@@ -45,18 +45,6 @@ define(
             isLoading: isLoading,
             isVisible: isVisible,
 
-            /**
-             * Initializes component.
-             *
-             * @returns {Object} Chainable.
-             */
-            initialize: function () {
-                this._super();
-                console.log("Discount: " + ecsterConfig.showDiscount)
-
-                return this;
-            },
-
             apply: function () {
                 if (this.validate()) {
                     isLoading(true);
