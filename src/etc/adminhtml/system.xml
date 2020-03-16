@@ -193,6 +193,12 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/ecsterpay/display_cart</config_path>
                     </field>
+                    <field id="display_discount" translate="label" type="select" sortOrder="20" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Show discount field</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/display_discount</config_path>
+                    </field>
                     <!--<field id="display_delivery_methods" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                         <label>Show Delivery Methods On Ecster Checkout iFrame</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
