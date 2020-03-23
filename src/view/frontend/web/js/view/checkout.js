@@ -29,7 +29,7 @@ define(
             isVisible: ko.observable(true),
             stepCode: 'checkout',
             stepTitle: $t('Ecster Checkout'),
-            isTestMode: ko.observable(ecsterConfig.mode),
+            isTestMode: ko.observable(ecsterConfig.mode == "test"),
             testModeMessage: ko.observable(ecsterConfig.testModeMessage),
 
             initialize: function () {
