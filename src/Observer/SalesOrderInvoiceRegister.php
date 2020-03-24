@@ -85,6 +85,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 
                             } else {
                                 $var = $invoiceItem->getData($options['column']);
+                                if ($var == null) {
+                                    $var = $orderItem->getData($options['column']);
+                                }
                             }
                         }
                     }
@@ -123,6 +126,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 //
                         } else {
                             $var = $invoiceItem->getData($options['column']);
+                            if ($var == null) {
+                                $var = $orderItem->getData($options['column']);
+                            }
                         }
                     }
 
@@ -134,6 +140,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                     $item[$field] = $var;
                 }
             }
+
 
             $items[] = $item;
         }
