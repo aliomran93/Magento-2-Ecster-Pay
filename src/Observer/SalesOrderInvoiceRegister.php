@@ -85,6 +85,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 
                             } else {
                                 $var = $invoiceItem->getData($options['column']);
+                                if ($var == null) {
+                                    $var = $orderItem->getData($options['column']);
+                                }
                             }
                         }
                     }
@@ -123,6 +126,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 //
                         } else {
                             $var = $invoiceItem->getData($options['column']);
+                            if ($var == null) {
+                                $var = $orderItem->getData($options['column']);
+                            }
                         }
                     }
 
@@ -134,6 +140,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                     $item[$field] = $var;
                 }
             }
+
 
             $items[] = $item;
         }
@@ -156,7 +163,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 
     public function execute(Observer $observer)
     {
+        /** @var \Magento\Sales\Model\Order\Invoice $invoice */
         $invoice = $observer->getEvent()->getData('invoice');
+        /** @var \Magento\Sales\Model\Order $order */
         $order = $invoice->getOrder();
         $payment = $order->getPayment();
         $method = $payment->getMethodInstance();
@@ -173,8 +182,14 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 
                 if (!is_null($ecsterReferenceId)) {
                     if ($invoice->getShippingInclTax() > 0) {
-                        $items[] = $this->_ecsterApi->createDummyItem($invoice->getShippingInclTax(),
-                            $order->getShippingDescription(), $order->getShippingDescription());
+                    $shippingItem = $this->_ecsterApi->createDummyItem($invoice->getShippingInclTax(),
+                        $order->getShippingDescription(), $order->getShippingDescription());
+                    $shippingTaxAmount = $invoice->getShippingTaxAmount() ?? $order->getShippingTaxAmount();
+                    $shippingCost = $invoice->getShippingAmount() ?? $order->getShippingAmount();
+                    if ($shippingCost > 0) {
+                        $shippingItem["vatRate"] = $shippingTaxAmount / $shippingCost * 10000; // Times 100 to get percentage and times 100 to get it to ecster value i.e 25,00 => 2500
+                    }
+                        $items[] = $shippingItem;
                     }
 
                     if ($invoice->getOrder()->getEcsterPaymentType() == 'INVOICE' && $invoice->getEcsterExtraFee() > 0) {

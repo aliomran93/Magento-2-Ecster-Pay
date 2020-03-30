@@ -26,7 +26,7 @@ define(
                 template: 'Evalent_EcsterPay/mode'
             },
 
-            isTestMode: ko.observable(ecsterConfig.mode),
+            isTestMode: ko.observable(ecsterConfig.mode == "test"),
             testModeMessage: ko.observable(ecsterConfig.testModeMessage),
 
             initialize: function () {
