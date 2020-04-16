@@ -5,6 +5,7 @@
  */
 namespace Evalent\EcsterPay\Model\Api;
 
+use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
@@ -15,10 +16,16 @@ class Ecster
 {
     private $_localeResolver;
 
+    private $customerData;
+
     // todo: phpdocs
     protected $_urlBuilder;
     protected $_taxCalculation;
     protected $_helper;
+
+    /**
+     * @var \Magento\Quote\Model\Quote
+     */
     protected $_quote;
     protected $_storeId;
     protected $_cartTotal;
@@ -169,18 +176,25 @@ class Ecster
      */
     private $request;
 
+    /**
+     * @var \Magento\Customer\Api\AddressRepositoryInterface
+     */
+    private $addressRepository;
+
     public function __construct(
         EcsterPayHelper $helper,
         Resolver $resolver,
         UrlInterface $urlBuilder,
         TaxCalculation $taxCalculation,
-        RequestInterface $request
+        RequestInterface $request,
+        AddressRepositoryInterface $addressRepository
     ) {
         $this->_helper = $helper;
         $this->_localeResolver = $resolver;
         $this->_taxCalculation = $taxCalculation;
         $this->_urlBuilder = $urlBuilder;
         $this->request = $request;
+        $this->addressRepository = $addressRepository;
     }
 
     public function getJsUrl($storeId)
@@ -521,46 +535,69 @@ class Ecster
 
     protected function getConsumerDatas()
     {
-        $customerData = [];
+        if (!$this->customerData) {
+            $customerData = [];
 
-        if (!is_null($this->getAddress()->getNationalId()) && $this->getAddress()->getNationalId() != "") {
-            $customerData["nationalId"] = "SE" . $this->getAddress()->getNationalId();
-        }
+            $customer = $this->_quote->getCustomer();
+            $customerAddress = null;
+//            if ($customer) {
+//                if ($this->_quote->isVirtual() && $customer->getDefaultBilling()) {
+//                    $customerAddress = $this->addressRepository->getById($customer->getDefaultBilling());
+//                } elseif ($customer->getDefaultShipping()) {
+//                    $customerAddress = $this->addressRepository->getById($customer->getDefaultShipping());
+//                }
+//            }
 
-        if (!is_null($this->getAddress()->getFirstname())
-            && $this->getAddress()->getFirstname() != "") {
-            $customerData["name"]["firstName"] = $this->getAddress()->getFirstname();
-        }
-
-        if (!is_null($this->getAddress()->getLastname())
-            && $this->getAddress()->getLastname() != "") {
-            $customerData["name"]["lastName"] = $this->getAddress()->getLastname();
-        }
-
-        if (implode(" ", $this->getAddress()->getStreet()) != "") {
-            if (!in_array($this->getAddress()->getCountryId(), ["DE", "AT"])) {
-                $customerData["address"]["streetName"] = implode(" ", $this->getAddress()->getStreet());
-            } else {
-                $customerData["address"]["streetName"] = implode(" ", $this->getAddress()->getStreet());
+            if (!is_null($this->getAddress()->getNationalId())
+                && $this->getAddress()->getNationalId() != ""
+            ) {
+                $customerData["nationalId"] = "SE" . $this->getAddress()->getNationalId();
             }
-        }
 
-        if (!is_null($this->getAddress()->getCity())
-            && $this->getAddress()->getCity() != "") {
-            $customerData["address"]["city"] = $this->getAddress()->getCity();
-        }
+            if (!is_null($this->getAddress()->getFirstname())
+                && $this->getAddress()->getFirstname() != ""
+            ) {
+                $customerData["name"]["firstName"] = $this->getAddress()->getFirstname();
+            }
 
-        if (!is_null($this->getAddress()->getPostCode())
-            && $this->getAddress()->getPostCode() != "") {
-            $customerData["address"]["zip"] = $this->getAddress()->getPostCode();
-        }
+            if (!is_null($this->getAddress()->getLastname())
+                && $this->getAddress()->getLastname() != ""
+            ) {
+                $customerData["name"]["lastName"] = $this->getAddress()->getLastname();
+            }
 
-        if (!is_null($this->getAddress()->getCountryId())
-            && $this->getAddress()->getCountryId() != "") {
-            $customerData["address"]["country"] = $this->getAddress()->getCountryId();
-        }
 
-        return $customerData;
+            if (implode(" ", $this->getAddress()->getStreet()) != "") {
+                $street = $this->getAddress()->getStreet();
+                if (!in_array($this->getAddress()->getCountryId(), ["DE", "AT"])) {
+                    if (sizeof($street) > 1) {
+                        $customerData["address"]["line1"] = $street[0];
+                        $customerData["address"]["line2"] = implode(" ", array_slice($street, 1));
+                    } else {
+                        $customerData["address"]["line1"] = implode(" ", $street);
+                    }
+                } else {
+                    $customerData["address"]["streetName"] = implode(" ", $street);
+                }
+            }
+
+            if (!is_null($this->getAddress()->getCity()) && $this->getAddress()->getCity() != "") {
+                $customerData["address"]["city"] = $this->getAddress()->getCity();
+            }
+
+            if (!is_null($this->getAddress()->getPostCode()) && $this->getAddress()->getPostCode() != "") {
+                $customerData["address"]["zip"] = $this->getAddress()->getPostCode();
+            }
+
+            if (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() != "") {
+                $customerData["address"]["country"] = $this->getAddress()->getCountryId();
+            }
+
+            $customerData["contactInfo"]["email"] = $this->_quote->getCustomerEmail();
+
+            $this->customerData = $customerData;
+        }
+        return $this->customerData;
     }
 
     protected function getOrderReference()
