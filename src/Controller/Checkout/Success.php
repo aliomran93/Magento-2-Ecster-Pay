@@ -5,6 +5,7 @@
  */
 namespace Evalent\EcsterPay\Controller\Checkout;
 
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use Evalent\EcsterPay\Model\Checkout;
@@ -18,11 +19,17 @@ class Success extends Action
     protected $_helper;
     protected $_ecsterApi;
 
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
     public function __construct(
         Context $context,
         Checkout $checkout,
         EcsterPayHelper $helper,
-        EcsterApi $ecsterApi
+        EcsterApi $ecsterApi,
+        Session $checkoutSession
     ) {
         parent::__construct(
             $context
@@ -31,6 +38,7 @@ class Success extends Action
         $this->_checkout = $checkout;
         $this->_helper = $helper;
         $this->_ecsterApi = $ecsterApi;
+        $this->checkoutSession = $checkoutSession;
     }
 
     public function execute()
@@ -42,6 +50,7 @@ class Success extends Action
                 if ($response['id'] == $ecsterReference) {
                     $order = $this->_checkout->convertEcsterQuoteToOrder($response);
                     $this->_ecsterApi->updateOrderReference($response["id"], $order->getIncrementId());
+                    $this->checkoutSession->clearQuote();
 
                     return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
                 } else {

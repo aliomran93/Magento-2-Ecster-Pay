@@ -5,8 +5,87 @@
  */
 namespace Evalent\EcsterPay\Model;
 
-class Checkout extends \Magento\Checkout\Model\Type\Onepage
+use Exception;
+use Magento\Checkout\Helper\Data;
+use Magento\Checkout\Model\Type\Onepage;
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterfaceFactory as CustomerDataFactory;
+use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Customer\Model\AddressFactory;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Customer\Model\Metadata\FormFactory;
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Url;
+use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\Api\ExtensibleDataObjectConverter;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\DataObject;
+use Magento\Framework\DataObject\Copy;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Math\Random;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\OrderFactory;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+
+class Checkout extends Onepage
 {
+
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        Data $helper,
+        Url $customerUrl,
+        LoggerInterface $logger,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        Session $customerSession,
+        StoreManagerInterface $storeManager,
+        RequestInterface $request,
+        AddressFactory $customrAddrFactory,
+        \Magento\Customer\Model\FormFactory $customerFormFactory,
+        CustomerFactory $customerFactory,
+        OrderFactory $orderFactory,
+        Copy $objectCopyService,
+        ManagerInterface $messageManager,
+        FormFactory $formFactory,
+        CustomerDataFactory $customerDataFactory,
+        Random $mathRandom,
+        EncryptorInterface $encryptor,
+        AddressRepositoryInterface $addressRepository,
+        AccountManagementInterface $accountManagement,
+        OrderSender $orderSender,
+        CustomerRepositoryInterface $customerRepository,
+        CartRepositoryInterface $quoteRepository,
+        ExtensibleDataObjectConverter $extensibleDataObjectConverter,
+        CartManagementInterface $quoteManagement,
+        DataObjectHelper $dataObjectHelper,
+        TotalsCollector $totalsCollector
+    ) {
+        parent::__construct($eventManager, $helper, $customerUrl, $logger,
+            $checkoutSession, $customerSession, $storeManager, $request,
+            $customrAddrFactory, $customerFormFactory, $customerFactory,
+            $orderFactory, $objectCopyService, $messageManager, $formFactory,
+            $customerDataFactory, $mathRandom, $encryptor, $addressRepository,
+            $accountManagement, $orderSender, $customerRepository,
+            $quoteRepository, $extensibleDataObjectConverter, $quoteManagement,
+            $dataObjectHelper, $totalsCollector);
+        $this->scopeConfig = $scopeConfig;
+    }
 
     /**
      * @param $ecsterOrderData
@@ -125,7 +204,7 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
             } else {
                 $_quote->setCheckoutMethod(self::METHOD_GUEST)
                     ->setCustomerIsGuest(1)
-                    ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID)
+                    ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID)
                     ->setCustomerId(null)
                     ->setCustomerEmail($_contactInfo["email"])
                     ->setCustomerFirstname($_customerName['firstName'])
@@ -150,7 +229,7 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
             $_payment = $_quote->getPayment();
             $_payment->unsMethodInstance()->setMethod("ecsterpay");
 
-            $_paymentData = new \Magento\Framework\DataObject([
+            $_paymentData = new DataObject([
                 'reference' => $ecsterOrderData["id"],
                 'status' => $ecsterOrderData["status"],
                 'payment' => "ecsterpay"
@@ -176,6 +255,8 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
                 }
             }
 
+            $_quote->setTotalsCollectedFlag(false)->collectTotals();
+
             if ($_isVirtual) {
                 $_quote->getBillingAddress()->setGrandTotal($_quote->getBillingAddress()->getGrandTotal() + $extraFee);
                 $_quote->getBillingAddress()->setBaseGrandTotal($_quote->getBillingAddress()->getBaseGrandTotal() + $extraFee);
@@ -183,11 +264,6 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
                 $_quote->getShippingAddress()->setGrandTotal($_quote->getShippingAddress()->getGrandTotal() + $extraFee);
                 $_quote->getShippingAddress()->setBaseGrandTotal($_quote->getShippingAddress()->getBaseGrandTotal() + $extraFee);
             }
-
-            $_quote->setTotalsCollectedFlag(true);
-
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $this->scopeConfig = $objectManager->get(\Magento\Framework\App\Config\ScopeConfigInterface::class);
 
             $order = $this->quoteManagement->submit($_quote);
 
@@ -210,7 +286,7 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
 
             if ((bool)$this->scopeConfig->getValue(
                 'tax/calculation/shipping_includes_tax',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $order->getStoreId()
             )) {
                 $orderBaseShippingDiscountTaxCompensationAmnt = number_format(
@@ -235,8 +311,8 @@ class Checkout extends \Magento\Checkout\Model\Type\Onepage
 
             return $order;
 
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         }
     }
 }

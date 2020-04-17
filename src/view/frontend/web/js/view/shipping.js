@@ -66,6 +66,10 @@ define(
             initialize: function () {
                 this._super();
                 checkoutDataResolver.resolveEstimationAddress();
+
+                if (window.checkoutConfig.selectedShippingMethod) {
+                    this.selectShippingMethod(window.checkoutConfig.selectedShippingMethod)
+                }
                 return this;
             },
 
