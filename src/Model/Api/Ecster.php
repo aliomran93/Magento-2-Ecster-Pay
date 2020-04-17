@@ -593,6 +593,10 @@ class Ecster
                 $customerData["address"]["country"] = $this->getAddress()->getCountryId();
             }
 
+            if (!is_null($this->getAddress()->getTelephone()) && $this->getAddress()->getTelephone() != "") {
+                $customerData["contactInfo"]["cellular"]['number'] = $this->getAddress()->getTelephone();
+            }
+
             $customerData["contactInfo"]["email"] = $this->_quote->getCustomerEmail();
 
             $this->customerData = $customerData;
