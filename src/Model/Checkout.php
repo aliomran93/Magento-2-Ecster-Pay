@@ -154,7 +154,7 @@ class Checkout extends Onepage
                     "lastname" => $_billingName["lastName"],
                     "street" => $_billingAddress["line1"] . (isset($_billingAddress["line2"]) ? " " . $_billingAddress["line2"] : ""),
                     "city" => $_billingAddress["city"],
-                    "region" => $_billingAddress["city"],
+                    "region" => $_billingAddress["province"] ?? "",
                     "postcode" => $_billingAddress["zip"],
                     "telephone" => $_cellular["number"],
                     "country_id" => $_billingCountryId
@@ -167,7 +167,7 @@ class Checkout extends Onepage
                     "lastname" => $_shippingName["lastName"],
                     "street" => $_shippingAddress["line1"] . (isset($_shippingAddress["line2"]) ? " " . $_shippingAddress["line2"] : ""),
                     "city" => $_shippingAddress["city"],
-                    "region" => $_shippingAddress["city"],
+                    "region" => $_shippingAddress["province"] ?? "",
                     "postcode" => $_shippingAddress["zip"],
                     "telephone" => $_cellular["number"],
                     "country_id" => $_shippingCountryId
@@ -183,7 +183,7 @@ class Checkout extends Onepage
                     "lastname" => $_customerName["lastName"],
                     "street" => $_address["line1"] . (isset($_address["line2"]) ? " " . $_address["line2"] : ""),
                     "city" => $_address["city"],
-                    "region" => $_address["city"],
+                    "region" => $_address["province"] ?? "",
                     "postcode" => $_address["zip"],
                     "telephone" => $_cellular["number"],
                     "country_id" => $_shippingCountryId
