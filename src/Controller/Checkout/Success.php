@@ -50,7 +50,6 @@ class Success extends Action
                 if ($response['id'] == $ecsterReference) {
                     $order = $this->_checkout->convertEcsterQuoteToOrder($response);
                     $this->_ecsterApi->updateOrderReference($response["id"], $order->getIncrementId());
-                    $this->checkoutSession->clearQuote();
 
                     return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
                 } else {

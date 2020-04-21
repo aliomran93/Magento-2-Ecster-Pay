@@ -25,7 +25,7 @@ define(
 
         'use strict';
 
-        var isUpdateCountry = false;
+        var isUpdateCountry, checkoutUpdating = false;
 
         return {
             key: quote.getEcsterCartKey(),
@@ -75,24 +75,31 @@ define(
                 });
             },
             onCheckoutStartInit: function (response) {
+                checkoutUpdating = true;
                 console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
+                checkoutUpdating = false;
                 console.log("onCheckoutStartSuccess");
             },
             onCheckoutStartFailure: function (response) {
+                checkoutUpdating = false;
                 console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
+                checkoutUpdating = true;
                 console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
+                checkoutUpdating = false;
                 console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
+                checkoutUpdating = false;
                 console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
+                checkoutUpdating = false;
                 console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
@@ -115,6 +122,9 @@ define(
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
+            },
+            isCheckoutUpdating: function () {
+                return checkoutUpdating
             },
             isUpdateCountry: function () {
                 return isUpdateCountry;

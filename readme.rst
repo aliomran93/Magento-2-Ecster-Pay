@@ -45,6 +45,17 @@ Then run the below command.
 
 **Note:** There is currently no stable version released.
 
+Compatibility
+=============
+
+Because of the custom design and functions of the checkout some other third party extensions might not work with Ecster Checkout.
+For example custom shipping methods might not work.
+
+Here is a list of modules which has been tested and works with this module.
+
+* Amasty_SotrePickupWithLocator
+
+
 Licence
 =======
 

@@ -21,6 +21,7 @@ define(
         'Evalent_EcsterPay/js/model/config',
         'Evalent_EcsterPay/js/model/ecster',
         'mage/translate',
+        'Magento_Customer/js/customer-data',
         'Evalent_EcsterPay/js/model/shipping-rate-service',
     ],
     function (
@@ -40,7 +41,8 @@ define(
         registry,
         ecsterConfig,
         ecster,
-        $t
+        $t,
+        customerData
     ) {
         'use strict';
 
@@ -104,12 +106,26 @@ define(
             },
 
             setShippingInformation: function () {
-                if (ecster == null) {
+                if (ecster == null || ecster.isCheckoutUpdating()) {
                     return
                 }
+
                 if (this.validateShippingInformation()) {
+
+                    // This adds support for Amasty_StorePickupWithLocator module
+                    // The module throws an exception if some values are not set when saving the shipping information-
+                    // and because this module saves it on every selection-
+                    // we need to ignore that selection before these are set
+                    if (quote.shippingMethod().carrier_code == "amstorepickup" && (isNaN(customerData.get('am_pickup_store')()) || customerData.get('am_pickup_store')() == 0)) {
+                        return
+                    }
+
                     var updateCartCallBack = ecster.updateInitCart(quote.getEcsterCartKey());
                     setShippingInformationAction().done(
+                        function (response) {
+                            updateCartCallBack(quote.getEcsterCartKey());
+                        }
+                    ).error(
                         function (response) {
                             updateCartCallBack(quote.getEcsterCartKey());
                         }
