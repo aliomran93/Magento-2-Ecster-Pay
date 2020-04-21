@@ -56,9 +56,9 @@ class Ecster
 
     public $ecsterQuoteItemFields = [
         "partNumber" => [
-            "column" => "item_id",
+            "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "integer"
+            "type" => "string"
         ],
         "name" => [
             "column" => "name",
@@ -95,9 +95,9 @@ class Ecster
 
     public $ecsterInvoiceItemFields = [
         "partNumber" => [
-            "column" => "order_item_id",
+            "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "integer"
+            "type" => "string"
         ],
         "name" => [
             "column" => "name",
@@ -134,9 +134,9 @@ class Ecster
 
     public $ecsterCreditmemoItemFields = [
         "partNumber" => [
-            "column" => "order_item_id",
+            "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "integer"
+            "type" => "string"
         ],
         "name" => [
             "column" => "name",
@@ -350,8 +350,7 @@ class Ecster
         foreach ($quoteItems as $quoteItem) {
             $item = [];
 
-            if ($quoteItem->getProductType() != 'simple'
-                && $quoteItem->getHasChildren()
+            if ($quoteItem->getProductType() != 'simple' && $quoteItem->getHasChildren()
             ) {
                 foreach ($this->ecsterQuoteItemFields as $field => $options) {
                     if (isset($options["default_value"])) {

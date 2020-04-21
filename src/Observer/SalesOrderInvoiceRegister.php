@@ -36,6 +36,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 
         $discountApplyMethod = $this->_helper->getApplyDiscountMethod($invoice->getStoreId());
 
+        /** @var \Magento\Sales\Model\Order\Invoice\Item $invoiceItem */
         foreach ($invoiceItems as $invoiceItem) {
             $item = [];
             $orderItem = $invoiceItem->getOrderItem();
@@ -46,7 +47,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                 foreach ($this->_ecsterApi->ecsterInvoiceItemFields as $field => $options) {
                     if (isset($options["default_value"])) {
                         $var = $options["default_value"];
-                    } else {
+                    }  else {
                         if ($field == 'description') {
                             $description = [];
                             foreach ($orderItem->getChildrenItems() as $childItem) {
@@ -203,7 +204,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                         "transactionReference" => $order->getIncrementId(),
                         "rows" => $items,
                         "message" => !is_null($invoice->getCustomerNote()) ? $invoice->getCustomerNote() : "",
-                        "closeDebit" => false
+                        "closeDebit" => false,
                     ];
 
                     $responseParams = $this->_ecsterApi->orderProcess($ecsterReferenceId, $requestParams);
@@ -222,7 +223,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                             'request_params' => serialize($requestParams),
                             'order_status' => $responseParams->orderStatus,
                             'transaction_id' => $responseParams->transaction->id,
-                            'response_params' => serialize((array)$responseParams)
+                            'response_params' => serialize((array)$responseParams),
                         ];
 
                         $this->_helper->addTransactionHistory($transactionHistoryData);

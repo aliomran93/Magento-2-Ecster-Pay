@@ -40,7 +40,7 @@ define(
                     }
                 };
 
-                if (quote.shippingMethod()['carrier_code'] == "amstorepickup" && !isNaN(customerData.get('am_pickup_store')()) && customerData.get('am_pickup_store')() != 0) {
+                if (quote.shippingMethod() && quote.shippingMethod()['carrier_code'] == "amstorepickup" && !isNaN(customerData.get('am_pickup_store')()) && customerData.get('am_pickup_store')() != 0) {
                     payload.addressInformation.extension_attributes = {
                         am_pickup_store:customerData.get('am_pickup_store')()
                     }
