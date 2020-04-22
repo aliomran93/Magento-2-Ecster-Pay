@@ -600,6 +600,10 @@ class Ecster
 
             $this->customerData = $customerData;
         }
+//        echo '<pre>';
+//        print_r($this->customerData);
+//        echo '</pre>';
+//        exit;
         return $this->customerData;
     }
 

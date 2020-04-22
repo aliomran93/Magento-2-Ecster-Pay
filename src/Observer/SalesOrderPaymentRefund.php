@@ -34,6 +34,11 @@ class SalesOrderPaymentRefund implements ObserverInterface
         $this->_helper = $helper;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     *
+     * @return array
+     */
     public function convertCreditMemoItemsToEcster($creditmemo)
     {
         $creditmemoItems = $creditmemo->getAllItems();
@@ -171,10 +176,18 @@ class SalesOrderPaymentRefund implements ObserverInterface
         return $items;
     }
 
+    /**
+     * @param \Magento\Framework\Event\Observer $observer
+     *
+     * @return $this|void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function execute(Observer $observer)
     {
-
         $creditmemo = $observer->getEvent()->getData('creditmemo');
+        if (!$creditmemo->getDoTransaction()) {
+            return;
+        }
         $order = $creditmemo->getOrder();
         $payment = $observer->getEvent()->getData('payment');
 

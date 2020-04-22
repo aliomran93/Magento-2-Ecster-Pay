@@ -211,7 +211,8 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                     if ($responseParams
                         && $responseParams->transaction
                     ) {
-                        $invoice->setData('ecster_debit_reference', $responseParams->transaction->id)->save();
+                        $invoice->setData('ecster_debit_reference', $responseParams->transaction->id);
+                        $invoice->setData('transaction_id', $responseParams->transaction->id)->save();
 
                         $transactionHistoryData = [
                             'id' => null,

@@ -15,10 +15,10 @@ class Info extends PaymentInfo
 
     public function __construct(
         Context $context,
-        InfoFactory $paypalInfoFactory,
+        InfoFactory $ecsterInfoFactory,
         array $data = []
     ) {
-        $this->_ecsterInfoFactory = $paypalInfoFactory;
+        $this->_ecsterInfoFactory = $ecsterInfoFactory;
         parent::__construct($context, $data);
     }
 
