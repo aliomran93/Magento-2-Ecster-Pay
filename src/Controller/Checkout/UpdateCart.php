@@ -94,6 +94,7 @@ class UpdateCart extends CheckoutIndex
         $returnArray['ecster_key'] = $ecsterCartKey;
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData($returnArray);
+
         return $resultJson;
     }
 }

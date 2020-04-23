@@ -18,4 +18,9 @@ class Gateway extends AbstractMethod
     protected $_canRefundInvoicePartial = false;
 
     protected $_infoBlockType = \Evalent\EcsterPay\Block\Payment\Info::class;
+
+    public function canRefund()
+    {
+        return true;
+    }
 }

@@ -34,6 +34,11 @@ class SalesOrderPaymentRefund implements ObserverInterface
         $this->_helper = $helper;
     }
 
+    /**
+     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     *
+     * @return array
+     */
     public function convertCreditMemoItemsToEcster($creditmemo)
     {
         $creditmemoItems = $creditmemo->getAllItems();
@@ -44,6 +49,7 @@ class SalesOrderPaymentRefund implements ObserverInterface
 
         $discountApplyMethod = $this->_helper->getApplyDiscountMethod($creditmemo->getStoreId());
 
+        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $creditmemoItem */
         foreach ($creditmemoItems as $creditmemoItem) {
             $item = [];
             $orderItem = $creditmemoItem->getOrderItem();
@@ -170,10 +176,18 @@ class SalesOrderPaymentRefund implements ObserverInterface
         return $items;
     }
 
+    /**
+     * @param \Magento\Framework\Event\Observer $observer
+     *
+     * @return $this|void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function execute(Observer $observer)
     {
-
         $creditmemo = $observer->getEvent()->getData('creditmemo');
+        if (!$creditmemo->getDoTransaction()) {
+            return;
+        }
         $order = $creditmemo->getOrder();
         $payment = $observer->getEvent()->getData('payment');
 
@@ -202,7 +216,7 @@ class SalesOrderPaymentRefund implements ObserverInterface
                             "transactionReference" => $order->getIncrementId(),
                             "rows" => $items,
                             "debitTransaction" => $ecsterDebitReference,
-                            "closeDebit" => true
+                            "closeDebit" => true,
                         ];
 
                         $responseParams = $this->_ecsterApi->orderProcess($ecsterReferenceId, $requestParams);
@@ -219,7 +233,7 @@ class SalesOrderPaymentRefund implements ObserverInterface
                                 'request_params' => serialize($requestParams),
                                 'order_status' => $responseParams->orderStatus,
                                 'transaction_id' => $responseParams->transaction->id,
-                                'response_params' => serialize((array)$responseParams)
+                                'response_params' => serialize((array)$responseParams),
                             ];
 
                             $this->_helper->addTransactionHistory($transactionHistoryData);

@@ -10,7 +10,8 @@ define(
         'mage/storage',
         'Magento_Checkout/js/model/error-processor',
         'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/action/select-billing-address'
+        'Magento_Checkout/js/action/select-billing-address',
+        'Magento_Customer/js/customer-data'
     ],
     function (
         ko,
@@ -19,7 +20,8 @@ define(
         storage,
         errorProcessor,
         fullScreenLoader,
-        selectBillingAddressAction
+        selectBillingAddressAction,
+        customerData
     ) {
         'use strict';
 
@@ -37,6 +39,12 @@ define(
                         shipping_carrier_code: quote.shippingMethod() ? quote.shippingMethod()['carrier_code'] : null
                     }
                 };
+
+                if (quote.shippingMethod() && quote.shippingMethod()['carrier_code'] == "amstorepickup" && !isNaN(customerData.get('am_pickup_store')()) && customerData.get('am_pickup_store')() != 0) {
+                    payload.addressInformation.extension_attributes = {
+                        am_pickup_store:customerData.get('am_pickup_store')()
+                    }
+                }
 
                 fullScreenLoader.startLoader();
 
