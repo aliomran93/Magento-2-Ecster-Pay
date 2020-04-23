@@ -284,27 +284,6 @@ class Checkout extends Onepage
                 ['order' => $order, 'quote' => $this->getQuote()]
             );
 
-            if ((bool)$this->scopeConfig->getValue(
-                'tax/calculation/shipping_includes_tax',
-                ScopeInterface::SCOPE_STORE,
-                $order->getStoreId()
-            )) {
-                $orderBaseShippingDiscountTaxCompensationAmnt = number_format(
-                    (float)$order->getShippingDiscountTaxCompensationAmount() / (float)$order->getBaseToOrderRate(),
-                    2,
-                    ".",
-                    ""
-                );
-                $order->setShippingAmount(
-                    (float)$order->getShippingAmount() - (float)$order->getShippingTaxAmount() - (float)$order->getShippingDiscountTaxCompensationAmount()
-                )
-                    ->setBaseShippingDiscountTaxCompensationAmnt($orderBaseShippingDiscountTaxCompensationAmnt)
-                    ->setBaseShippingAmount(
-                        (float)$order->getBaseShippingAmount() - (float)$order->getBaseShippingTaxAmount() - (float)$orderBaseShippingDiscountTaxCompensationAmnt
-                    )
-                    ->save();
-            }
-
             if (is_null($order->getEcsterInternalReference())) {
                 $order->setEcsterInternalReference($_quote->getEcsterInternalReference())->save();
             }
