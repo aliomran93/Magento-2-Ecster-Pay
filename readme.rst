@@ -17,7 +17,7 @@ Add the below to the "require" section of your composer.json file.
 
 .. code:: json
 
-  "evalent/module-ecsterpay": "1.0.0-beta.7 as 1.0.0"
+  "evalent/module-ecsterpay": "1.0.0-beta.8 as 1.0.0"
 
 The ``as 1.0.0`` part is only required if you specified ``"minimum-stability": "stable"``
 in your composer.json file.
@@ -53,7 +53,7 @@ For example custom shipping methods might not work.
 
 Here is a list of modules which has been tested and works with this module.
 
-* Amasty_SotrePickupWithLocator
+* Amasty_StorePickupWithLocator
 
 
 Licence
