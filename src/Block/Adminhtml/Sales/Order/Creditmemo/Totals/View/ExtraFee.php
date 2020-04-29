@@ -33,7 +33,6 @@ class ExtraFee extends \Evalent\EcsterPay\Block\Adminhtml\Sales\Order\Creditmemo
     {
         $parent = $this->getParentBlock();
         $this->order = $parent->getOrder();
-        echo get_class($this->order);exit;
         $this->source = $parent->getSource();
 
         $ecsterExtraFeeVal = $this->source->getEcsterExtraFee();
