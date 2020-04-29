@@ -11,6 +11,7 @@ define(
         'mage/url',
         'Magento_Ui/js/model/messageList',
         'mage/translate',
+        'Magento_Checkout/js/model/full-screen-loader',
         'ecsterpayjs'
     ],
     function (
@@ -20,12 +21,14 @@ define(
         ecsterConfig,
         urlBuilder,
         messageList,
-        $t
+        $t,
+        fullScreenLoader
     ) {
 
         'use strict';
 
         var isUpdateCountry, checkoutUpdating = false;
+        var updateShippingOnSuccess = null;
 
         return {
             key: quote.getEcsterCartKey(),
@@ -76,55 +79,65 @@ define(
             },
             onCheckoutStartInit: function (response) {
                 checkoutUpdating = true;
-                console.log("onCheckoutStartInit");
+                fullScreenLoader.startLoader();
+                // console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
                 checkoutUpdating = false;
-                console.log("onCheckoutStartSuccess");
+                fullScreenLoader.stopLoader();
+                // console.log("onCheckoutStartSuccess");
             },
             onCheckoutStartFailure: function (response) {
                 checkoutUpdating = false;
-                console.log("onCheckoutStartFailure");
+                fullScreenLoader.stopLoader();
+                // console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
                 checkoutUpdating = true;
+                fullScreenLoader.startLoader();
                 console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
                 checkoutUpdating = false;
-                console.log("onCheckoutInitUpdateCart");
+                fullScreenLoader.startLoader();
+                // console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
                 checkoutUpdating = false;
-                console.log("onCheckoutFinishUpdateCart");
+                fullScreenLoader.stopLoader();
+                // console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
+                fullScreenLoader.stopLoader();
                 checkoutUpdating = false;
                 console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
-                console.log("onCustomerAuthenticated");
+                // console.log("onCustomerAuthenticated");
             },
             onChangedContactInfo: function (response) {
-                console.log('onChangedContactInfo');
+                // console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
-                console.log('onChangedDeliveryAddress');
+                // console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
-                console.log('onPaymentFailure');
+                // console.log('onPaymentFailure');
             },
             onPaymentDenied: function (response) {
-                console.log("onPaymentDenied");
+                // console.log("onPaymentDenied");
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
             },
             isCheckoutUpdating: function () {
                 return checkoutUpdating
+            },
+            updateShippingMethodOnSuccess: function () {
+
             },
             isUpdateCountry: function () {
                 return isUpdateCountry;

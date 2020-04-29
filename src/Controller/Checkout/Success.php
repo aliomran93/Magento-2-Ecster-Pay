@@ -31,9 +31,7 @@ class Success extends Action
         EcsterApi $ecsterApi,
         Session $checkoutSession
     ) {
-        parent::__construct(
-            $context
-        );
+        parent::__construct($context);
 
         $this->_checkout = $checkout;
         $this->_helper = $helper;

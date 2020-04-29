@@ -9,7 +9,6 @@ define(
         'Magento_Checkout/js/model/resource-url-manager',
         'mage/storage',
         'Magento_Checkout/js/model/error-processor',
-        'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/select-billing-address',
         'Magento_Customer/js/customer-data'
     ],
@@ -19,7 +18,6 @@ define(
         resourceUrlManager,
         storage,
         errorProcessor,
-        fullScreenLoader,
         selectBillingAddressAction,
         customerData
     ) {
@@ -46,7 +44,6 @@ define(
                     }
                 }
 
-                fullScreenLoader.startLoader();
 
                 selectBillingAddressAction(quote.shippingAddress());
 
@@ -61,11 +58,6 @@ define(
                                 quote.setEcsterCartKey(response.extension_attributes.ecster_cart_key);
                             }
                         }
-                        fullScreenLoader.stopLoader();
-                    }
-                ).fail(
-                    function (response) {
-                        fullScreenLoader.stopLoader();
                     }
                 );
             }
