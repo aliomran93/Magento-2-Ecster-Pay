@@ -237,7 +237,7 @@ class Ecster
 
     public function getNotificationUrl()
     {
-        return $this->_urlBuilder->getUrl('ecsterpay/checkout/opn', ['_secure' => true]);
+        return $this->_urlBuilder->getUrl('ecsterpay/checkout/oen', ['_secure' => true]);
     }
 
     protected function getApiKey()

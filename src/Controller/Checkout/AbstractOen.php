@@ -6,14 +6,12 @@
 namespace Evalent\EcsterPay\Controller\Checkout;
 
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\Action;
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\SalesOrderStatusUpdate;
 use Psr\Log\LoggerInterface;
 
-class Opn extends Action
+abstract class AbstractOen extends Action
 {
     protected $_helper;
     protected $_orderStatusUpdate;
@@ -32,16 +30,6 @@ class Opn extends Action
         $this->_helper = $helper;
         $this->_orderStatusUpdate = $orderStatusUpdate;
         $this->_logger = $logger;
-    }
-
-    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
     }
 
     public function execute()
