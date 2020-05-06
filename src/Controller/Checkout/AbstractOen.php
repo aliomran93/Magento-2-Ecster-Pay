@@ -11,7 +11,7 @@ use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\SalesOrderStatusUpdate;
 use Psr\Log\LoggerInterface;
 
-class OenV1 extends Action
+abstract class AbstractOen extends Action
 {
     protected $_helper;
     protected $_orderStatusUpdate;

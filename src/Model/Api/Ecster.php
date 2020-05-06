@@ -237,12 +237,7 @@ class Ecster
 
     public function getNotificationUrl()
     {
-        // if CsrfAwareActionInterface exists (magento is >=2.3)
-        if (interface_exists('\Magento\Framework\App\CsrfAwareActionInterface')) {
-            return $this->_urlBuilder->getUrl('ecsterpay/checkout/oenV2', ['_secure' => true]);
-        }
-
-        return $this->_urlBuilder->getUrl('ecsterpay/checkout/oenV1', ['_secure' => true]);
+        return $this->_urlBuilder->getUrl('ecsterpay/checkout/oen', ['_secure' => true]);
     }
 
     protected function getApiKey()
