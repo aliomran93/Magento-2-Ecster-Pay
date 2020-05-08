@@ -37,7 +37,15 @@ abstract class AbstractOen extends Action
         if ($responseJson = file_get_contents('php://input')) {
             try {
                 if ($this->_helper->isValidJson($responseJson)) {
-                    $this->_orderStatusUpdate->process($responseJson);
+                    try {
+                        $this->_orderStatusUpdate->process($responseJson);
+                    } catch (\Exception $ex) {
+                        // The first OEN usually comes before the order is created, causing the above to throw an
+                        // exception, in that case we wait for a while and try ONCE again.
+                        $this->_logger->info("OEN error: ". $ex->getMessage(). ". Retrying once in 10 sec");
+                        sleep(10);
+                        $this->_orderStatusUpdate->process($responseJson);
+                    }
                 } else {
                     $this->_logger->info(__("Ecster OPN: Json Error"));
                     $this->_logger->info($responseJson);
