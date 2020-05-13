@@ -78,7 +78,6 @@ define(
                 });
             },
             onCheckoutStartInit: function (response) {
-                checkoutUpdating = true;
                 fullScreenLoader.startLoader();
                 // console.log("onCheckoutStartInit");
             },
@@ -95,7 +94,7 @@ define(
             onCheckoutUpdateInit: function (response) {
                 checkoutUpdating = true;
                 fullScreenLoader.startLoader();
-                console.log("onCheckoutUpdateInit");
+                // console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
                 checkoutUpdating = false;
@@ -110,7 +109,7 @@ define(
             onCheckoutUpdateSuccess: function (response) {
                 fullScreenLoader.stopLoader();
                 checkoutUpdating = false;
-                console.log("onCheckoutUpdateSuccess");
+                // console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
                 // console.log("onCustomerAuthenticated");

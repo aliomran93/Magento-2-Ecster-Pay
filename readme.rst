@@ -7,6 +7,21 @@ Installation
 
 This module can only be installed with composer.
 
+Install stable version
+----------------------
+
+Add the below to the "require" section of your composer.json file.
+
+.. code:: json
+
+  "evalent/module-ecsterpay": "^1.0"
+
+Then run the below command.
+
+.. code:: bash
+
+  composer update evalent/module-ecsterpay
+
 Install beta version
 --------------------
 
@@ -27,23 +42,6 @@ Then run the below command.
 .. code::
 
   composer update evalent/module-ecsterpay
-
-Install stable version
-----------------------
-
-Add the below to the "require" section of your composer.json file.
-
-.. code:: json
-
-  "evalent/module-ecsterpay": "^1.0"
-
-Then run the below command.
-
-.. code:: bash
-
-  composer update evalent/module-ecsterpay
-
-**Note:** There is currently no stable version released.
 
 Compatibility
 =============
