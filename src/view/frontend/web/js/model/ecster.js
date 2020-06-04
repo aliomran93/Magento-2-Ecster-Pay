@@ -12,6 +12,7 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/translate',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Customer/js/customer-data',
         'ecsterpayjs'
     ],
     function (
@@ -22,7 +23,8 @@ define(
         urlBuilder,
         messageList,
         $t,
-        fullScreenLoader
+        fullScreenLoader,
+        customerData
     ) {
 
         'use strict';

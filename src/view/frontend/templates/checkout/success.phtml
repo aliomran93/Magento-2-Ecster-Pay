@@ -1,0 +1,12 @@
+<script>
+    require([
+        'jquery',
+        'Magento_Customer/js/customer-data'
+    ], function ($, customerData) {
+        $(function () { // to ensure that code evaluates on page load
+            // This fixes issue with cart being updated after checkout.
+            // Normally this is done through sections.xml and POST calls but this checkout doesn't use any post calls to Magento we went around the issue like this
+            customerData.reload(['cart']);
+        });
+    });
+</script>
