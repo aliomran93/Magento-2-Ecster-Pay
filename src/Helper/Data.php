@@ -312,7 +312,7 @@ class Data extends PaymentHelper
 
     public function showPaymentResult($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return true;
+        return false;
     }
 
     /**
