@@ -28,14 +28,19 @@ use Magento\Framework\DataObject\Copy;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Math\Random;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Registry;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Model\Service\InvoiceService;
 
 class Checkout extends Onepage
 {
@@ -46,8 +51,32 @@ class Checkout extends Onepage
      */
     private $scopeConfig;
 
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $ecsterHelper;
+
+    protected $invoiceService;
+
+    protected $invoiceSender;
+
+    protected $invoiceRepository;
+
+    protected $orderRepository;
+    
+    protected $registry;
+    
+    protected $transaction;
+
     public function __construct(
+        \Magento\Framework\DB\Transaction $transaction,
+        Registry $registry,
+        OrderRepositoryInterface $orderRepository,
+        InvoiceRepositoryInterface $invoiceRepository,
+        InvoiceService $invoiceService,
+        InvoiceSender $invoiceSender,
         ScopeConfigInterface $scopeConfig,
+        \Evalent\EcsterPay\Helper\Data $ecsterHelper,
         \Magento\Framework\Event\ManagerInterface $eventManager,
         Data $helper,
         Url $customerUrl,
@@ -85,6 +114,13 @@ class Checkout extends Onepage
             $quoteRepository, $extensibleDataObjectConverter, $quoteManagement,
             $dataObjectHelper, $totalsCollector);
         $this->scopeConfig = $scopeConfig;
+        $this->ecsterHelper = $ecsterHelper;
+        $this->invoiceSender = $invoiceSender;
+        $this->invoiceService = $invoiceService;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->orderRepository = $orderRepository;
+        $this->registry = $registry;
+        $this->transaction = $transaction;
     }
 
     /**
@@ -265,6 +301,7 @@ class Checkout extends Onepage
                 $_quote->getShippingAddress()->setBaseGrandTotal($_quote->getShippingAddress()->getBaseGrandTotal() + $extraFee);
             }
 
+            /** @var \Magento\Sales\Model\Order $order */
             $order = $this->quoteManagement->submit($_quote);
 
             $this->_eventManager->dispatch(
@@ -288,10 +325,47 @@ class Checkout extends Onepage
                 $order->setEcsterInternalReference($_quote->getEcsterInternalReference())->save();
             }
 
+            if ($this->ecsterHelper->getAutoInvocie() && $order->canInvoice()) {
+                $this->createInvoice($order);
+            }
+
             return $order;
 
         } catch (Exception $ex) {
             throw new Exception($ex->getMessage());
         }
     }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     */
+    protected function createInvoice($order)
+    {
+        /** @var \Magento\Sales\Model\Order\Invoice $invoice */
+        $invoice = $this->invoiceService->prepareInvoice($order);
+        $invoice->register();
+        $invoice = $this->invoiceRepository->save($invoice);
+
+        $this->registry->register('current_invoice', $invoice);
+        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+        $invoice->getOrder()->setIsInProcess(true);
+
+        $transactionSave = $this->transaction->addObject(
+            $invoice
+        )->addObject(
+            $invoice->getOrder()
+        );
+
+        $transactionSave->save();
+
+        $this->invoiceSender->send($invoice);
+        //Send Invoice mail to customer
+        $order->addStatusHistoryComment(
+            __('Notified customer about invoice creation #%1.', $invoice->getId())
+        )
+            ->setIsCustomerNotified(true);
+        
+
+    }
+
 }

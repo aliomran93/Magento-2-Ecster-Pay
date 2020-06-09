@@ -421,6 +421,17 @@ class Data extends PaymentHelper
         }
     }
 
+    /**
+     * @param null|string   $storeId
+     * @param string        $scopeType
+     *
+     * @return bool
+     */
+    public function getAutoInvocie($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_ECSTER_PAYMENT_METHODS . "auto_invoice", $scopeType, $storeId);
+    }
+
     public function addTransactionHistory($data)
     {
         try {

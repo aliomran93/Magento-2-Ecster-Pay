@@ -11,6 +11,11 @@
         <observer name="evalent_ecsterpay_sales_model_service_quote_submit_before"
                   instance="Evalent\EcsterPay\Observer\SaveOrderBeforeSalesModelQuote" shared="false"/>
     </event>
+
+    <event name="sales_order_invoice_register">
+        <observer name="evalent_ecsterpay_sales_order_invoice_register"
+                  instance="Evalent\EcsterPay\Observer\SalesOrderInvoiceRegister"/>
+    </event>
 </config>
 
 
