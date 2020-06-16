@@ -205,8 +205,6 @@ class ShippingInformationManagement extends \Magento\Checkout\Model\ShippingInfo
             if ($cartExtension == null) {
                 $cartExtension = $this->paymentDetailsExtensionInterfaceFactory->create();
             }
-            $quote->setData('ecster_cart_key', $ecsterCartKey);
-            $this->quoteRepository->save($quote);
             $cartExtension->setEcsterCartKey($ecsterCartKey);
             $paymentDetails->setExtensionAttributes($cartExtension);
         }

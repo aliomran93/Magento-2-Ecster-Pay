@@ -11,10 +11,6 @@
         <observer name="evalent_ecsterpay_sales_order_cancel_after"
                   instance="Evalent\EcsterPay\Observer\SalesOrderCancelAfter"/>
     </event>
-    <event name="sales_order_invoice_register">
-        <observer name="evalent_ecsterpay_sales_order_invoice_register"
-                  instance="Evalent\EcsterPay\Observer\SalesOrderInvoiceRegister"/>
-    </event>
     <event name="sales_order_payment_refund">
         <observer name="evalent_ecsterpay_sales_order_payment_refund"
                   instance="Evalent\EcsterPay\Observer\SalesOrderPaymentRefund"/>

@@ -59,6 +59,12 @@
                         <source_model>Evalent\EcsterPay\Model\System\Config\Source\TransactionMode</source_model>
                         <config_path>payment/ecsterpay/mode</config_path>
                     </field>
+                    <field id="auto_invoice" translate="label" type="select" sortOrder="40" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Auto Create Invoice</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/ecsterpay/auto_invoice</config_path>
+                    </field>
                     <field id="order_status" translate="label" type="select" sortOrder="50" showInDefault="1"
                            showInWebsite="1" showInStore="1" canRestore="1">
                         <label>New Order Status</label>
@@ -71,16 +77,19 @@
                         <source_model>Evalent\EcsterPay\Model\System\Config\Source\Cms\Block</source_model>
                         <config_path>payment/ecsterpay/shop_terms_page_content</config_path>
                     </field>
-                    <field id="min_order_total" translate="label" type="text" sortOrder="90" showInDefault="1"
-                           showInWebsite="1" showInStore="1" canRestore="1">
-                        <label>Minimum Order Total</label>
-                        <config_path>payment/ecsterpay/min_order_total</config_path>
-                    </field>
-                    <field id="max_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"
-                           showInWebsite="1" showInStore="1" canRestore="1">
-                        <label>Maximum Order Total</label>
-                        <config_path>payment/ecsterpay/max_order_total</config_path>
-                    </field>
+
+<!--                    The mid/max order total is not yet implemented so there is no need for them to exist in config-->
+<!--                    <field id="min_order_total" translate="label" type="text" sortOrder="90" showInDefault="1"-->
+<!--                           showInWebsite="1" showInStore="1" canRestore="1">-->
+<!--                        <label>Minimum Order Total</label>-->
+<!--                        <config_path>payment/ecsterpay/min_order_total</config_path>-->
+<!--                    </field>-->
+<!--                    <field id="max_order_total" translate="label" type="text" sortOrder="100" showInDefault="1"-->
+<!--                           showInWebsite="1" showInStore="1" canRestore="1">-->
+<!--                        <label>Maximum Order Total</label>-->
+<!--                        <config_path>payment/ecsterpay/max_order_total</config_path>-->
+<!--                    </field>-->
+
                     <field id="allowspecific" translate="label" type="allowspecific" sortOrder="110" showInDefault="1"
                            showInWebsite="1" showInStore="1">
                         <label>Payment from Applicable Countries</label>

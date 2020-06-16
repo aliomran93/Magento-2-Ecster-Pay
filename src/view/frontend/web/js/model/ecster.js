@@ -12,6 +12,7 @@ define(
         'Magento_Ui/js/model/messageList',
         'mage/translate',
         'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Customer/js/customer-data',
         'ecsterpayjs'
     ],
     function (
@@ -22,7 +23,8 @@ define(
         urlBuilder,
         messageList,
         $t,
-        fullScreenLoader
+        fullScreenLoader,
+        customerData
     ) {
 
         'use strict';
@@ -38,6 +40,7 @@ define(
                     cartKey: this.key,
                     shopTermsUrl: ecsterConfig.shopTermsUrl,
                     showCart: ecsterConfig.showCart,
+                    showPaymentResult: false,
                     showDelivery: ecsterConfig.showDelivery,
                     onCheckoutStartInit: $.proxy(function () {
                         this.onCheckoutStartInit();
@@ -121,6 +124,7 @@ define(
                 // console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
+                fullScreenLoader.startLoader();
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
