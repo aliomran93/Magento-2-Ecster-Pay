@@ -547,11 +547,11 @@ class Ecster
 //                }
 //            }
 
-            if (!is_null($this->getAddress()->getNationalId())
-                && $this->getAddress()->getNationalId() != ""
-            ) {
-                $customerData["nationalId"] = $this->getAddress()->getNationalId();
-            }
+//            if (!is_null($this->getAddress()->getNationalId())
+//                && $this->getAddress()->getNationalId() != ""
+//            ) {
+//                $customerData["nationalId"] = $this->getAddress()->getNationalId();
+//            }
 
             if (!is_null($this->getAddress()->getFirstname())
                 && $this->getAddress()->getFirstname() != ""
