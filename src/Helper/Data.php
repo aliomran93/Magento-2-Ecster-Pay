@@ -22,7 +22,7 @@ use Evalent\EcsterPay\Model\TransactionHistoryFactory;
 class Data extends PaymentHelper
 {
 
-    // Some method in ecster need to ne invoiced directly and not send to ecster as they do not support synchronous transaction flow
+    // Some methods in ecster need to be invoiced directly and not send to ecster as they do not support synchronous transaction flow
     const NON_SYNC_TRANSACTION_METHODS = [
         "SWISH"
     ];

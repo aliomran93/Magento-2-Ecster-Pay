@@ -196,8 +196,6 @@ class SalesOrderInvoiceRegister implements ObserverInterface
             $ecsterReferenceId = $order->getData('ecster_internal_reference');
 
             try {
-                $order->setEcsterExtraInvoiceRemainFee($order->getEcsterExtraInvoiceRemainFee() + $invoice->getEcsterExtraFee())->save();
-
                 if (!is_null($ecsterReferenceId)) {
                     if ($invoice->getShippingInclTax() > 0) {
                     $shippingItem = $this->ecsterApi->createDummyItem($invoice->getShippingInclTax(),
@@ -250,6 +248,8 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                         }
                     }
                 }
+                $order->setEcsterExtraInvoiceRemainFee($order->getEcsterExtraInvoiceRemainFee() + $invoice->getEcsterExtraFee())->save();
+
 
                 $invoice->setData('ecster_creditmemo_remain_fee', $invoice->getGrandTotal())
                     ->setData('ecster_creditmemo_status', 'new')
