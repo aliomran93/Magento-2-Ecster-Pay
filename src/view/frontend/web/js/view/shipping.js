@@ -68,10 +68,10 @@ define(
             initialize: function () {
                 this._super();
                 checkoutDataResolver.resolveEstimationAddress();
-
                 if (window.checkoutConfig.selectedShippingMethod) {
                     this.selectShippingMethod(window.checkoutConfig.selectedShippingMethod)
                 }
+
                 return this;
             },
 
@@ -81,6 +81,8 @@ define(
             ratesLength: ko.computed(function () {
                 return shippingService.getShippingRates().length;
             }),
+
+
 
             isSelectedShippmentMethod: function (shippingMethod) {
                 var selectedShippingMethod = null;
