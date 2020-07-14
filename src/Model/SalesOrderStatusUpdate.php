@@ -12,8 +12,16 @@ use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 class SalesOrderStatusUpdate
 {
     protected $order;
-    protected $_helper;
-    protected $_ecsterApi;
+
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
+    protected $helper;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\Api\Ecster
+     */
+    protected $ecsterApi;
 
     public function __construct(
         Order $order,
@@ -22,8 +30,8 @@ class SalesOrderStatusUpdate
     ) {
 
         $this->_order = $order;
-        $this->_helper = $helper;
-        $this->_ecsterApi = $ecsterApi;
+        $this->helper = $helper;
+        $this->ecsterApi = $ecsterApi;
     }
 
     public function process($responseJson)
@@ -38,8 +46,8 @@ class SalesOrderStatusUpdate
                 $message = null;
                 $state = null;
 
-                $assignedStatus = $this->_helper->getAssignedOrderStatus(
-                    strtolower($response['status']),
+                $assignedStatus = $this->helper->getOenStatus(
+                    $response['status'],
                     $order->getStoreId()
                 );
 
@@ -51,29 +59,7 @@ class SalesOrderStatusUpdate
                     return;
                 }
 
-                switch ($response['status']) {
-                    case "PENDING_PAYMENT":
-                        $state = \Magento\Sales\Model\Order::STATE_PENDING_PAYMENT;
-                        break;
-                    case "PENDING_DECISION":
-                    case "PENDING_SIGNATURE":
-                    case "PENDING_PROCESSING":
-                        $state = \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW;
-                        break;
-                    case "DENIED":
-                    case "FAILED":
-                    case "ABORTED":
-                    case "EXPIRED":
-                        $state = \Magento\Sales\Model\Order::STATE_CANCELED;
-                        break;
-                    case "BLOCKED":
-                        $state = \Magento\Sales\Model\Order::STATUS_FRAUD;
-                        break;
-                    case "FULLY_DELIVERED":
-                    case "READY":
-                        $state = \Magento\Sales\Model\Order::STATE_PROCESSING;
-                        break;
-                }
+                $state = $this->helper->getOenStatus($response['status'], $order->getStoreId());
 
                 if ($order->getStatus() == \Magento\Sales\Model\Order::STATE_CANCELED) {
                     $assignedStatus = \Magento\Sales\Model\Order::STATE_CANCELED;
@@ -91,24 +77,24 @@ class SalesOrderStatusUpdate
                     'entity_type' => 'order',
                     'entity_id' => $order->getId(),
                     'amount' => $order->getGrandTotal(),
-                    'transaction_type' => $this->_ecsterApi::ECSTER_OMA_TYPE_OEN_UPDATE,
+                    'transaction_type' => $this->ecsterApi::ECSTER_OMA_TYPE_OEN_UPDATE,
                     'request_params' => null,
                     'order_status' => $response['status'],
                     'transaction_id' => null,
                     'response_params' => serialize($response)
                 ];
 
-                $this->_helper->addTransactionHistory($transactionHistoryData);
+                $this->helper->addTransactionHistory($transactionHistoryData);
 
             } else {
                 throw new \Exception(__(
-                    "Ecster OPN: Could not find order by %1 ecster reference number.",
+                    "Ecster OEN: Could not find order by %1 ecster reference number.",
                     $response['orderId']
                 ));
             }
 
         } else {
-            throw new \Exception(__("Ecster OPN: Status Error"));
+            throw new \Exception(__("Ecster OEN: Status Error"));
         }
     }
 

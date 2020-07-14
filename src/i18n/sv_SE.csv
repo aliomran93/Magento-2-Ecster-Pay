@@ -43,7 +43,7 @@ Ecster Checkout: Shop Terms,Ecster Checkout: Köpvillkor,module,Evalent_EcsterPa
 You must define Shopping Terms Url Content,Du måste ange köpvillkorens url-innehåll,module,Evalent_EcsterPay
 Ecster Payment Type,Ecster betalsätt,module,Evalent_EcsterPay
 Ecster Transaction ID,Ecster transaktions-id,module,Evalent_EcsterPay
-Ecster OPN: Can not be found any order by %1 ecster reference number.,Ecster OPN: kan inte hitta order med %1 Ecster referensnummer.,module,Evalent_EcsterPay
+Ecster OEN: Can not be found any order by %1 ecster reference number.,Ecster OEN: kan inte hitta order med %1 Ecster referensnummer.,module,Evalent_EcsterPay
 -- Please Select --,-- Välj --,module,Evalent_EcsterPay
 "Ecster payment integration requires the definition of the contents of terms condition. You can define it by clicking the <a href=""%1"">link.</a>","Ecster betalintegration kräver att man definierar köpvillkort. Du kan definiera villkoren genom att klicka  <a href=""%1"">här.</a>",module,Evalent_EcsterPay
 Invoice Fee,Fakturaavgift,module,Evalent_EcsterPay
