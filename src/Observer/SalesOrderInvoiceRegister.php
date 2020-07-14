@@ -5,6 +5,7 @@
  */
 namespace Evalent\EcsterPay\Observer;
 
+use Evalent\EcsterPay\Helper\Data;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
@@ -186,6 +187,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
         $payment = $order->getPayment();
         $method = $payment->getMethodInstance();
 
+
         if ($this->helper->isEnabled($order->getStoreId())
             && $method->getCode() == 'ecsterpay'
         ) {
@@ -222,27 +224,30 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                         "closeDebit" => false,
                     ];
 
-                    $responseParams = $this->ecsterApi->orderProcess($ecsterReferenceId, $requestParams);
-                    if ($responseParams
-                        && $responseParams->transaction
-                    ) {
-                        $invoice->setData('ecster_debit_reference', $responseParams->transaction->id);
-                        $invoice->setData('transaction_id', $responseParams->transaction->id)->save();
+                    // Some method does not support synchronous transaction flow
+                    if (!in_array($invoice->getOrder()->getEcsterPaymentType(), Data::NON_SYNC_TRANSACTION_METHODS)) {
+                        $responseParams = $this->ecsterApi->orderProcess($ecsterReferenceId, $requestParams);
+                        if ($responseParams
+                            && $responseParams->transaction
+                        ) {
+                            $invoice->setData('ecster_debit_reference', $responseParams->transaction->id);
+                            $invoice->setData('transaction_id', $responseParams->transaction->id)->save();
 
-                        $transactionHistoryData = [
-                            'id' => null,
-                            'order_id' => $order->getId(),
-                            'entity_type' => 'invoice',
-                            'entity_id' => $invoice->getId(),
-                            'amount' => $invoice->getGrandTotal(),
-                            'transaction_type' => $this->ecsterApi::ECSTER_OMA_TYPE_DEBIT,
-                            'request_params' => serialize($requestParams),
-                            'order_status' => $responseParams->orderStatus,
-                            'transaction_id' => $responseParams->transaction->id,
-                            'response_params' => serialize((array)$responseParams),
-                        ];
+                            $transactionHistoryData = [
+                                'id' => null,
+                                'order_id' => $order->getId(),
+                                'entity_type' => 'invoice',
+                                'entity_id' => $invoice->getId(),
+                                'amount' => $invoice->getGrandTotal(),
+                                'transaction_type' => $this->ecsterApi::ECSTER_OMA_TYPE_DEBIT,
+                                'request_params' => serialize($requestParams),
+                                'order_status' => $responseParams->orderStatus,
+                                'transaction_id' => $responseParams->transaction->id,
+                                'response_params' => serialize((array)$responseParams),
+                            ];
 
-                        $this->helper->addTransactionHistory($transactionHistoryData);
+                            $this->helper->addTransactionHistory($transactionHistoryData);
+                        }
                     }
                 }
 

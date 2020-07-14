@@ -16,11 +16,16 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\Country;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\BadResponseException;
 use Evalent\EcsterPay\Model\TransactionHistoryFactory;
 
 class Data extends PaymentHelper
 {
+
+    // Some method in ecster need to ne invoiced directly and not send to ecster as they do not support synchronous transaction flow
+    const NON_SYNC_TRANSACTION_METHODS = [
+        "SWISH"
+    ];
 
     const XML_PATH_ECSTER_PAYMENT_METHODS = 'payment/ecsterpay/';
 
@@ -196,7 +201,7 @@ class Data extends PaymentHelper
     {
         return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
     }
-    
+
     /**
      * @param string   $storeId
      * @param null|string   $storeId
@@ -211,7 +216,7 @@ class Data extends PaymentHelper
         }
         return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$OenStatus], $scopeType, $storeId);
     }
-    
+
 
     /**
      * @param null|string   $storeId
@@ -431,7 +436,7 @@ class Data extends PaymentHelper
 
             return $response->getBody()->getContents();
 
-        } catch (ClientException $ex) {
+        } catch (BadResponseException $ex) {
             $response = $ex->getResponse();
 
             return $response->getBody()->getContents();
