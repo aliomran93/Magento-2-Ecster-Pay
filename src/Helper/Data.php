@@ -214,7 +214,7 @@ class Data extends PaymentHelper
         if (!isset(self::OEN_ORDER_STATUSES[$oenStatus])) {
             return null;
         }
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$OenStatus], $scopeType, $storeId);
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$oenStatus], $scopeType, $storeId);
     }
 
 
