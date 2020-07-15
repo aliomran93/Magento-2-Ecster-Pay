@@ -297,11 +297,6 @@ class Ecster
             $_langCode = explode("_", $langCode);
 
             if (in_array($_langCode[0], $this->_supportedLanguages)) {
-                if ($_langCode[0] == 'no'
-                    || $_langCode[0] == 'da') {
-                    return "sv";
-                }
-
                 return $_langCode[0];
 
             } else {
@@ -496,7 +491,7 @@ class Ecster
     {
         return [
             "language" => $this->getLocale(),
-            "country" => $this->getCountryId()
+            "country" => $this->_helper->getDefaultCountry($this->_storeId)
         ];
     }
 
@@ -526,7 +521,7 @@ class Ecster
 
         return [
             "amount" => $this->_cartTotal,
-            "currency" => $this->getQuoteCurrencyCode(),
+            "currency" => "SEK",//$this->getQuoteCurrencyCode(),
             "message" => $this->getQuoteMessage(),
             "rows" => $cartItems
         ];
@@ -547,11 +542,11 @@ class Ecster
 //                }
 //            }
 
-            if (!is_null($this->getAddress()->getNationalId())
-                && $this->getAddress()->getNationalId() != ""
-            ) {
-                $customerData["nationalId"] = "SE" . $this->getAddress()->getNationalId();
-            }
+//            if (!is_null($this->getAddress()->getNationalId())
+//                && $this->getAddress()->getNationalId() != ""
+//            ) {
+//                $customerData["nationalId"] = $this->getAddress()->getNationalId();
+//            }
 
             if (!is_null($this->getAddress()->getFirstname())
                 && $this->getAddress()->getFirstname() != ""
@@ -671,6 +666,21 @@ class Ecster
                 "price" => $_rate->getPrice() > 0 ? $this->_helper->ecsterFormatPrice($this->calculateShippingPrice($_rate->getPrice())) : 0,
                 "selected" => !is_null($address->getShippingMethod()) && $_rate->getCarrier() . "_" . $_rate->getMethod() == $address->getShippingMethod() ? true : false
                 //($_rate->getCarrier() . "_" .  $_rate->getMethod() == $this->_helper->getDefaultShippingMethod($this->getAddress()->getCountryId()) ? true : false)
+            ];
+        }
+
+        // IF the are no available shipping method we want to trigger the "Select shipping method" message in ecster and to do that we need two shipping methods whish is not selected
+        if (sizeof($shippingMethods) < 1) {
+            $shippingMethods[] = [
+                "id" => "0",
+                "name" => "NO SHIPPING CHOSEN",
+                "price" => 0,
+                "selected" => false
+            ]; $shippingMethods[] = [
+                "id" => "1",
+                "name" => "NO SHIPPING CHOSEN",
+                "price" => 0,
+                "selected" => false
             ];
         }
 

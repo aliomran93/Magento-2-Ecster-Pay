@@ -16,13 +16,35 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\Country;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\BadResponseException;
 use Evalent\EcsterPay\Model\TransactionHistoryFactory;
 
 class Data extends PaymentHelper
 {
 
+    // Some methods in ecster need to be invoiced directly and not send to ecster as they do not support synchronous transaction flow
+    const NON_SYNC_TRANSACTION_METHODS = [
+        "SWISH"
+    ];
+
     const XML_PATH_ECSTER_PAYMENT_METHODS = 'payment/ecsterpay/';
+
+    const OEN_ORDER_STATUSES = [
+        "READY" => "order_status_ready",
+        "PENDING_PAYMENT" => "order_status_pending_payment",
+        "PENDING_DECISION" => "order_status_pending_decision",
+        "PENDING_SIGNATURE" => "order_status_pending_signature",
+        "PENDING_PROCESSING" => "order_status_pending_processing",
+        "DENIED" => "order_status_denied",
+        "FAILED" => "order_status_failed",
+        "ABORTED" => "order_status_aborted",
+        "PARTIALLY_DELIVERED" => "order_status_partially_delivered",
+        "FULLY_DELIVERED" => "order_status_fully_delivered",
+        "ANNULLED" => "order_status_anulled",
+        "EXPIRED" => "order_status_expired",
+        "BLOCKED" => "order_status_blocked",
+        "MANUAL_PROCESSING" => "order_status_manual_processing",
+    ];
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -181,6 +203,22 @@ class Data extends PaymentHelper
     }
 
     /**
+     * @param string   $storeId
+     * @param null|string   $storeId
+     * @param string $scopeType
+     *
+     * @return mixed
+     */
+    public function getOenStatus($oenStatus, $storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
+    {
+        if (!isset(self::OEN_ORDER_STATUSES[$oenStatus])) {
+            return null;
+        }
+        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$oenStatus], $scopeType, $storeId);
+    }
+
+
+    /**
      * @param null|string   $storeId
      * @param string        $scopeType
      *
@@ -327,20 +365,6 @@ class Data extends PaymentHelper
     }
 
     /**
-     * @param        $status
-     * @param null|string   $storeId
-     * @param string        $scopeType
-     *
-     * @return mixed
-     */
-    public function getAssignedOrderStatus($status, $storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
-    {
-        $path = "order_status_" . $status;
-
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . $path, $scopeType, $storeId);
-    }
-
-    /**
      * @param $countryId
      *
      * @return string
@@ -412,7 +436,7 @@ class Data extends PaymentHelper
 
             return $response->getBody()->getContents();
 
-        } catch (ClientException $ex) {
+        } catch (BadResponseException $ex) {
             $response = $ex->getResponse();
 
             return $response->getBody()->getContents();

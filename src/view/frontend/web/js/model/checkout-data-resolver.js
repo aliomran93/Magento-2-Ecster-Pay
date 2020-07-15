@@ -7,6 +7,8 @@ define(
         'jquery',
         'Magento_Customer/js/model/address-list',
         'Evalent_EcsterPay/js/model/quote',
+        'Evalent_EcsterPay/js/model/ecster',
+        'Evalent_EcsterPay/js/model/shipping-save-processor',
         'Magento_Checkout/js/action/create-shipping-address',
         'Magento_Checkout/js/action/select-shipping-address',
         'Magento_Checkout/js/action/select-shipping-method',
@@ -19,6 +21,8 @@ define(
         $,
         addressList,
         quote,
+        ecster,
+        shippingSaveProcessor,
         createShippingAddress,
         selectShippingAddress,
         selectShippingMethodAction,
@@ -192,13 +196,30 @@ define(
                 }
 
                 if (!availableRate) {
-                    selectShippingMethodAction(null);
+                    if (ratesData.length == 1) {
+                        selectShippingMethodAction(ratesData[0]);
+                        $('#co-shipping-method-form').submit();
+                    } else {
+                        selectShippingMethodAction(null);
+                        var updateCartCallBack = ecster.updateInitCart(quote.getEcsterCartKey());
+                        var setShippingInformationAction = shippingSaveProcessor.saveShippingInformation(quote.shippingAddress().getType());
+                        setShippingInformationAction.done(
+                            function () {
+                                updateCartCallBack(quote.getEcsterCartKey());
+                            }
+                        ).fail(
+                            function () {
+                                updateCartCallBack(quote.getEcsterCartKey());
+                            }
+                        )
+                    }
                 } else {
                     if (typeof (availableRate) === 'object') {
                         selectShippingMethodAction(availableRate);
                     } else {
                         selectShippingMethodAction(availableRate);
                     }
+                    $('#co-shipping-method-form').submit();
                 }
             }
         };

@@ -125,7 +125,9 @@
                 </group>
                 <group id="opn" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
                        showInStore="1">
-                    <label>OPN Order Statuses</label>
+                    <label>OEN Order Statuses</label>
+                    <comment><![CDATA[Set a specific order status when an OEN request is recieved from Ecster. You can find all the statuses and descriptions here:
+                       <a href="https://developer.ecster.se/appi/api/#/order-event-notification-oen">https://developer.ecster.se/appi/api/#/order-event-notification-oen</a>]]></comment>
                     <field id="order_status_ready" translate="label" type="select" sortOrder="10" showInDefault="1"
                            showInWebsite="1" showInStore="1">
                         <label>Order Status - Ready</label>
@@ -191,6 +193,21 @@
                         <label>Order Status - Expired</label>
                         <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
                         <config_path>payment/ecsterpay/order_status_expired</config_path>
+                    </field>
+                    <field id="order_status_manual_processing" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Manual handling</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_manual_processing</config_path>
+                    </field>
+                    <field id="order_status_anulled" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Annulled</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_anulled</config_path>
+                    </field>
+                    <field id="order_status_partially_delivered" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Order Status - Partly delivered</label>
+                        <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
+                        <config_path>payment/ecsterpay/order_status_partially_delivered</config_path>
                     </field>
                 </group>
                 <group id="display" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"

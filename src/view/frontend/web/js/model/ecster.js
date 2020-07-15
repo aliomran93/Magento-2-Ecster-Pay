@@ -82,56 +82,57 @@ define(
             },
             onCheckoutStartInit: function (response) {
                 fullScreenLoader.startLoader();
-                // console.log("onCheckoutStartInit");
+                 console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
                 checkoutUpdating = false;
                 fullScreenLoader.stopLoader();
-                // console.log("onCheckoutStartSuccess");
+                 console.log("onCheckoutStartSuccess");
             },
             onCheckoutStartFailure: function (response) {
                 checkoutUpdating = false;
                 fullScreenLoader.stopLoader();
-                // console.log("onCheckoutStartFailure");
+                 console.log(response);
+                 console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
                 checkoutUpdating = true;
                 fullScreenLoader.startLoader();
-                // console.log("onCheckoutUpdateInit");
+                 console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
                 checkoutUpdating = false;
                 fullScreenLoader.startLoader();
-                // console.log("onCheckoutInitUpdateCart");
+                 console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
                 checkoutUpdating = false;
                 fullScreenLoader.stopLoader();
-                // console.log("onCheckoutFinishUpdateCart");
+                 console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
                 fullScreenLoader.stopLoader();
                 checkoutUpdating = false;
-                // console.log("onCheckoutUpdateSuccess");
+                 console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
-                // console.log("onCustomerAuthenticated");
+                 console.log("onCustomerAuthenticated");
             },
             onChangedContactInfo: function (response) {
-                // console.log('onChangedContactInfo');
+                 console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
-                // console.log('onChangedDeliveryAddress');
+                 console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
                 fullScreenLoader.startLoader();
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
-                // console.log('onPaymentFailure');
+                 console.log('onPaymentFailure');
             },
             onPaymentDenied: function (response) {
-                // console.log("onPaymentDenied");
+                 console.log("onPaymentDenied");
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
@@ -154,7 +155,7 @@ define(
             updateInitCart: function (currentCartKey) {
                 return EcsterPay.initUpdateCart(currentCartKey);
             },
-            updateCart: function (type) {
+            updateCheckoutType: function (type) {
                 let success = true;
                 if (type != ecsterConfig.preselectedPurchaseType) { // Make sure that not useless calls being made
                     $.ajax({ // Update the cart with the correct purchase type before updating the checkout
@@ -188,6 +189,37 @@ define(
                         }
                     });
                 }
+                return success;
+            },
+            updateCart: function () {
+                let success = true;
+                var updateCartCallBack = this.updateInitCart(quote.getEcsterCartKey());
+                $.ajax({
+                    url: urlBuilder.build('ecsterpay/checkout/updatecart'),
+                    type: 'get',
+                    async: false,
+                    dataType: 'json',
+                    context: this,
+
+                    /**
+                     * @param {Object} response
+                     */
+                    success: function (response) {
+                        if (response.error) {
+                            messageList.addErrorMessage({ message: response.message });
+                            success = false;
+                            return;
+                        }
+                        this.key = response.ecster_key
+                        quote.setEcsterCartKey(response.ecster_key);
+                        updateCartCallBack(response.ecster_key)
+                        success = true;
+                    },
+                    error: function (reponse) {
+                        messageList.addErrorMessage({ message: $t('Something went wrong. Try again and if the problem persists please contact the support for more information') });
+                        success = false;
+                    }
+                });
                 return success;
             }
         };

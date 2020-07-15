@@ -11,7 +11,8 @@ define(
         'Evalent_EcsterPay/js/model/shipping-service',
         'Magento_Checkout/js/model/shipping-rate-registry',
         'Magento_Checkout/js/model/error-processor',
-        'Evalent_EcsterPay/js/model/ecster'
+        'Evalent_EcsterPay/js/model/ecster',
+        'Evalent_EcsterPay/js/view/shipping'
     ],
     function (
         $,
@@ -21,7 +22,8 @@ define(
         shippingService,
         rateRegistry,
         errorProcessor,
-        ecster
+        ecster,
+        shipping
     ) {
         'use strict';
 

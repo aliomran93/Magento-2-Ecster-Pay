@@ -45,7 +45,6 @@ use Magento\Sales\Model\Service\InvoiceService;
 class Checkout extends Onepage
 {
 
-
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -63,9 +62,9 @@ class Checkout extends Onepage
     protected $invoiceRepository;
 
     protected $orderRepository;
-    
+
     protected $registry;
-    
+
     protected $transaction;
 
     public function __construct(
@@ -325,7 +324,7 @@ class Checkout extends Onepage
                 $order->setEcsterInternalReference($_quote->getEcsterInternalReference())->save();
             }
 
-            if ($this->ecsterHelper->getAutoInvocie() && $order->canInvoice()) {
+            if (($this->ecsterHelper->getAutoInvocie() || in_array($orderProperties['method'], \Evalent\EcsterPay\Helper\Data::NON_SYNC_TRANSACTION_METHODS)) && $order->canInvoice()) {
                 $this->createInvoice($order);
             }
 
@@ -364,7 +363,7 @@ class Checkout extends Onepage
             __('Notified customer about invoice creation #%1.', $invoice->getId())
         )
             ->setIsCustomerNotified(true);
-        
+
 
     }
 

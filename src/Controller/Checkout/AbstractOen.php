@@ -47,7 +47,7 @@ abstract class AbstractOen extends Action
                         $this->_orderStatusUpdate->process($responseJson);
                     }
                 } else {
-                    $this->_logger->info(__("Ecster OPN: Json Error"));
+                    $this->_logger->info(__("Ecster OEN: Json Error"));
                     $this->_logger->info($responseJson);
                     $this->getResponse()->setStatusHeader(400, '1.1', 'Bad Request')->sendResponse();
                 }

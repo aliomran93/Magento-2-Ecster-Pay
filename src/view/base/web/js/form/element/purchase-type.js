@@ -31,7 +31,7 @@ define([
         },
 
         updateEcsterPurchaseType: function (value) {
-            if(!ecster.updateCart(value)) {
+            if(!ecster.updateCheckoutType(value)) {
                 if (value == "B2B") {
                     this.value("B2C")
                 } else {
