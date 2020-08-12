@@ -691,7 +691,7 @@ class Ecster
     {
         $ecsterParams = [
             "locale" => $this->getLocaleDatas(),
-            "countryCode" => $this->getCountryId(),
+            "countryCode" => $this->_helper->getDefaultCountry($this->_storeId),
             "parameters" => $this->getDefaultDatas(),
             "deliveryMethods" => $this->getAvailableShippingMethod(),
             "cart" => $this->getCartDatas(),
