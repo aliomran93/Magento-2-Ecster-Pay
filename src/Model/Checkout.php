@@ -127,10 +127,12 @@ class Checkout extends Onepage
      * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
      * @throws \Exception
      */
-    public function convertEcsterQuoteToOrder($ecsterOrderData)
+    public function convertEcsterQuoteToOrder($ecsterOrderData, $_quote = null)
     {
         try {
-            $_quote = $this->getQuote();
+            if ($_quote == null) {
+                $_quote = $this->getQuote();
+            }
             $_isVirtual = $_quote->getIsVirtual();
 
             $_billingCountryId = "";

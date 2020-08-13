@@ -5,9 +5,14 @@
  */
 namespace Evalent\EcsterPay\Model;
 
+use Evalent\EcsterPay\Model\Api\Ecster;
+use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
+use Psr\Log\LoggerInterface;
 
 class SalesOrderStatusUpdate
 {
@@ -23,18 +28,46 @@ class SalesOrderStatusUpdate
      */
     protected $ecsterApi;
 
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    private $quoteRepository;
+
+    /**
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    private $eventManager;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\Checkout
+     */
+    private $ecsterCheckout;
+
     public function __construct(
         Order $order,
         EcsterPayHelper $helper,
-        EcsterApi $ecsterApi
+        EcsterApi $ecsterApi,
+        LoggerInterface $logger,
+        CartRepositoryInterface $quoteRepository,
+        EventManagerInterface $eventManager,
+        Checkout $ecsterCheckout
     ) {
 
         $this->_order = $order;
         $this->helper = $helper;
         $this->ecsterApi = $ecsterApi;
+        $this->logger = $logger;
+        $this->quoteRepository = $quoteRepository;
+        $this->eventManager = $eventManager;
+        $this->ecsterCheckout = $ecsterCheckout;
     }
 
-    public function process($responseJson)
+    public function process($responseJson, $forceCreateOrder = false)
     {
 
         $response = (array)json_decode($responseJson);
@@ -86,6 +119,9 @@ class SalesOrderStatusUpdate
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
 
+            } else if ($forceCreateOrder && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED'){
+                //This fixes the issue with payment with Swish where the user is not redirected to the success page and thus we need to create the order through the OEN request
+                $this->createOrderFromOen($response);
             } else {
                 throw new \Exception(__(
                     "Ecster OEN: Could not find order by %1 ecster reference number.",
@@ -114,6 +150,37 @@ class SalesOrderStatusUpdate
 
         } catch (\Exception $ex) {
             return $ex->getMessage();
+        }
+    }
+
+    protected function createOrderFromOen($oenData)
+    {
+        if (!isset($oenData['orderId'])) {
+            return;
+        }
+        $response = (array)$this->ecsterApi->getOrder($oenData['orderId']);
+        if ($response['id'] == $oenData['orderId']) {
+            $quoteId = str_replace(Ecster::ECSTER_ORDER_PREFIX, "", $response['orderReference']);
+            try {
+                $quote = $this->quoteRepository->get($quoteId);
+            } catch (NoSuchEntityException $e) {
+                $this->logger->info("OEN Update: Could not find quote with id $quoteId");
+                return;
+            }
+
+            $order = $this->ecsterCheckout->convertEcsterQuoteToOrder($response, $quote);
+            $this->ecsterApi->updateOrderReference($response["id"], $order->getIncrementId());
+
+            $quote->setIsActive(false);
+            $this->quoteRepository->save($quote);
+
+            $this->eventManager->dispatch(
+                'checkout_onepage_controller_success_action',
+                [
+                    'order_ids' => [$order->getId()],
+                    'order' => $order->getId()
+                ]
+            );
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Evalent\EcsterPay\Override\Checkout\Model;
 
 use Exception;
 use Magento\Checkout\Api\Data\PaymentDetailsExtensionInterfaceFactory;
+use Magento\Checkout\Api\Data\PaymentDetailsInterface;
 use Magento\Checkout\Api\Data\ShippingInformationInterface;
 use Magento\Checkout\Model\PaymentDetailsFactory;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -101,7 +102,7 @@ class ShippingInformationManagement extends \Magento\Checkout\Model\ShippingInfo
     public function saveAddressInformation(
         $cartId,
         ShippingInformationInterface $addressInformation
-    ) {
+    ) :PaymentDetailsInterface {
         if (!$this->ecsterpayHelper->isEnabled()) {
             return parent::saveAddressInformation($cartId,$addressInformation);
         }
