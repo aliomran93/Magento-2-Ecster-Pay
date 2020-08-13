@@ -162,9 +162,27 @@ class SalesOrderStatusUpdate
         if ($response['id'] == $oenData['orderId']) {
             $quoteId = str_replace(Ecster::ECSTER_ORDER_PREFIX, "", $response['orderReference']);
             try {
+                /** @var \Magento\Quote\Model\Quote $quote */
                 $quote = $this->quoteRepository->get($quoteId);
             } catch (NoSuchEntityException $e) {
-                $this->logger->info("OEN Update: Could not find quote with id $quoteId");
+                $this->logger->info("Ecster OEN Create Order: Could not find quote with id $quoteId");
+                return;
+            }
+
+            if (!$quote->getIsActive()) {
+                $this->logger->info("Ecster OEN Create Order: Could not create order from quote $quoteId cause it was not active");
+                return;
+            }
+
+            //Validate that the order really is payed
+            if ($response['status'] != 'FULLY_DELIVERED') {
+                $this->logger->info("Ecster OEN Create Order: Could not create order from quote $quoteId cause it didn't have the status FULLY_DELIVERED");
+                return;
+            }
+
+            // Check so the totals still match, so the quote has not been tempered with
+            if (number_format(((float)$response['amount'])/100, 2, '.', '') != number_format($quote->getGrandTotal(), 2, '.', '')) {
+                $this->logger->info("Ecster OEN Create Order: Could not create order from quote $quoteId cause the totals differed.");
                 return;
             }
 
@@ -174,6 +192,7 @@ class SalesOrderStatusUpdate
             $quote->setIsActive(false);
             $this->quoteRepository->save($quote);
 
+            //We still want to try and lets event observers to have their go at the order although they will not be able to fetch the checkout session
             $this->eventManager->dispatch(
                 'checkout_onepage_controller_success_action',
                 [

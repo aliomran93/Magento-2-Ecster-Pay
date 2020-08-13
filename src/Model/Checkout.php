@@ -133,6 +133,9 @@ class Checkout extends Onepage
             if ($_quote == null) {
                 $_quote = $this->getQuote();
             }
+            if (!$_quote->getIsActive()) {
+                return null;
+            }
             $_isVirtual = $_quote->getIsVirtual();
 
             $_billingCountryId = "";
