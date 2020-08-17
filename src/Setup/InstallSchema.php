@@ -229,13 +229,13 @@ class InstallSchema implements InstallSchemaInterface
             'created_at',
             \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
             null,
-            ['nullable' => false],
+            ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
             'Created Date'
         )->addColumn(
             'updated_at',
             \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
             null,
-            ['nullable' => false],
+            ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT_UPDATE],
             'Updated Date'
         )->addIndex(
             $setup->getIdxName('evalent_ecsterpay_transaction_history', ['order_id']),
