@@ -5,19 +5,19 @@
  */
 namespace Evalent\EcsterPay\Helper;
 
-use Magento\Payment\Helper\Data as PaymentHelper;
+use Evalent\EcsterPay\Model\TransactionHistoryFactory;
+use GuzzleHttp\Exception\BadResponseException;
+use Magento\Directory\Model\Country;
+use Magento\Framework\App\Config\Initial as InitialConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\View\LayoutFactory;
+use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Payment\Model\Config as PaymentConfig;
 use Magento\Payment\Model\Method\Factory as PaymentMethodFactory;
 use Magento\Store\Model\App\Emulation;
-use Magento\Payment\Model\Config as PaymentConfig;
-use Magento\Framework\App\Config\Initial as InitialConfig;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Directory\Model\Country;
-use GuzzleHttp\Exception\BadResponseException;
-use Evalent\EcsterPay\Model\TransactionHistoryFactory;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Data extends PaymentHelper
 {
@@ -65,7 +65,6 @@ class Data extends PaymentHelper
      * @var \Evalent\EcsterPay\Model\TransactionHistoryFactory
      */
     protected $transactionHistoryFactory;
-
 
     public function __construct(
         Context $context,
@@ -122,7 +121,7 @@ class Data extends PaymentHelper
      */
     public function isEnabled($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'active', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'active', $scopeType, $storeId);
     }
 
     /**
@@ -133,7 +132,7 @@ class Data extends PaymentHelper
      */
     public function getApiKey($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'api_key', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'api_key', $scopeType, $storeId);
     }
 
     /**
@@ -144,7 +143,7 @@ class Data extends PaymentHelper
      */
     public function getMerchantKey($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'merchant_key', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'merchant_key', $scopeType, $storeId);
     }
 
     /**
@@ -166,7 +165,7 @@ class Data extends PaymentHelper
      */
     public function getTransactionMode($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'mode', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'mode', $scopeType, $storeId);
     }
 
     /**
@@ -177,7 +176,7 @@ class Data extends PaymentHelper
      */
     public function getPurchaseType($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'purchase_type', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'purchase_type', $scopeType, $storeId);
     }
 
     /**
@@ -188,7 +187,7 @@ class Data extends PaymentHelper
      */
     public function getPreselectedPurchaseType($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'preselected_purchase_type', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'preselected_purchase_type', $scopeType, $storeId);
     }
 
     /**
@@ -199,7 +198,7 @@ class Data extends PaymentHelper
      */
     public function getTermsPageContent($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
     }
 
     /**
@@ -214,9 +213,8 @@ class Data extends PaymentHelper
         if (!isset(self::OEN_ORDER_STATUSES[$oenStatus])) {
             return null;
         }
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$oenStatus], $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . self::OEN_ORDER_STATUSES[$oenStatus], $scopeType, $storeId);
     }
-
 
     /**
      * @param null|string   $storeId
@@ -226,7 +224,7 @@ class Data extends PaymentHelper
      */
     public function getShowCart($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_cart', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_cart', $scopeType, $storeId);
     }
 
     /**
@@ -237,9 +235,8 @@ class Data extends PaymentHelper
      */
     public function getShowDiscount($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_discount', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_discount', $scopeType, $storeId);
     }
-
 
     /**
      * @param null|string   $storeId
@@ -249,7 +246,7 @@ class Data extends PaymentHelper
      */
     public function getShowDeliveryMethods($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->isSetFlag( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_delivery_methods', $scopeType, $storeId);
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'display_delivery_methods', $scopeType, $storeId);
     }
 
     /**
@@ -260,7 +257,7 @@ class Data extends PaymentHelper
      */
     public function getDefaultCountry($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'default_country', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'default_country', $scopeType, $storeId);
     }
 
     public function getDefaultShippingMethod(
@@ -303,7 +300,7 @@ class Data extends PaymentHelper
      */
     public function getAllowedCountries($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        $allowspecific = $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'allowspecific', $scopeType, $storeId);
+        $allowspecific = $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'allowspecific', $scopeType, $storeId);
 
         if (!(bool)$allowspecific) {
             return [];
@@ -311,7 +308,7 @@ class Data extends PaymentHelper
 
         return explode(
             ",",
-            $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'specificcountry', $scopeType, $storeId)
+            $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'specificcountry', $scopeType, $storeId)
         );
     }
 
@@ -361,7 +358,7 @@ class Data extends PaymentHelper
      */
     public function getTermsBlockId($storeId = null, $scopeType = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue( self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
+        return $this->scopeConfig->getValue(self::XML_PATH_ECSTER_PAYMENT_METHODS . 'shop_terms_page_content', $scopeType, $storeId);
     }
 
     /**
@@ -435,7 +432,6 @@ class Data extends PaymentHelper
             );
 
             return $response->getBody()->getContents();
-
         } catch (BadResponseException $ex) {
             $response = $ex->getResponse();
 

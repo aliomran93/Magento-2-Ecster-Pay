@@ -7,6 +7,7 @@ define(
         'jquery',
         'Magento_Customer/js/model/address-list',
         'Evalent_EcsterPay/js/model/quote',
+        'Magento_Checkout/js/checkout-data',
         'Evalent_EcsterPay/js/model/ecster',
         'Evalent_EcsterPay/js/model/shipping-save-processor',
         'Magento_Checkout/js/action/create-shipping-address',
@@ -21,6 +22,7 @@ define(
         $,
         addressList,
         quote,
+        checkoutData,
         ecster,
         shippingSaveProcessor,
         createShippingAddress,
@@ -84,7 +86,7 @@ define(
 
                 if (!shippingAddress) {
                     isShippingAddressInitialized = addressList.some(function (addressFromList) {
-                        if (quote.getSelectedShippingAddress() == addressFromList.getKey()) {
+                        if (checkoutData.getSelectedShippingAddress() == addressFromList.getKey()) {
                             addressData = isConvertAddress ?
                                 addressConverter.addressToEstimationAddress(addressFromList)
                                 : addressFromList;

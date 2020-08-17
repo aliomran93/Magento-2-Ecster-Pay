@@ -44,7 +44,7 @@ abstract class AbstractOen extends Action
                         // exception, in that case we wait for a while and try ONCE again.
                         $this->_logger->info("OEN error: ". $ex->getMessage(). ". Retrying once in 10 sec");
                         sleep(10);
-                        $this->_orderStatusUpdate->process($responseJson);
+                        $this->_orderStatusUpdate->process($responseJson, true);
                     }
                 } else {
                     $this->_logger->info(__("Ecster OEN: Json Error"));

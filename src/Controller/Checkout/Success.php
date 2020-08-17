@@ -14,9 +14,22 @@ use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 
 class Success extends Action
 {
+
     protected $resultPageFactory;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\Checkout
+     */
     protected $_checkout;
+
+    /**
+     * @var \Evalent\EcsterPay\Helper\Data
+     */
     protected $_helper;
+
+    /**
+     * @var \Evalent\EcsterPay\Model\Api\Ecster
+     */
     protected $_ecsterApi;
 
     /**
@@ -47,6 +60,10 @@ class Success extends Action
 
                 if ($response['id'] == $ecsterReference) {
                     $order = $this->_checkout->convertEcsterQuoteToOrder($response);
+                    if ($order == null) {
+                        $this->messageManager->addNotice(__("We were unable to create the Order. This might be because the order already was created through Ecster, then you should have a order confirmation mail in your inbox. Please contact us for more information"));
+                        return $this->resultRedirectFactory->create()->setPath('/');
+                    }
                     $this->_ecsterApi->updateOrderReference($response["id"], $order->getIncrementId());
 
                     return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');

@@ -521,7 +521,7 @@ class Ecster
 
         return [
             "amount" => $this->_cartTotal,
-            "currency" => "SEK",//$this->getQuoteCurrencyCode(),
+            "currency" => $this->getQuoteCurrencyCode(),
             "message" => $this->getQuoteMessage(),
             "rows" => $cartItems
         ];
@@ -691,7 +691,7 @@ class Ecster
     {
         $ecsterParams = [
             "locale" => $this->getLocaleDatas(),
-            "countryCode" => $this->getCountryId(),
+            "countryCode" => $this->_helper->getDefaultCountry($this->_storeId),
             "parameters" => $this->getDefaultDatas(),
             "deliveryMethods" => $this->getAvailableShippingMethod(),
             "cart" => $this->getCartDatas(),
