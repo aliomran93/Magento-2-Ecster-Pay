@@ -5,13 +5,15 @@
  */
 namespace Evalent\EcsterPay\Model;
 
+use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\Api\Ecster;
+use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
+use Magento\Framework\App\AreaList;
+use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Model\Order;
-use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
-use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 use Psr\Log\LoggerInterface;
 
 class SalesOrderStatusUpdate
@@ -48,6 +50,16 @@ class SalesOrderStatusUpdate
      */
     private $ecsterCheckout;
 
+    /**
+     * @var \Magento\Framework\App\AreaList
+     */
+    private $areaList;
+
+    /**
+     * @var \Magento\Framework\App\State
+     */
+    private $appState;
+
     public function __construct(
         Order $order,
         EcsterPayHelper $helper,
@@ -55,9 +67,10 @@ class SalesOrderStatusUpdate
         LoggerInterface $logger,
         CartRepositoryInterface $quoteRepository,
         EventManagerInterface $eventManager,
-        Checkout $ecsterCheckout
+        Checkout $ecsterCheckout,
+        AreaList $areaList,
+        State $state
     ) {
-
         $this->_order = $order;
         $this->helper = $helper;
         $this->ecsterApi = $ecsterApi;
@@ -65,11 +78,12 @@ class SalesOrderStatusUpdate
         $this->quoteRepository = $quoteRepository;
         $this->eventManager = $eventManager;
         $this->ecsterCheckout = $ecsterCheckout;
+        $this->areaList = $areaList;
+        $this->appState = $state;
     }
 
     public function process($responseJson, $forceCreateOrder = false)
     {
-
         $response = (array)json_decode($responseJson);
 
         if (isset($response['status'])) {
@@ -118,8 +132,7 @@ class SalesOrderStatusUpdate
                 ];
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
-
-            } else if ($forceCreateOrder && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED'){
+            } elseif ($forceCreateOrder && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
                 //This fixes the issue with payment with Swish where the user is not redirected to the success page and thus we need to create the order through the OEN request
                 $this->createOrderFromOen($response);
             } else {
@@ -128,7 +141,6 @@ class SalesOrderStatusUpdate
                     $response['orderId']
                 ));
             }
-
         } else {
             throw new \Exception(__("Ecster OEN: Status Error"));
         }
@@ -147,7 +159,6 @@ class SalesOrderStatusUpdate
                 ->save();
 
             return true;
-
         } catch (\Exception $ex) {
             return $ex->getMessage();
         }
@@ -157,6 +168,12 @@ class SalesOrderStatusUpdate
     {
         if (!isset($oenData['orderId'])) {
             return;
+        }
+        try {
+            $area = $this->areaList->getArea($this->appState->getAreaCode());
+            $area->load(\Magento\Framework\App\Area::PART_TRANSLATE);
+        } catch (\Magento\Framework\Exception\LocalizedException $exception) {
+            $this->logger->error("Could not load area code. Locale translation might not be loaded");
         }
         $response = (array)$this->ecsterApi->getOrder($oenData['orderId']);
         if ($response['id'] == $oenData['orderId']) {
