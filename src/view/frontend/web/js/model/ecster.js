@@ -87,7 +87,7 @@ define(
             onCheckoutStartSuccess: function (response) {
                 checkoutUpdating = false;
                 fullScreenLoader.stopLoader();
-                 console.log("onCheckoutStartSuccess");
+                console.log("onCheckoutStartSuccess");
             },
             onCheckoutStartFailure: function (response) {
                 checkoutUpdating = false;
