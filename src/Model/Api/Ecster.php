@@ -5,12 +5,12 @@
  */
 namespace Evalent\EcsterPay\Model\Api;
 
+use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
 use Magento\Tax\Model\Calculation as TaxCalculation;
-use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 
 class Ecster
 {
@@ -199,7 +199,6 @@ class Ecster
 
     public function getJsUrl($storeId)
     {
-
         switch ($this->getTransactionMode($storeId)) {
             case self::MODE_TEST:
                 return self::ECSTER_JS_TEST_URL;
@@ -298,7 +297,6 @@ class Ecster
 
             if (in_array($_langCode[0], $this->_supportedLanguages)) {
                 return $_langCode[0];
-
             } else {
                 return self::ECSTER_DEFAULT_LANGUAGE;
             }
@@ -318,7 +316,6 @@ class Ecster
 
     public function createDummyItem($price, $label = "Roundig Difference", $partNumber = "dummy-9999")
     {
-
         return [
             "partNumber" => $partNumber,
             "name" => $label,
@@ -357,6 +354,12 @@ class Ecster
                                 $description[] = $child->getName();
                             }
                             $var = implode(",", $description);
+                        } elseif ($field == 'vatRate' && $quoteItem->getProductType() == 'bundle') {
+                            $vatRate = 0;
+                            foreach ($quoteItem->getChildren() as $childItem) {
+                                $vatRate += $childItem->getData('tax_percent');
+                            }
+                            $var = $vatRate / sizeof($quoteItem->getChildren());
                         } else {
                             if ($options['column'] == 'price') {
                                 if ($discountApplyMethod) {
@@ -560,7 +563,6 @@ class Ecster
                 $customerData["name"]["lastName"] = $this->getAddress()->getLastname();
             }
 
-
             if (implode(" ", $this->getAddress()->getStreet()) != "") {
                 $street = $this->getAddress()->getStreet();
                 if (!in_array($this->getAddress()->getCountryId(), ["DE", "AT"])) {
@@ -643,7 +645,6 @@ class Ecster
 
     protected function getAvailableShippingMethod()
     {
-
         $shippingMethods = [];
 
         if ($this->_quote->getIsVirtual()) {
@@ -676,7 +677,8 @@ class Ecster
                 "name" => "NO SHIPPING CHOSEN",
                 "price" => 0,
                 "selected" => false
-            ]; $shippingMethods[] = [
+            ];
+            $shippingMethods[] = [
                 "id" => "1",
                 "name" => "NO SHIPPING CHOSEN",
                 "price" => 0,
@@ -801,13 +803,11 @@ class Ecster
                     && (isset($response->id) && isset($response->merchantId) && isset($response->status))
                 ) {
                     return $response;
-
                 } else {
                     if (is_object($response)
                         && property_exists($response, 'orderStatus')
                     ) {
                         return $response;
-
                     } else {
                         if (is_object($response)
                             && property_exists($response, 'code')
@@ -817,7 +817,6 @@ class Ecster
                                 "Ecster Checkout: %1",
                                 $response->code . " " . (isset($response->message) ? $response->message : (isset($response->type) ? $response->type : ""))
                             ));
-
                         } else {
                             if (is_object($response)
                                 && property_exists($response, 'error')

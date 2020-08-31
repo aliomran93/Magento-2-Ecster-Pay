@@ -6,10 +6,10 @@
 namespace Evalent\EcsterPay\Observer;
 
 use Evalent\EcsterPay\Helper\Data;
-use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer;
-use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 use Evalent\EcsterPay\Helper\Data as EcsterHelper;
+use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 class SalesOrderInvoiceRegister implements ObserverInterface
 {
@@ -61,25 +61,36 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                 && $orderItem->getHasChildren()
             ) {
                 foreach ($this->ecsterApi->ecsterInvoiceItemFields as $field => $options) {
-                    if (isset($options["default_value"])) {
-                        $var = $options["default_value"];
-                    }  else {
-                        if ($field == 'description') {
-                            $description = [];
-                            foreach ($orderItem->getChildrenItems() as $childItem) {
-                                $description[] = $childItem->getName();
-                            }
-                            $var = implode(",", $description);
-                        } else {
-                            if ($options['column'] == 'price') {
-                                if ($discountApplyMethod) {
-                                    $var = $invoiceItem->getData('price') + (($invoiceItem->getData('tax_amount') + $invoiceItem->getData('discount_tax_compensation_amount')) / $invoiceItem->getData('qty'));
+                    if ($field == 'description') {
+                        $description = [];
+                        foreach ($orderItem->getChildrenItems() as $childItem) {
+                            $description[] = $childItem->getName();
+                        }
+                        $var = implode(",", $description);
+                    } elseif ($field == 'vatRate' && $orderItem->getProductType() == 'bundle') {
+                        $vatRate = 0;
+                        foreach ($orderItem->getChildrenItems() as $childItem) {
+                            $vatRate += $childItem->getData('tax_percent');
+                        }
+                        $var = $vatRate / sizeof($orderItem->getChildrenItems());
+                    } else {
+                        if ($options['column'] == 'price') {
+                            if ($discountApplyMethod) {
+                                if ($orderItem->getProductType() == 'bundle') {
+                                    $taxAmount = 0;
+                                    foreach ($orderItem->getChildrenItems() as $childItem) {
+                                        $taxAmount += $childItem->getData('tax_amount');
+                                    }
                                 } else {
-                                    $var = $invoiceItem->getData('price_incl_tax');
+                                    $taxAmount = $invoiceItem->getData('tax_amount');
                                 }
+                                $var = $invoiceItem->getData('price') + (($taxAmount + $invoiceItem->getData('discount_tax_compensation_amount')) / $invoiceItem->getData('qty'));
+                            } else {
+                                $var = $invoiceItem->getData('price_incl_tax');
+                            }
 
-                                $this->invoiceTotal += $var * $invoiceItem->getData('qty');
-                                $this->invoiceTotalControl += $this->helper->ecsterFormatPrice($var) * $invoiceItem->getData('qty');
+                            $this->invoiceTotal += $var * $invoiceItem->getData('qty');
+                            $this->invoiceTotalControl += $this->helper->ecsterFormatPrice($var) * $invoiceItem->getData('qty');
 
 //                        } else if($options['column'] == 'discount_amount') {
 //
@@ -99,12 +110,10 @@ class SalesOrderInvoiceRegister implements ObserverInterface
 //                                $this->_invoiceTotal -= $var;
 //                                $this->_invoiceTotalControl -= $this->_helper->ecsterFormatPrice($var);
 //                            }
-
-                            } else {
-                                $var = $invoiceItem->getData($options['column']);
-                                if ($var == null) {
-                                    $var = $orderItem->getData($options['column']);
-                                }
+                        } else {
+                            $var = $invoiceItem->getData($options['column']);
+                            if ($var == null) {
+                                $var = $orderItem->getData($options['column']);
                             }
                         }
                     }
@@ -131,7 +140,6 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                             } else {
                                 $var = $invoiceItem->getData('price_incl_tax');
                             }
-
                             $this->invoiceTotal += $var * $invoiceItem->getData('qty');
                             $this->invoiceTotalControl += $this->helper->ecsterFormatPrice($var) * $invoiceItem->getData('qty');
 
@@ -157,7 +165,6 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                     $item[$field] = $var;
                 }
             }
-
 
             $items[] = $item;
         }
@@ -187,7 +194,6 @@ class SalesOrderInvoiceRegister implements ObserverInterface
         $payment = $order->getPayment();
         $method = $payment->getMethodInstance();
 
-
         if ($this->helper->isEnabled($order->getStoreId())
             && $method->getCode() == 'ecsterpay'
         ) {
@@ -198,19 +204,25 @@ class SalesOrderInvoiceRegister implements ObserverInterface
             try {
                 if (!is_null($ecsterReferenceId)) {
                     if ($invoice->getShippingInclTax() > 0) {
-                    $shippingItem = $this->ecsterApi->createDummyItem($invoice->getShippingInclTax(),
-                        $order->getShippingDescription(), $order->getShippingDescription());
-                    $shippingTaxAmount = $invoice->getShippingTaxAmount() ?? $order->getShippingTaxAmount();
-                    $shippingCost = $invoice->getShippingAmount() ?? $order->getShippingAmount();
-                    if ($shippingCost > 0) {
-                        $shippingItem["vatRate"] = $shippingTaxAmount / $shippingCost * 10000; // Times 100 to get percentage and times 100 to get it to ecster value i.e 25,00 => 2500
-                    }
+                        $shippingItem = $this->ecsterApi->createDummyItem(
+                            $invoice->getShippingInclTax(),
+                            $order->getShippingDescription(),
+                            $order->getShippingDescription()
+                        );
+                        $shippingTaxAmount = $invoice->getShippingTaxAmount() ?? $order->getShippingTaxAmount();
+                        $shippingCost = $invoice->getShippingAmount() ?? $order->getShippingAmount();
+                        if ($shippingCost > 0) {
+                            $shippingItem["vatRate"] = $shippingTaxAmount / $shippingCost * 10000; // Times 100 to get percentage and times 100 to get it to ecster value i.e 25,00 => 2500
+                        }
                         $items[] = $shippingItem;
                     }
 
                     if ($invoice->getOrder()->getEcsterPaymentType() == 'INVOICE' && $invoice->getEcsterExtraFee() > 0) {
-                        $items[] = $this->ecsterApi->createDummyItem($invoice->getEcsterExtraFee(), __('Invoice Fee'),
-                            __('Invoice Fee'));
+                        $items[] = $this->ecsterApi->createDummyItem(
+                            $invoice->getEcsterExtraFee(),
+                            __('Invoice Fee'),
+                            __('Invoice Fee')
+                        );
                     }
 
                     $requestParams = [
@@ -250,11 +262,9 @@ class SalesOrderInvoiceRegister implements ObserverInterface
                 }
                 $order->setEcsterExtraInvoiceRemainFee($order->getEcsterExtraInvoiceRemainFee() + $invoice->getEcsterExtraFee())->save();
 
-
                 $invoice->setData('ecster_creditmemo_remain_fee', $invoice->getGrandTotal())
                     ->setData('ecster_creditmemo_status', 'new')
                     ->save();
-
             } catch (\Exception $ex) {
                 throw new \Magento\Framework\Exception\LocalizedException(__($ex->getMessage()));
             }
