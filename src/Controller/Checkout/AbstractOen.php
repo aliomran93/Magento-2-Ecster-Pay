@@ -9,6 +9,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\SalesOrderStatusUpdate;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractOen extends Action
@@ -51,10 +52,15 @@ abstract class AbstractOen extends Action
                     $this->_logger->info($responseJson);
                     $this->getResponse()->setStatusHeader(400, '1.1', 'Bad Request')->sendResponse();
                 }
+            } catch (LocalizedException $ex) {
+                // We need to return a 200 response if the order does not exist. This is because the PENDING_PAYMENT update is
+                // send before the order is created and therefore causes an error and is resend after 2 hours.
+                $this->_logger->info($ex->getMessage());
+                $this->getResponse()->setStatusHeader(200, '1.1', 'Bad Request')->sendResponse();
+                return;
             } catch (\Exception $ex) {
                 $this->_logger->info($ex->getMessage());
                 $this->getResponse()->setStatusHeader(400, '1.1', 'Bad Request')->sendResponse();
-
                 return;
             }
         } else {

@@ -11,6 +11,7 @@ use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 use Magento\Framework\App\AreaList;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -136,7 +137,7 @@ class SalesOrderStatusUpdate
                 //This fixes the issue with payment with Swish where the user is not redirected to the success page and thus we need to create the order through the OEN request
                 $this->createOrderFromOen($response);
             } else {
-                throw new \Exception(__(
+                throw new LocalizedException(__(
                     "Ecster OEN: Could not find order by %1 ecster reference number.",
                     $response['orderId']
                 ));
