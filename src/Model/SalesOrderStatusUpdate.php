@@ -8,6 +8,9 @@ namespace Evalent\EcsterPay\Model;
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\Api\Ecster;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
+use Evalent\EcsterPay\Model\ResourceModel\TransactionHistory\CollectionFactory;
+use Exception;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\AreaList;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
@@ -61,6 +64,11 @@ class SalesOrderStatusUpdate
      */
     private $appState;
 
+    /**
+     * @var \Evalent\EcsterPay\Model\ResourceModel\TransactionHistory\CollectionFactory
+     */
+    private $transactionsHistoryCollection;
+
     public function __construct(
         Order $order,
         EcsterPayHelper $helper,
@@ -70,7 +78,8 @@ class SalesOrderStatusUpdate
         EventManagerInterface $eventManager,
         Checkout $ecsterCheckout,
         AreaList $areaList,
-        State $state
+        State $state,
+        CollectionFactory $transactionsHistoryCollection
     ) {
         $this->_order = $order;
         $this->helper = $helper;
@@ -81,6 +90,7 @@ class SalesOrderStatusUpdate
         $this->ecsterCheckout = $ecsterCheckout;
         $this->areaList = $areaList;
         $this->appState = $state;
+        $this->transactionsHistoryCollection = $transactionsHistoryCollection;
     }
 
     public function process($responseJson, $forceCreateOrder = false)
@@ -94,10 +104,19 @@ class SalesOrderStatusUpdate
                 $message = null;
                 $state = null;
 
+                // We don't want to apply an OEN twice even if they shouldn't be sent twice
+                // This is also due to the 10 second sleep function as Ecster expect a 200 response in 5 seconds. This helps to ignore the second call due to this
+                if ($this->checkIfOenAlreadyApplied($order->getId(), $response)) {
+                    $this->logger->info(__("Ecster OEN: The OEN update have already been processed"));
+                    return;
+                }
+
                 $assignedStatus = $this->helper->getOenStatus(
                     $response['status'],
                     $order->getStoreId()
                 );
+
+
 
                 if (!$assignedStatus) {
                     return;
@@ -109,12 +128,12 @@ class SalesOrderStatusUpdate
 
                 $state = $this->helper->getOenStatus($response['status'], $order->getStoreId());
 
-                if ($order->getStatus() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-                    $assignedStatus = \Magento\Sales\Model\Order::STATE_CANCELED;
+                if ($order->getStatus() == Order::STATE_CANCELED) {
+                    $assignedStatus = Order::STATE_CANCELED;
                 }
 
-                if ($order->getStatus() == \Magento\Sales\Model\Order::STATE_COMPLETE) {
-                    $assignedStatus = \Magento\Sales\Model\Order::STATE_COMPLETE;
+                if ($order->getStatus() == Order::STATE_COMPLETE) {
+                    $assignedStatus = Order::STATE_COMPLETE;
                 }
 
                 $this->orderStatusUpdate($order, $assignedStatus, $message, $state);
@@ -129,7 +148,7 @@ class SalesOrderStatusUpdate
                     'request_params' => null,
                     'order_status' => $response['status'],
                     'transaction_id' => null,
-                    'response_params' => serialize($response)
+                    'response_params' => serialize($response),
                 ];
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
@@ -143,7 +162,7 @@ class SalesOrderStatusUpdate
                 ));
             }
         } else {
-            throw new \Exception(__("Ecster OEN: Status Error"));
+            throw new Exception(__("Ecster OEN: Status Error"));
         }
     }
 
@@ -151,7 +170,7 @@ class SalesOrderStatusUpdate
     {
         try {
             if (is_null($state)) {
-                $state = \Magento\Sales\Model\Order::STATE_PROCESSING;
+                $state = Order::STATE_PROCESSING;
             }
 
             $order->setData('state', $state)
@@ -160,7 +179,7 @@ class SalesOrderStatusUpdate
                 ->save();
 
             return true;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $ex->getMessage();
         }
     }
@@ -172,8 +191,8 @@ class SalesOrderStatusUpdate
         }
         try {
             $area = $this->areaList->getArea($this->appState->getAreaCode());
-            $area->load(\Magento\Framework\App\Area::PART_TRANSLATE);
-        } catch (\Magento\Framework\Exception\LocalizedException $exception) {
+            $area->load(Area::PART_TRANSLATE);
+        } catch (LocalizedException $exception) {
             $this->logger->error("Could not load area code. Locale translation might not be loaded");
         }
         $response = (array)$this->ecsterApi->getOrder($oenData['orderId']);
@@ -215,9 +234,32 @@ class SalesOrderStatusUpdate
                 'checkout_onepage_controller_success_action',
                 [
                     'order_ids' => [$order->getId()],
-                    'order' => $order->getId()
+                    'order' => $order->getId(),
                 ]
             );
         }
+    }
+
+    protected function checkIfOenAlreadyApplied($orderId, $oenResponse)
+    {
+        $previousOenUpdates = $this->transactionsHistoryCollection->create()
+            ->addFieldToSelect('*')
+            ->addFieldToFilter('order_id', $orderId);
+
+        /** @var \Evalent\EcsterPay\Model\TransactionHistory $previousOenUpdate */
+        foreach ($previousOenUpdates as $previousOenUpdate) {
+            $previousResponse = @unserialize($previousOenUpdate->getResponeParams());
+            if ($previousResponse) {
+                // We see if the request was already processed by checking if the status and timestamp are the same
+                if (isset($previousResponse['time']) && isset($oenResponse['time'])
+                    && isset($previousResponse['status']) && isset($oenResponse['status'])
+                    && $previousResponse['time'] == $oenResponse['time']
+                    && $previousResponse['status'] == $oenResponse['status']
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
