@@ -113,7 +113,6 @@ class SalesOrderStatusUpdate
                 $message = null;
                 $state = null;
 
-
                 // We don't want to apply an OEN twice even if they shouldn't be sent twice
                 // This is also due to the 10 second sleep function as Ecster expect a 200 response in 5 seconds. This helps to ignore the second call due to this
                 if ($this->checkIfOenAlreadyApplied($order->getId(), $response)) {
@@ -127,7 +126,7 @@ class SalesOrderStatusUpdate
                         $this->logger->info(__(self::LOGGER_PREFIX . "The OEN status does not match the one fetched from Ecster. Ignore Call"));
                         return;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                 }
 
 
@@ -164,7 +163,7 @@ class SalesOrderStatusUpdate
                     'entity_type' => 'order',
                     'entity_id' => $order->getId(),
                     'amount' => $order->getGrandTotal(),
-                    'transaction_type' => $this->ecsterApi::ECSTER_OMA_TYPE_OEN_UPDATE,
+                    'transaction_type' => EcsterApi::ECSTER_OMA_TYPE_OEN_UPDATE,
                     'request_params' => null,
                     'order_status' => $response['status'],
                     'transaction_id' => null,
@@ -173,7 +172,9 @@ class SalesOrderStatusUpdate
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
             } elseif ($secondTry && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
-                //This fixes the issue with payment with Swish where the user is not redirected to the success page and thus we need to create the order through the OEN request
+                //This fixes the issue with payment with Swish where the user is not redirected to the success page
+                // and thus we need to create the order through the OEN request
+                $this->logger->info(self::LOGGER_PREFIX . "Creating order for response: " . $responseJson);
                 $this->createOrderFromOen($response);
             } else {
                 throw new LocalizedException(__(
