@@ -458,7 +458,7 @@ class Ecster
         if ($this->getAddress()->getDiscountAmount() < 0) {
             $this->_cartTotal += $this->getAddress()->getDiscountAmount();
             $this->_cartTotalControl += $this->_helper->ecsterFormatPrice($this->getAddress()->getDiscountAmount());
-            $items[] = $this->createDummyItem($this->getAddress()->getDiscountAmount(), "Discount", "Discount");
+            $items[] = $this->createDummyItem($this->getAddress()->getDiscountAmount(), __("Discount"), "Discount");
         }
 
         $this->_cartTotal = (float)$this->_helper->ecsterFormatPrice($this->_cartTotal);
