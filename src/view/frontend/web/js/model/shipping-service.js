@@ -22,10 +22,10 @@ define(
 
             setShippingRates: function (ratesData) {
                 this.prepareShippingCarriers(ratesData);
-                shippingRates(ratesData);
-                shippingRates.valueHasMutated();
                 // We insert a try here because there is a race condition when we try to fetch the shipping rates while the checkout is updating.
                 try {
+                    shippingRates(ratesData);
+                    shippingRates.valueHasMutated();
                     checkoutDataResolver.resolveShippingRates(ratesData);
                 } catch (e) {
                     console.error(e)

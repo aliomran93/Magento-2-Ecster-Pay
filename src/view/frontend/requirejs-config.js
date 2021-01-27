@@ -7,12 +7,5 @@ var config = {
         '*': {
             'Magento_Checkout/js/model/quote': 'Evalent_EcsterPay/js/model/quote'
         }
-    },
-    config : {
-        mixins: {
-            'Amasty_StorePickupWithLocator/js/view/pickup/pickup-store': {
-                'Evalent_EcsterPay/js/override/view/pickup/pickup-store': true
-            }
-        }
     }
 };

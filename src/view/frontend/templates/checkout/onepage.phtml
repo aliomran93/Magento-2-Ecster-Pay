@@ -44,8 +44,15 @@ $helper = $this->helper(\Evalent\EcsterPay\Helper\Data::class);
                 '*': {
                     'ecsterpayjs':  window.checkoutConfig.payment.ecsterpay.jsUrl
                 }
+            },
+            config : {
+                mixins: {
+                    'Amasty_StorePickupWithLocator/js/view/pickup/pickup-store': {
+                        'Evalent_EcsterPay/js/override/view/pickup/pickup-store': true
+                    }
+                }
             }
-        });  
+        });
         <?php endif ?>
-    </script>  
+    </script>
 </div>
