@@ -24,7 +24,6 @@ define(
         messageList,
         $t,
         fullScreenLoader,
-        customerData
     ) {
 
         'use strict';
@@ -34,6 +33,7 @@ define(
 
         return {
             key: quote.getEcsterCartKey(),
+            isUpdating: ko.observable(false),
 
             ecsterStart: function () {
                 EcsterPay.start({
@@ -58,6 +58,7 @@ define(
                         this.onCheckoutFinishUpdateCart();
                     }, this),
                     onCheckoutUpdateInit: $.proxy(function () {
+                        console.trace()
                         this.onCheckoutUpdateInit();
                     }, this),
                     onCheckoutUpdateSuccess: $.proxy(function () {
@@ -82,38 +83,39 @@ define(
             },
             onCheckoutStartInit: function (response) {
                 fullScreenLoader.startLoader();
+                this.isUpdating(true)
                  console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
-                checkoutUpdating = false;
+                this.isUpdating(false)
                 fullScreenLoader.stopLoader();
                 console.log("onCheckoutStartSuccess");
             },
             onCheckoutStartFailure: function (response) {
-                checkoutUpdating = false;
+                this.isUpdating(false)
                 fullScreenLoader.stopLoader();
                  console.log(response);
                  console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
-                checkoutUpdating = true;
+                this.isUpdating(true)
                 fullScreenLoader.startLoader();
                  console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
-                checkoutUpdating = false;
+                this.isUpdating(false)
                 fullScreenLoader.startLoader();
                  console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
-                checkoutUpdating = false;
+                this.isUpdating(false)
                 fullScreenLoader.stopLoader();
                  console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
                 fullScreenLoader.stopLoader();
-                checkoutUpdating = false;
-                 console.log("onCheckoutUpdateSuccess");
+                this.isUpdating(false)
+                console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
                  console.log("onCustomerAuthenticated");
@@ -122,7 +124,8 @@ define(
                  console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
-                 console.log('onChangedDeliveryAddress');
+                this.reserveOrderId();
+                console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
                 fullScreenLoader.startLoader();
@@ -134,11 +137,13 @@ define(
             onPaymentDenied: function (response) {
                  console.log("onPaymentDenied");
             },
+            onBeforeSubmit: function (data) {
+            },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
             },
             isCheckoutUpdating: function () {
-                return checkoutUpdating
+                return this.isUpdating()
             },
             updateShippingMethodOnSuccess: function () {
 
@@ -157,6 +162,7 @@ define(
             },
             updateCheckoutType: function (type) {
                 let success = true;
+                console.log("updateCheckoutType")
                 if (type != ecsterConfig.preselectedPurchaseType) { // Make sure that not useless calls being made
                     $.ajax({ // Update the cart with the correct purchase type before updating the checkout
                         url: urlBuilder.build('ecsterpay/checkout/updatecart'),
@@ -217,6 +223,36 @@ define(
                     },
                     error: function (reponse) {
                         messageList.addErrorMessage({ message: $t('Something went wrong. Try again and if the problem persists please contact the support for more information') });
+                        success = false;
+                    }
+                });
+                return success;
+            },
+            reserveOrderId: function () {
+                let success = true;
+                var updateCartCallBack = this.updateInitCart(quote.getEcsterCartKey());
+                $.ajax({
+                    url: urlBuilder.build('ecsterpay/checkout/reserveorderid'),
+                    type: 'get',
+                    async: false,
+                    dataType: 'json',
+                    context: this,
+
+                    /**
+                     * @param {Object} response
+                     */
+                    success: function (response) {
+                        if (response.error) {
+                            messageList.addErrorMessage({ message: response.message });
+                            success = false;
+                            return;
+                        }
+                        this.key = response.ecster_key
+                        quote.setEcsterCartKey(response.ecster_key);
+                        updateCartCallBack(response.ecster_key)
+                        success = true;
+                    },
+                    error: function (reponse) {
                         success = false;
                     }
                 });

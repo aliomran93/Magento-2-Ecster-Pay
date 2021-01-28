@@ -172,7 +172,7 @@ class SalesOrderInvoiceRegister implements ObserverInterface
         if ($invoice->getDiscountAmount() < 0) {
             $this->invoiceTotal += $invoice->getDiscountAmount();
             $this->invoiceTotalControl += $this->helper->ecsterFormatPrice($invoice->getDiscountAmount());
-            $items[] = $this->ecsterApi->createDummyItem($invoice->getDiscountAmount(), "Discount", "Discount");
+            $items[] = $this->ecsterApi->createDummyItem($invoice->getDiscountAmount(), __("Discount"), "Discount");
         }
 
         $this->invoiceTotal = (float)$this->helper->ecsterFormatPrice($this->invoiceTotal);

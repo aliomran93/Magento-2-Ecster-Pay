@@ -188,28 +188,28 @@ class Checkout extends Onepage
                 }
 
                 $_customerBillingAddressData = [
-                    "email" => $_contactInfo["email"],
+                    "email" => trim($_contactInfo["email"]),
                     "nationalId" => $_nationalId,
-                    "firstname" => $_billingName["firstName"],
-                    "lastname" => $_billingName["lastName"],
-                    "street" => (isset($_billingAddress["line2"]) ? $_billingAddress["line2"] . "\n" : "") . $_billingAddress["line1"],
-                    "city" => $_billingAddress["city"],
-                    "region" => $_billingAddress["province"] ?? "",
-                    "postcode" => $_billingAddress["zip"],
-                    "telephone" => $_cellular["number"],
+                    "firstname" => trim($_billingName["firstName"]),
+                    "lastname" => trim($_billingName["lastName"]),
+                    "street" => trim((isset($_billingAddress["line2"]) ? $_billingAddress["line2"] . "\n" : "") . $_billingAddress["line1"]),
+                    "city" => trim($_billingAddress["city"]),
+                    "region" => trim($_billingAddress["province"] ?? ""),
+                    "postcode" => trim($_billingAddress["zip"]),
+                    "telephone" => trim($_cellular["number"]),
                     "country_id" => $_billingCountryId
                 ];
 
                 $_customerShippingAddressData = [
-                    "email" => $_contactInfo["email"],
-                    "nationalId" => $_nationalId,
-                    "firstname" => $_shippingName["firstName"],
-                    "lastname" => $_shippingName["lastName"],
-                    "street" => (isset($_shippingAddress["line2"]) ? $_shippingAddress["line2"] . "\n" : "") . $_shippingAddress["line1"],
-                    "city" => $_shippingAddress["city"],
-                    "region" => $_shippingAddress["province"] ?? "",
-                    "postcode" => $_shippingAddress["zip"],
-                    "telephone" => $_cellular["number"],
+                    "email" => trim($_contactInfo["email"]),
+                    "nationalId" => trim($_nationalId),
+                    "firstname" => trim($_shippingName["firstName"]),
+                    "lastname" => trim($_shippingName["lastName"]),
+                    "street" => trim((isset($_shippingAddress["line2"]) ? $_shippingAddress["line2"] . "\n" : "") . $_shippingAddress["line1"]),
+                    "city" => trim($_shippingAddress["city"]),
+                    "region" => trim($_shippingAddress["province"] ?? ""),
+                    "postcode" => trim($_shippingAddress["zip"]),
+                    "telephone" => trim($_cellular["number"]),
                     "country_id" => $_shippingCountryId
                 ];
             } else {
@@ -222,10 +222,10 @@ class Checkout extends Onepage
                     "firstname" => $_customerName["firstName"],
                     "lastname" => $_customerName["lastName"],
                     "street" => (isset($_address["line2"]) ? $_address["line2"] . "\n" : "") . $_address["line1"],
-                    "city" => $_address["city"],
-                    "region" => $_address["province"] ?? "",
-                    "postcode" => $_address["zip"],
-                    "telephone" => $_cellular["number"],
+                    "city" => trim($_address["city"]),
+                    "region" => trim($_address["province"] ?? ""),
+                    "postcode" => trim($_address["zip"]),
+                    "telephone" => trim($_cellular["number"]),
                     "country_id" => $_shippingCountryId
                 ];
 

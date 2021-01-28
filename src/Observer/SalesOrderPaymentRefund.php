@@ -163,7 +163,7 @@ class SalesOrderPaymentRefund implements ObserverInterface
         if ($creditmemo->getDiscountAmount() < 0) {
             $this->_creditmemoTotal += $creditmemo->getDiscountAmount();
             $this->_creditmemoTotalControl += $this->_helper->ecsterFormatPrice($creditmemo->getDiscountAmount());
-            $items[] = $this->_ecsterApi->createDummyItem($creditmemo->getDiscountAmount(), "Discount", "Discount");
+            $items[] = $this->_ecsterApi->createDummyItem($creditmemo->getDiscountAmount(), __("Discount"), "Discount");
         }
 
         $this->_creditmemoTotal = (float)$this->_helper->ecsterFormatPrice($this->_creditmemoTotal);

@@ -458,7 +458,7 @@ class Ecster
         if ($this->getAddress()->getDiscountAmount() < 0) {
             $this->_cartTotal += $this->getAddress()->getDiscountAmount();
             $this->_cartTotalControl += $this->_helper->ecsterFormatPrice($this->getAddress()->getDiscountAmount());
-            $items[] = $this->createDummyItem($this->getAddress()->getDiscountAmount(), "Discount", "Discount");
+            $items[] = $this->createDummyItem($this->getAddress()->getDiscountAmount(), __("Discount"), "Discount");
         }
 
         $this->_cartTotal = (float)$this->_helper->ecsterFormatPrice($this->_cartTotal);
@@ -554,13 +554,13 @@ class Ecster
             if (!is_null($this->getAddress()->getFirstname())
                 && $this->getAddress()->getFirstname() != ""
             ) {
-                $customerData["name"]["firstName"] = $this->getAddress()->getFirstname();
+                $customerData["name"]["firstName"] = trim($this->getAddress()->getFirstname());
             }
 
             if (!is_null($this->getAddress()->getLastname())
                 && $this->getAddress()->getLastname() != ""
             ) {
-                $customerData["name"]["lastName"] = $this->getAddress()->getLastname();
+                $customerData["name"]["lastName"] = trim($this->getAddress()->getLastname());
             }
 
             if (implode(" ", $this->getAddress()->getStreet()) != "") {
@@ -578,11 +578,11 @@ class Ecster
             }
 
             if (!is_null($this->getAddress()->getCity()) && $this->getAddress()->getCity() != "") {
-                $customerData["address"]["city"] = $this->getAddress()->getCity();
+                $customerData["address"]["city"] = trim($this->getAddress()->getCity());
             }
 
             if (!is_null($this->getAddress()->getPostCode()) && $this->getAddress()->getPostCode() != "") {
-                $customerData["address"]["zip"] = $this->getAddress()->getPostCode();
+                $customerData["address"]["zip"] = trim($this->getAddress()->getPostCode());
             }
 
             if (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() != "") {
@@ -590,7 +590,7 @@ class Ecster
             }
 
             if (!is_null($this->getAddress()->getTelephone()) && $this->getAddress()->getTelephone() != "") {
-                $customerData["contactInfo"]["cellular"]['number'] = $this->getAddress()->getTelephone();
+                $customerData["contactInfo"]["cellular"]['number'] = trim($this->getAddress()->getTelephone());
             }
 
             $customerData["contactInfo"]["email"] = $this->_quote->getCustomerEmail();
@@ -602,6 +602,9 @@ class Ecster
 
     protected function getOrderReference()
     {
+        if ($this->_quote->getReservedOrderId() != "") {
+            return $this->_quote->getReservedOrderId();
+        }
         return self::ECSTER_ORDER_PREFIX . $this->_quote->getId();
     }
 
@@ -735,17 +738,17 @@ class Ecster
         return $this->setResponse($cartUpdateUrl, $jsonDataEncoded, 'PUT');
     }
 
-    protected function _getOrderFromEcster($ecsterOrderReference)
+    protected function _getOrderFromEcster($ecsterOrderId)
     {
-        $orderUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderReference;
+        $orderUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderId;
         $jsonDataEncoded = [];
 
         return $this->setResponse($orderUrl, $jsonDataEncoded, "GET");
     }
 
-    protected function _updateOrderReference($ecsterOrderReference, $orderReference)
+    protected function _updateOrderReference($ecsterOrderId, $orderReference)
     {
-        $orderUpdateUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderReference . "/orderReference";
+        $orderUpdateUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderId . "/orderReference";
 
         $jsonDataEncoded = [
             'body' => json_encode([
@@ -756,9 +759,9 @@ class Ecster
         return $this->setResponse($orderUpdateUrl, $jsonDataEncoded, 'PUT');
     }
 
-    public function orderProcess($ecsterOrderReference, $requestParams)
+    public function orderProcess($ecsterOrderId, $requestParams)
     {
-        $orderProcessUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderReference . "/transactions";
+        $orderProcessUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderId . "/transactions";
 
         $jsonDataEncoded = [
             'body' => json_encode($requestParams)
@@ -860,13 +863,13 @@ class Ecster
         }
     }
 
-    public function getOrder($ecsterOrderReference)
+    public function getOrder($ecsterOrderId)
     {
-        return $this->_getOrderFromEcster($ecsterOrderReference);
+        return $this->_getOrderFromEcster($ecsterOrderId);
     }
 
-    public function updateOrderReference($ecsterOrderReference, $orderReference)
+    public function updateOrderReference($ecsterOrderId, $orderReference)
     {
-        return $this->_updateOrderReference($ecsterOrderReference, $orderReference);
+        return $this->_updateOrderReference($ecsterOrderId, $orderReference);
     }
 }
