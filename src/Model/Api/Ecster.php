@@ -602,6 +602,9 @@ class Ecster
 
     protected function getOrderReference()
     {
+        if ($this->_quote->getReservedOrderId() != "") {
+            return $this->_quote->getReservedOrderId();
+        }
         return self::ECSTER_ORDER_PREFIX . $this->_quote->getId();
     }
 

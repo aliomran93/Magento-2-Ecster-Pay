@@ -124,7 +124,8 @@ define(
                  console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
-                 console.log('onChangedDeliveryAddress');
+                this.reserveOrderId();
+                console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
                 fullScreenLoader.startLoader();
@@ -197,7 +198,6 @@ define(
                 return success;
             },
             updateCart: function () {
-                console.log("UPDATE CART")
                 let success = true;
                 var updateCartCallBack = this.updateInitCart(quote.getEcsterCartKey());
                 $.ajax({
@@ -223,6 +223,36 @@ define(
                     },
                     error: function (reponse) {
                         messageList.addErrorMessage({ message: $t('Something went wrong. Try again and if the problem persists please contact the support for more information') });
+                        success = false;
+                    }
+                });
+                return success;
+            },
+            reserveOrderId: function () {
+                let success = true;
+                var updateCartCallBack = this.updateInitCart(quote.getEcsterCartKey());
+                $.ajax({
+                    url: urlBuilder.build('ecsterpay/checkout/reserveorderid'),
+                    type: 'get',
+                    async: false,
+                    dataType: 'json',
+                    context: this,
+
+                    /**
+                     * @param {Object} response
+                     */
+                    success: function (response) {
+                        if (response.error) {
+                            messageList.addErrorMessage({ message: response.message });
+                            success = false;
+                            return;
+                        }
+                        this.key = response.ecster_key
+                        quote.setEcsterCartKey(response.ecster_key);
+                        updateCartCallBack(response.ecster_key)
+                        success = true;
+                    },
+                    error: function (reponse) {
                         success = false;
                     }
                 });
