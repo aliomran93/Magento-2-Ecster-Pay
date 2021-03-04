@@ -672,8 +672,7 @@ class Ecster
         $_rates = $address->getAllShippingRates();
         /** @var \Magento\Quote\Model\Quote\Address\Rate $_rate */
         foreach ($_rates as $_rate) {
-            $includeTax = $this->taxHelper->shippingPriceIncludesTax();
-            $methodPrice = $this->taxHelper->getShippingPrice($_rate->getPrice(), $includeTax, $address);
+            $methodPrice = $this->taxHelper->getShippingPrice($_rate->getPrice(), true, $address);
             $shippingMethods[] = [
                 "id" => $_rate->getMethod(),
                 "name" => "Shipping: " . $_rate->getMethodTitle(),

@@ -9,12 +9,12 @@
     <update handle="checkout_index_index"/>
     <head>
         <css src="Evalent_EcsterPay::css/onepage.css"/>
-    </head>    
+    </head>
     <body>
         <referenceBlock name="checkout.root">
             <action method="setTemplate">
                 <argument name="template" xsi:type="string">Evalent_EcsterPay::checkout/onepage.phtml</argument>
-            </action>            
+            </action>
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
                     <item name="components" xsi:type="array">
@@ -22,8 +22,8 @@
                             <item name="component" xsi:type="string">uiComponent</item>
                             <item name="config" xsi:type="array">
                                 <item name="template" xsi:type="string">Evalent_EcsterPay/checkout</item>
-                            </item>                            
-                            <item name="children" xsi:type="array">                                
+                            </item>
+                            <item name="children" xsi:type="array">
                                 <item name="progressBar" xsi:type="array">
                                     <item name="config" xsi:type="array">
                                         <item name="componentDisabled" xsi:type="boolean">true</item>
@@ -38,14 +38,14 @@
                                     <item name="displayArea" xsi:type="string">mode</item>
                                 </item>
                                 <item name="steps" xsi:type="array">
-                                    <item name="children" xsi:type="array">                                     
-                                        <item name="shipping-step" xsi:type="array"> 
-                                           <item name="children" xsi:type="array">                                                                                                                                                                       
+                                    <item name="children" xsi:type="array">
+                                        <item name="shipping-step" xsi:type="array">
+                                           <item name="children" xsi:type="array">
                                                 <item name="shippingAddress" xsi:type="array">
-                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/shipping</item>                                                    
+                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/shipping</item>
                                                     <item name="provider" xsi:type="string">checkoutProvider</item>
                                                     <item name="sortOrder" xsi:type="string">1</item>
-                                                    <item name="children" xsi:type="array">                                                      
+                                                    <item name="children" xsi:type="array">
                                                         <item name="shipping-address-fieldset" xsi:type="array">
                                                             <item name="component" xsi:type="string">uiComponent</item>
                                                             <item name="config" xsi:type="array">
@@ -57,10 +57,10 @@
                                                             <item name="children" xsi:type="array">
                                                                 <item name="country_id" xsi:type="array">
                                                                     <item name="sortOrder" xsi:type="string">115</item>
-                                                                    <item name="component" xsi:type="string">Magento_Ui/js/form/element/country</item>
+                                                                    <item name="component" xsi:type="string">Evalent_EcsterPay/js/form/element/country</item>
                                                                     <item name="config" xsi:type="array">
                                                                         <item name="template" xsi:type="string">ui/form/field</item>
-                                                                        <item name="elementTmpl" xsi:type="string">ui/form/element/select</item>
+                                                                        <item name="elementTmpl" xsi:type="string">Evalent_EcsterPay/form/element/select</item>
                                                                     </item>
                                                                 </item>
                                                             </item>
@@ -96,7 +96,7 @@
                                                                             <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/discount/messages</item>
                                                                             <item name="displayArea" xsi:type="string">messages</item>
                                                                         </item>
-                                                                    </item>                                                                    
+                                                                    </item>
                                                                 </item>
                                                                 <item  name="summary" xsi:type="array">
                                                                     <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/review</item>
@@ -110,7 +110,7 @@
                                                                                     <item name="children" xsi:type="array">
                                                                                         <!-- merge your components here -->
                                                                                     </item>
-                                                                                </item>                                                                                
+                                                                                </item>
                                                                                 <item name="cartItems" xsi:type="array">
                                                                                     <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items</item>
                                                                                     <item name="children" xsi:type="array">
@@ -123,7 +123,7 @@
                                                                                                 </item>
                                                                                                 <item name="subtotal" xsi:type="array">
                                                                                                     <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/items/details/subtotal</item>
-                                                                                                    <item name="displayArea" xsi:type="string">after_details</item>                                                                                                    
+                                                                                                    <item name="displayArea" xsi:type="string">after_details</item>
                                                                                                     <item name="children" xsi:type="array">
                                                                                                         <item name="weee_row_incl_tax" xsi:type="array">
                                                                                                             <item name="component" xsi:type="string">Magento_Weee/js/view/checkout/summary/item/price/row_incl_tax</item>
@@ -133,7 +133,7 @@
                                                                                                             <item name="component" xsi:type="string">Magento_Weee/js/view/checkout/summary/item/price/row_excl_tax</item>
                                                                                                             <item name="displayArea" xsi:type="string">row_excl_tax</item>
                                                                                                         </item>
-                                                                                                    </item>                                                                                                    
+                                                                                                    </item>
                                                                                                 </item>
                                                                                             </item>
                                                                                         </item>
@@ -152,7 +152,7 @@
                                                                                         <item name="subtotal" xsi:type="array">
                                                                                             <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/summary/subtotal</item>
                                                                                             <item name="config" xsi:type="array">
-                                                                                                <item name="title" xsi:type="string" translate="true">Subtotal</item>                                                                                                
+                                                                                                <item name="title" xsi:type="string" translate="true">Subtotal</item>
                                                                                                 <item name="excludingTaxMessage" xsi:type="string" translate="true">Excl. Tax</item>
                                                                                                 <item name="includingTaxMessage" xsi:type="string" translate="true">Incl. Tax</item>
                                                                                             </item>
@@ -162,7 +162,7 @@
                                                                                             <item name="sortOrder" xsi:type="string">20</item>
                                                                                             <item name="config" xsi:type="array">
                                                                                                 <item name="title" xsi:type="string" translate="true">Shipping</item>
-                                                                                                <item name="notCalculatedMessage" xsi:type="string" translate="true">Not yet calculated</item>                                                                                                
+                                                                                                <item name="notCalculatedMessage" xsi:type="string" translate="true">Not yet calculated</item>
                                                                                                 <item name="excludingTaxMessage" xsi:type="string" translate="true">Excl. Tax</item>
                                                                                                 <item name="includingTaxMessage" xsi:type="string" translate="true">Incl. Tax</item>
                                                                                             </item>
@@ -173,10 +173,10 @@
                                                                                             <item name="children" xsi:type="array">
                                                                                                 <!-- merge your components here -->
                                                                                             </item>
-                                                                                        </item>                                                                                        
+                                                                                        </item>
                                                                                         <item name="tax" xsi:type="array">
                                                                                             <item name="component"  xsi:type="string">Evalent_EcsterPay/js/view/tax</item>
-                                                                                            <item name="sortOrder" xsi:type="string">40</item>                                                                                            
+                                                                                            <item name="sortOrder" xsi:type="string">40</item>
                                                                                             <item name="config" xsi:type="array">
                                                                                                 <item name="title" xsi:type="string" translate="true">Tax</item>
                                                                                             </item>
@@ -199,15 +199,15 @@
                                                                                                 </item>
                                                                                         </item>
                                                                                     </item>
-                                                                                </item>                                                                                
+                                                                                </item>
                                                                             </item>
-                                                                        </item>                                                                                                                                            
+                                                                        </item>
                                                                     </item>
-                                                                </item>                                                                
+                                                                </item>
                                                             </item>
                                                         </item>
-                                                    </item>                                                    
-                                                </item>                                                                                               
+                                                    </item>
+                                                </item>
                                             </item>
                                         </item>
                                         <item name="billing-step" xsi:type="array">
@@ -215,24 +215,24 @@
                                                 <item name="componentDisabled" xsi:type="boolean">true</item>
                                             </item>
                                         </item>
-                                        <item name="payment" xsi:type="array">                                                                                                
+                                        <item name="payment" xsi:type="array">
                                             <item name="component" xsi:type="string">Evalent_EcsterPay/js/view/payment</item>
                                             <item name="provider" xsi:type="string">checkoutProvider</item>
                                             <item name="sortOrder" xsi:type="string">20</item>
-                                        </item>                                                                                                                          
-                                    </item>                                   
+                                        </item>
+                                    </item>
                                 </item>
                                 <item name="sidebar" xsi:type="array">
                                     <item name="config" xsi:type="array">
                                         <item name="componentDisabled" xsi:type="boolean">true</item>
                                     </item>
-                                </item>                                
-                            </item>                            
+                                </item>
+                            </item>
                         </item>
                     </item>
                 </argument>
-            </arguments>            
-        </referenceBlock>        
+            </arguments>
+        </referenceBlock>
     </body>
 </page>
 
