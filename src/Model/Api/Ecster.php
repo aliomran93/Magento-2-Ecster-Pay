@@ -10,10 +10,17 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\UrlInterface;
+use Magento\Tax\Helper\Data;
 use Magento\Tax\Model\Calculation as TaxCalculation;
 
 class Ecster
 {
+
+    /**
+     * @var \Magento\Tax\Helper\Data
+     */
+    protected Data $taxHelper;
+
     private $_localeResolver;
 
     private $customerData;
@@ -58,27 +65,27 @@ class Ecster
         "partNumber" => [
             "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "string"
+            "type" => "string",
         ],
         "name" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "description" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "quantity" => [
             "column" => "qty",
             "ecster_type" => "integer",
-            "type" => "float"
+            "type" => "float",
         ],
         "unitAmount" => [
             "column" => "price",
             "ecster_type" => "float",
-            "type" => "float"
+            "type" => "float",
         ],
         "vatRate" => [
             "column" => "tax_percent",
@@ -97,27 +104,27 @@ class Ecster
         "partNumber" => [
             "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "string"
+            "type" => "string",
         ],
         "name" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "description" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "quantity" => [
             "column" => "qty",
             "ecster_type" => "integer",
-            "type" => "float"
+            "type" => "float",
         ],
         "unitAmount" => [
             "column" => "price",
             "ecster_type" => "float",
-            "type" => "float"
+            "type" => "float",
         ],
         "vatRate" => [
             "column" => "tax_percent",
@@ -136,27 +143,27 @@ class Ecster
         "partNumber" => [
             "column" => "sku",
             "ecster_type" => "integer",
-            "type" => "string"
+            "type" => "string",
         ],
         "name" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "description" => [
             "column" => "name",
             "ecster_type" => "string",
-            "type" => "string"
+            "type" => "string",
         ],
         "quantity" => [
             "column" => "qty",
             "ecster_type" => "integer",
-            "type" => "float"
+            "type" => "float",
         ],
         "unitAmount" => [
             "column" => "price",
             "ecster_type" => "float",
-            "type" => "float"
+            "type" => "float",
         ],
         "vatRate" => [
             "column" => "tax_percent",
@@ -187,7 +194,8 @@ class Ecster
         UrlInterface $urlBuilder,
         TaxCalculation $taxCalculation,
         RequestInterface $request,
-        AddressRepositoryInterface $addressRepository
+        AddressRepositoryInterface $addressRepository,
+        Data $taxHelper
     ) {
         $this->_helper = $helper;
         $this->_localeResolver = $resolver;
@@ -195,6 +203,7 @@ class Ecster
         $this->_urlBuilder = $urlBuilder;
         $this->request = $request;
         $this->addressRepository = $addressRepository;
+        $this->taxHelper = $taxHelper;
     }
 
     public function getJsUrl($storeId)
@@ -324,7 +333,7 @@ class Ecster
             "unitAmount" => $price * 100,
             "vatRate" => 0,
             "discountAmount" => 0,
-            "fee" => true
+            "fee" => true,
         ];
     }
 
@@ -486,7 +495,7 @@ class Ecster
         return [
             'Content-Type' => 'application/json',
             'x-api-key' => $this->getApiKey(),
-            'x-merchant-key' => $this->getMerchantKey()
+            'x-merchant-key' => $this->getMerchantKey(),
         ];
     }
 
@@ -494,7 +503,7 @@ class Ecster
     {
         return [
             "language" => $this->getLocale(),
-            "country" => $this->_helper->getDefaultCountry($this->_storeId)
+            "country" => $this->_helper->getDefaultCountry($this->_storeId),
         ];
     }
 
@@ -513,8 +522,8 @@ class Ecster
             "defaultDeliveryCountry" => $this->getCountryId(),
             "purchaseType" => [
                 "type" => $purchaseType,
-                "show" => true
-            ]
+                "show" => true,
+            ],
         ];
     }
 
@@ -526,7 +535,7 @@ class Ecster
             "amount" => $this->_cartTotal,
             "currency" => $this->getQuoteCurrencyCode(),
             "message" => $this->getQuoteMessage(),
-            "rows" => $cartItems
+            "rows" => $cartItems,
         ];
     }
 
@@ -661,13 +670,15 @@ class Ecster
         $address->collectShippingRates();
 
         $_rates = $address->getAllShippingRates();
-
+        /** @var \Magento\Quote\Model\Quote\Address\Rate $_rate */
         foreach ($_rates as $_rate) {
+            $includeTax = $this->taxHelper->shippingPriceIncludesTax();
+            $methodPrice = $this->taxHelper->getShippingPrice($_rate->getPrice(), $includeTax, $address);
             $shippingMethods[] = [
                 "id" => $_rate->getMethod(),
                 "name" => "Shipping: " . $_rate->getMethodTitle(),
                 "description" => $_rate->getMethodDescription(),
-                "price" => $_rate->getPrice() > 0 ? $this->_helper->ecsterFormatPrice($this->calculateShippingPrice($_rate->getPrice())) : 0,
+                "price" => $methodPrice > 0 ? $this->_helper->ecsterFormatPrice($methodPrice) : 0,
                 "selected" => !is_null($address->getShippingMethod()) && $_rate->getCarrier() . "_" . $_rate->getMethod() == $address->getShippingMethod() ? true : false
                 //($_rate->getCarrier() . "_" .  $_rate->getMethod() == $this->_helper->getDefaultShippingMethod($this->getAddress()->getCountryId()) ? true : false)
             ];
@@ -679,13 +690,13 @@ class Ecster
                 "id" => "0",
                 "name" => "NO SHIPPING CHOSEN",
                 "price" => 0,
-                "selected" => false
+                "selected" => false,
             ];
             $shippingMethods[] = [
                 "id" => "1",
                 "name" => "NO SHIPPING CHOSEN",
                 "price" => 0,
-                "selected" => false
+                "selected" => false,
             ];
         }
 
@@ -702,7 +713,7 @@ class Ecster
             "cart" => $this->getCartDatas(),
             "orderReference" => $this->getOrderReference(),
             "notificationUrl" => $this->getNotificationUrl(),
-            "platform" => ["reference" => "bfd8d780-c090-4f22-9c7b-49dd9db1c4cd"]
+            "platform" => ["reference" => "bfd8d780-c090-4f22-9c7b-49dd9db1c4cd"],
         ];
 
         if ($this->getConsumerDatas()) {
@@ -718,7 +729,7 @@ class Ecster
         $this->_storeId = $this->_quote->getStoreId();
 
         $jsonDataEncoded = [
-            'body' => json_encode($this->getEcstrParams())
+            'body' => json_encode($this->getEcstrParams()),
         ];
 
         return $this->setResponse($this->getEcsterCartUrl(), $jsonDataEncoded);
@@ -732,7 +743,7 @@ class Ecster
         $cartUpdateUrl = $this->getEcsterCartUrl() . "/" . $cartKey;
 
         $jsonDataEncoded = [
-            'body' => json_encode($this->getEcstrParams())
+            'body' => json_encode($this->getEcstrParams()),
         ];
 
         return $this->setResponse($cartUpdateUrl, $jsonDataEncoded, 'PUT');
@@ -752,8 +763,8 @@ class Ecster
 
         $jsonDataEncoded = [
             'body' => json_encode([
-                "orderReference" => $orderReference
-            ])
+                "orderReference" => $orderReference,
+            ]),
         ];
 
         return $this->setResponse($orderUpdateUrl, $jsonDataEncoded, 'PUT');
@@ -764,7 +775,7 @@ class Ecster
         $orderProcessUrl = $this->getEcsterOrderUrl() . "/" . $ecsterOrderId . "/transactions";
 
         $jsonDataEncoded = [
-            'body' => json_encode($requestParams)
+            'body' => json_encode($requestParams),
         ];
 
         return $this->setResponse($orderProcessUrl, $jsonDataEncoded);
