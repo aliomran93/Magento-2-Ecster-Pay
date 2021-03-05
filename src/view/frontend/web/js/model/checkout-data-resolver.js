@@ -142,7 +142,7 @@ define(
 
                 if (!billingAddress) {
                     isBillingAddressInitialized = addressList.some(function (addressFromList) {
-                        if (quote.getSelectedBillingAddress() == addressFromList.getKey()) {
+                        if (checkoutData.getSelectedBillingAddress() == addressFromList.getKey()) {
                             addressData = isConvertAddress ?
                                 addressConverter.addressToEstimationAddress(addressFromList)
                                 : addressFromList;
