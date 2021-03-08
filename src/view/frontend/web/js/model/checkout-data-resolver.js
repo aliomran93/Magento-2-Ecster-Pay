@@ -11,6 +11,7 @@ define(
         'Evalent_EcsterPay/js/model/ecster',
         'Evalent_EcsterPay/js/model/shipping-save-processor',
         'Magento_Checkout/js/action/create-shipping-address',
+        'Magento_Checkout/js/action/create-billing-address',
         'Magento_Checkout/js/action/select-shipping-address',
         'Magento_Checkout/js/action/select-shipping-method',
         'Magento_Checkout/js/model/address-converter',
@@ -26,6 +27,7 @@ define(
         ecster,
         shippingSaveProcessor,
         createShippingAddress,
+        createBillingAddress,
         selectShippingAddress,
         selectShippingMethodAction,
         addressConverter,
@@ -140,7 +142,7 @@ define(
 
                 if (!billingAddress) {
                     isBillingAddressInitialized = addressList.some(function (addressFromList) {
-                        if (quote.getSelectedBillingAddress() == addressFromList.getKey()) {
+                        if (checkoutData.getSelectedBillingAddress() == addressFromList.getKey()) {
                             addressData = isConvertAddress ?
                                 addressConverter.addressToEstimationAddress(addressFromList)
                                 : addressFromList;
