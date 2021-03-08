@@ -19,7 +19,7 @@ class Ecster
     /**
      * @var \Magento\Tax\Helper\Data
      */
-    protected Data $taxHelper;
+    protected $taxHelper;
 
     private $_localeResolver;
 
