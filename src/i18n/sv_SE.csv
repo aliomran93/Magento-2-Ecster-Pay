@@ -67,7 +67,7 @@ Default Settings,Standardinställningar,module,Evalent_EcsterPay
 Default Country,Standardland,module,Evalent_EcsterPay
 Apply,Tillämpa,module,Evalent_EcsterPay
 Review,Redigera,module,Evalent_EcsterPay
-"Sorry, no quotes are available for this order at this time",Det finns ingen offert tillgänglig för tillfället,module,Evalent_EcsterPay
+"Sorry, no shipping methods are available for this order at this time",Det finns inga tillgängliga fraktmetoder för tillfället,module,Evalent_EcsterPay
 Options Details,"Alternativ, detaljer",module,Evalent_EcsterPay
 Excl. Tax,Ex moms,module,Evalent_EcsterPay
 Incl. Tax,Ink moms,module,Evalent_EcsterPay

@@ -136,13 +136,10 @@ class Index extends CheckoutIndex
     protected function isShippingMethods()
     {
         if (!$this->getQuote()->getIsVirtual()
-            && (is_null($this->getAddress()->getCountryId())
-                || (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() == $this->ecsterPayHelper->getDefaultCountry($this->getStoreId())))
+            && (is_null($this->getAddress()->getCountryId()) || (!is_null($this->getAddress()->getCountryId()) && $this->getAddress()->getCountryId() == $this->ecsterPayHelper->getDefaultCountry($this->getStoreId())))
             && is_null($this->getQuote()->getData('ecster_cart_key'))) {
-
             $this->getAddress()->setCollectShippingRates(true);
             $this->getAddress()->collectShippingRates();
-
             if (count($this->getAddress()->getAllShippingRates()) == 0) {
                 return false;
             }
@@ -168,16 +165,16 @@ class Index extends CheckoutIndex
                     throw new \Exception($this->ecsterPayHelper->getNotDefinedTermsPageContentNotification());
                 }
 
-                if ((count($this->ecsterPayHelper->getAllowedCountries($storeId)) > 0
-                    && !in_array(
-                        $this->ecsterPayHelper->getDefaultCountry($storeId),
-                        $this->ecsterPayHelper->getAllowedCountries($storeId)
-                    ))) {
-                    throw new \Exception(__(
-                        "Ecster Checkout payment method does not support this country, %1.",
-                        $this->ecsterPayHelper->getCountryName($this->ecsterPayHelper->getDefaultCountry($storeId))
-                    ));
-                }
+//                if ((count($this->ecsterPayHelper->getAllowedCountries($storeId)) > 0
+//                    && !in_array(
+//                        $this->ecsterPayHelper->getDefaultCountry($storeId),
+//                        $this->ecsterPayHelper->getAllowedCountries($storeId)
+//                    ))) {
+//                    throw new \Exception(__(
+//                        "Ecster Checkout payment method does not support this country, %1.",
+//                        $this->ecsterPayHelper->getCountryName($this->ecsterPayHelper->getDefaultCountry($storeId))
+//                    ));
+//                }
 
                 if ((!is_null($this->getAddress()->getCountryId())
                     && !is_null($this->getAddress()->getCustomerId())
