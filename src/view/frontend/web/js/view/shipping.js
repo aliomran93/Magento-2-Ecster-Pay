@@ -144,18 +144,28 @@ define(
                 }
 
                 shippingAddress = quote.shippingAddress();
+
+                let payload = {
+                    addressInformation: {
+                        shipping_address: quote.shippingAddress(),
+                        billing_address: quote.billingAddress(),
+                        shipping_method_code: quote.shippingMethod() ? quote.shippingMethod()['method_code'] : null,
+                        shipping_carrier_code: quote.shippingMethod() ? quote.shippingMethod()['carrier_code'] : null
+                    }
+                };
                 addressData = addressConverter.formAddressDataToQuoteAddress(
                     this.source.get('shippingAddress')
                 );
 
-                for (var field in addressData) {
-                    if (addressData.hasOwnProperty(field)
-                        && shippingAddress.hasOwnProperty(field)
-                        && typeof addressData[field] != 'function'
-                    ) {
-                        shippingAddress[field] = addressData[field];
-                    }
-                }
+                // This does not work in our setup as we are not using any form fields
+                // for (var field in addressData) {
+                //     if (addressData.hasOwnProperty(field)
+                //         && shippingAddress.hasOwnProperty(field)
+                //         && typeof addressData[field] != 'function'
+                //     ) {
+                //         shippingAddress[field] = addressData[field];
+                //     }
+                // }
 
                 selectShippingAddress(shippingAddress);
                 selectBillingAddress(shippingAddress);

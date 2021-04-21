@@ -55,11 +55,21 @@ class Checkout extends Onepage
      */
     protected $ecsterHelper;
 
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService
+     */
     protected $invoiceService;
 
+    /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender
+     */
     protected $invoiceSender;
 
+    /**
+     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     */
     protected $invoiceRepository;
+
 
     protected $orderRepository;
 

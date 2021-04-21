@@ -11,6 +11,7 @@ use Magento\Framework\App\Action\Action;
 use Evalent\EcsterPay\Model\Checkout;
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class Success extends Action
 {
@@ -37,7 +38,13 @@ class Success extends Action
      */
     private $checkoutSession;
 
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
+
     public function __construct(
+        CartRepositoryInterface $quoteRepository,
         Context $context,
         Checkout $checkout,
         EcsterPayHelper $helper,
@@ -50,12 +57,17 @@ class Success extends Action
         $this->_helper = $helper;
         $this->_ecsterApi = $ecsterApi;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
     }
 
     public function execute()
     {
         if ($ecsterReference = $this->getRequest()->getParam('ecster-reference')) {
             try {
+                // If the order was alreade created. I.e in the case of SWISH
+                if ($this->checkoutSession->getLastSuccessQuoteId()) {
+                    return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
+                }
                 $response = (array)$this->_ecsterApi->getOrder($ecsterReference);
 
                 if ($response['id'] == $ecsterReference) {
@@ -73,6 +85,9 @@ class Success extends Action
 
             } catch (\Exception $ex) {
                 $this->messageManager->addError($ex->getMessage());
+                $quote = $this->_checkout->getQuote();
+                $quote->setReservedOrderId(null);
+                $this->quoteRepository->save($quote);
 
                 return $this->resultRedirectFactory->create()->setPath('checkout/onepage/failure');
             }

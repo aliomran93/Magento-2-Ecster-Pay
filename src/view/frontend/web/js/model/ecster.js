@@ -6,6 +6,11 @@ define(
     [
         'jquery',
         'ko',
+        'Evalent_EcsterPay/js/model/shipping-save-processor/default',
+        'Evalent_EcsterPay/js/action/select-shipping-address',
+        'Evalent_EcsterPay/js/action/select-billing-address',
+        'Evalent_EcsterPay/js/action/place-order',
+        'Magento_Ui/js/model/messages',
         'Evalent_EcsterPay/js/model/quote',
         'Evalent_EcsterPay/js/model/config',
         'mage/url',
@@ -18,6 +23,11 @@ define(
     function (
         $,
         ko,
+        shippingSaveProcessor,
+        selectShippingAddress,
+        selectBillingAddress,
+        placeOrderAction,
+        Messages,
         quote,
         ecsterConfig,
         urlBuilder,
@@ -67,6 +77,9 @@ define(
                     onCustomerAuthenticated: $.proxy(function (response) {
                         this.onCustomerAuthenticated(response);
                     }, this),
+                    onChangedContactInfo: $.proxy(function (response) {
+                        this.onChangedContactInfo(response);
+                    }, this),
                     onChangedDeliveryAddress: $.proxy(function (response) {
                         this.onChangedDeliveryAddress(response);
                     }, this),
@@ -79,6 +92,30 @@ define(
                     onPaymentDenied: $.proxy(function (response) {
                         this.onPaymentDenied(response);
                     }, this),
+                    onBeforeSubmit: $.proxy(function (data, storeCallbackFn) {
+                        if (data.paymentMethod.type === "SWISH") {
+                            $.when(
+                                placeOrderAction({
+                                        method: "ecsterpay"
+                                    },
+                                    new Messages()
+                                )
+                            ).done(
+                                function () {
+                                    storeCallbackFn(true, {})
+                                }
+                            ).fail(
+                                function () {
+                                    $(window).scrollTop(0);
+                                    storeCallbackFn(false, {})
+                                    messageList.addErrorMessage({ message: "Something went wrong. Try again and if the problem persists please contact the support for more information" });
+                                    return false;
+                                }
+                            );
+                        } else {
+                            storeCallbackFn(true, {})
+                        }
+                    }, this)
                 });
             },
             onCheckoutStartInit: function (response) {
@@ -94,7 +131,6 @@ define(
             onCheckoutStartFailure: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                 console.log(response);
                  console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
@@ -123,7 +159,38 @@ define(
             onChangedContactInfo: function (response) {
                  console.log('onChangedContactInfo');
             },
+            onChangedContactInfo: function (response) {
+                try {
+                    let address = quote.shippingAddress()
+                    address.email = response.email
+                    address.telephone = response.cellular
+                    selectShippingAddress(address)
+                    // selectBillingAddress(address)
+                    shippingSaveProcessor.saveShippingInformation();
+                }catch(err) {
+                    console.log(err)
+                }
+                console.log('onChangedContactInfo');
+            },
             onChangedDeliveryAddress: function (response) {
+                try {
+                    let address = quote.shippingAddress();
+                    address.city= response.city
+                    address.countryId= response.countryCode
+                    address.firstname= response.firstName
+                    address.lastname= response.lastName
+                    address.postcode= response.zip
+                    address.region= response.region
+                    address.street= [
+                            response.address,
+                            response.address2
+                        ]
+
+                    selectShippingAddress(address)
+                    shippingSaveProcessor.saveShippingInformation();
+                }catch(err) {
+                    console.log(err)
+                }
                 this.reserveOrderId();
                 console.log('onChangedDeliveryAddress');
             },
@@ -136,8 +203,6 @@ define(
             },
             onPaymentDenied: function (response) {
                  console.log("onPaymentDenied");
-            },
-            onBeforeSubmit: function (data) {
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
@@ -206,7 +271,6 @@ define(
                     async: false,
                     dataType: 'json',
                     context: this,
-
                     /**
                      * @param {Object} response
                      */
