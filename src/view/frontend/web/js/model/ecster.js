@@ -96,21 +96,20 @@ define(
                     }, this),
                     onBeforeSubmit: $.proxy(function (data, storeCallbackFn) {
                         if (data.paymentMethod.type === "SWISH") {
-                            $.when(
-                                placeOrderAction({
-                                        method: "ecsterpay"
-                                    },
-                                    new Messages()
-                                )
-                            ).done(
+                            var placeOrder = placeOrderAction({method: "ecsterpay"}, new Messages())
+                            $.when(placeOrder).done(
                                 function () {
                                     storeCallbackFn(true, {})
                                 }
                             ).fail(
-                                function () {
+                                function (response) {
                                     $(window).scrollTop(0);
                                     storeCallbackFn(false, {})
-                                    messageList.addErrorMessage({ message: "Something went wrong. Try again and if the problem persists please contact the support for more information" });
+                                    if (response.responseJSON && response.responseJSON.message) {
+                                        messageList.addErrorMessage({message: response.responseJSON.message});
+                                    } else {
+                                        messageList.addErrorMessage({message: "Something went wrong. Try again and if the problem persists please contact the support for more information"});
+                                    }
                                     return false;
                                 }
                             );
