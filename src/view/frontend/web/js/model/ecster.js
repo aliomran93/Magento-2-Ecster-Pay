@@ -122,7 +122,7 @@ define(
             onCheckoutStartInit: function (response) {
                 fullScreenLoader.startLoader();
                 this.isUpdating(true)
-                 console.log("onCheckoutStartInit");
+                console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
                 this.isUpdating(false)
@@ -132,22 +132,22 @@ define(
             onCheckoutStartFailure: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                 console.log("onCheckoutStartFailure");
+                console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
                 this.isUpdating(true)
                 fullScreenLoader.startLoader();
-                 console.log("onCheckoutUpdateInit");
+                console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.startLoader();
-                 console.log("onCheckoutInitUpdateCart");
+                console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                 console.log("onCheckoutFinishUpdateCart");
+                console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
                 fullScreenLoader.stopLoader();
@@ -155,7 +155,7 @@ define(
                 console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
-                 console.log("onCustomerAuthenticated");
+                console.log("onCustomerAuthenticated");
             },
             onPaymentMethodSelected: function (response) {
                 console.log("onPaymentMethodSelected");
@@ -171,6 +171,10 @@ define(
                 }catch(err) {
                     console.log(err)
                 }
+                if (!this.reservedId) {
+                    this.reserveOrderId();
+                    this.reservedId = true;
+                }
                 console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
@@ -183,18 +187,14 @@ define(
                     address.postcode= response.zip
                     address.region= response.region
                     address.street= [
-                            response.address,
-                            response.address2
-                        ]
+                        response.address,
+                        response.address2
+                    ]
 
                     selectShippingAddress(address)
                     shippingSaveProcessor.saveShippingInformation();
                 }catch(err) {
                     console.log(err)
-                }
-                if (!this.reservedId) {
-                    this.reserveOrderId();
-                    this.reservedId = true;
                 }
                 console.log('onChangedDeliveryAddress');
             },
@@ -203,10 +203,10 @@ define(
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
-                 console.log('onPaymentFailure');
+                console.log('onPaymentFailure');
             },
             onPaymentDenied: function (response) {
-                 console.log("onPaymentDenied");
+                console.log("onPaymentDenied");
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
