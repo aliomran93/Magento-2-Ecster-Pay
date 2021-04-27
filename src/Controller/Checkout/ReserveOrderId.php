@@ -85,12 +85,17 @@ class ReserveOrderId extends CheckoutIndex
     {
         $returnArray = [];
         $returnArray['error'] = false;
-        $ecsterCartKey = $this->_ecsterApi->updateCart($this->getQuote());
 
-        $this->getQuote()->reserveOrderId();
-        $this->quoteRepository->save($this->getQuote());
+        $quote = $this->getQuote();
+        $quote->reserveOrderId();
+        if (!$quote->getCustomerEmail() && $quote->getShippingAddress()->getEmail()) {
+            $quote->setCustomerEmail($quote->getShippingAddress()->getEmail());
+        }
 
-        $ecsterCartKey = $this->_ecsterApi->updateCart($this->getQuote());
+        $this->quoteRepository->save($quote);
+
+
+        $ecsterCartKey = $this->_ecsterApi->updateCart($quote);
 
         if (!$ecsterCartKey) {
             $returnArray['message'] = __('Unable to update Ecster cart. Please contact the support');

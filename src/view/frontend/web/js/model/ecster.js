@@ -38,7 +38,7 @@ define(
 
         'use strict';
 
-        var isUpdateCountry, checkoutUpdating = false;
+        var isUpdateCountry, checkoutUpdating, reservedId = false;
         var updateShippingOnSuccess = null;
 
         return {
@@ -68,7 +68,6 @@ define(
                         this.onCheckoutFinishUpdateCart();
                     }, this),
                     onCheckoutUpdateInit: $.proxy(function () {
-                        console.trace()
                         this.onCheckoutUpdateInit();
                     }, this),
                     onCheckoutUpdateSuccess: $.proxy(function () {
@@ -91,6 +90,9 @@ define(
                     }, this),
                     onPaymentDenied: $.proxy(function (response) {
                         this.onPaymentDenied(response);
+                    }, this),
+                    onPaymentMethodSelected: $.proxy(function (response) {
+                        this.onPaymentMethodSelected(response);
                     }, this),
                     onBeforeSubmit: $.proxy(function (data, storeCallbackFn) {
                         if (data.paymentMethod.type === "SWISH") {
@@ -156,8 +158,8 @@ define(
             onCustomerAuthenticated: function (response) {
                  console.log("onCustomerAuthenticated");
             },
-            onChangedContactInfo: function (response) {
-                 console.log('onChangedContactInfo');
+            onPaymentMethodSelected: function (response) {
+                console.log("onPaymentMethodSelected");
             },
             onChangedContactInfo: function (response) {
                 try {
@@ -191,7 +193,10 @@ define(
                 }catch(err) {
                     console.log(err)
                 }
-                this.reserveOrderId();
+                if (!this.reservedId) {
+                    this.reserveOrderId();
+                    this.reservedId = true;
+                }
                 console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
@@ -311,6 +316,12 @@ define(
                             success = false;
                             return;
                         }
+                        console.log(response.ecster_key)
+                        if (response.ecster_key == undefined) {
+                            console.log("Return")
+                            return;
+                        }
+                        console.log("NOT Return")
                         this.key = response.ecster_key
                         quote.setEcsterCartKey(response.ecster_key);
                         updateCartCallBack(response.ecster_key)
