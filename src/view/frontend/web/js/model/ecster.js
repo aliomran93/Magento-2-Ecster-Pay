@@ -6,6 +6,11 @@ define(
     [
         'jquery',
         'ko',
+        'Evalent_EcsterPay/js/model/shipping-save-processor/default',
+        'Evalent_EcsterPay/js/action/select-shipping-address',
+        'Evalent_EcsterPay/js/action/select-billing-address',
+        'Evalent_EcsterPay/js/action/validate-quote',
+        'Magento_Ui/js/model/messages',
         'Evalent_EcsterPay/js/model/quote',
         'Evalent_EcsterPay/js/model/config',
         'mage/url',
@@ -18,6 +23,11 @@ define(
     function (
         $,
         ko,
+        shippingSaveProcessor,
+        selectShippingAddress,
+        selectBillingAddress,
+        validateQuoteAction,
+        Messages,
         quote,
         ecsterConfig,
         urlBuilder,
@@ -28,7 +38,7 @@ define(
 
         'use strict';
 
-        var isUpdateCountry, checkoutUpdating = false;
+        var isUpdateCountry, checkoutUpdating, reservedId = false;
         var updateShippingOnSuccess = null;
 
         return {
@@ -58,7 +68,6 @@ define(
                         this.onCheckoutFinishUpdateCart();
                     }, this),
                     onCheckoutUpdateInit: $.proxy(function () {
-                        console.trace()
                         this.onCheckoutUpdateInit();
                     }, this),
                     onCheckoutUpdateSuccess: $.proxy(function () {
@@ -66,6 +75,9 @@ define(
                     }, this),
                     onCustomerAuthenticated: $.proxy(function (response) {
                         this.onCustomerAuthenticated(response);
+                    }, this),
+                    onChangedContactInfo: $.proxy(function (response) {
+                        this.onChangedContactInfo(response);
                     }, this),
                     onChangedDeliveryAddress: $.proxy(function (response) {
                         this.onChangedDeliveryAddress(response);
@@ -79,6 +91,34 @@ define(
                     onPaymentDenied: $.proxy(function (response) {
                         this.onPaymentDenied(response);
                     }, this),
+                    onPaymentMethodSelected: $.proxy(function (response) {
+                        this.onPaymentMethodSelected(response);
+                    }, this),
+                    onBeforeSubmit: $.proxy(function (data, storeCallbackFn) {
+                        var validateQuote = validateQuoteAction()
+                        $.when(validateQuote).done(
+                            function (response) {
+                                if (response.error) {
+                                    $(window).scrollTop(0);
+                                    messageList.addErrorMessage({message: response.message});
+                                    storeCallbackFn(false, {})
+                                } else {
+                                    storeCallbackFn(true, {})
+                                }
+                            }
+                        ).fail(
+                            function (response) {
+                                $(window).scrollTop(0);
+                                storeCallbackFn(false, {})
+                                if (response.responseJSON && response.responseJSON.message) {
+                                    messageList.addErrorMessage({message: response.responseJSON.message});
+                                } else {
+                                    messageList.addErrorMessage({message: "Something went wrong. Try again and if the problem persists please contact the support for more information"});
+                                }
+                                storeCallbackFn(false, {})
+                            }
+                        );
+                    }, this)
                 });
             },
             onCheckoutStartInit: function (response) {
@@ -94,7 +134,6 @@ define(
             onCheckoutStartFailure: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                 console.log(response);
                  console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
@@ -120,11 +159,45 @@ define(
             onCustomerAuthenticated: function (response) {
                  console.log("onCustomerAuthenticated");
             },
+            onPaymentMethodSelected: function (response) {
+                console.log("onPaymentMethodSelected");
+            },
             onChangedContactInfo: function (response) {
-                 console.log('onChangedContactInfo');
+                try {
+                    let address = quote.shippingAddress()
+                    address.email = response.email
+                    address.telephone = response.cellular
+                    selectShippingAddress(address)
+                    // selectBillingAddress(address)
+                    shippingSaveProcessor.saveShippingInformation();
+                }catch(err) {
+                    console.log(err)
+                }
+                if (!this.reservedId) {
+                    this.reserveOrderId();
+                    this.reservedId = true;
+                }
+                console.log('onChangedContactInfo');
             },
             onChangedDeliveryAddress: function (response) {
-                this.reserveOrderId();
+                try {
+                    let address = quote.shippingAddress();
+                    address.city= response.city
+                    address.countryId= response.countryCode
+                    address.firstname= response.firstName
+                    address.lastname= response.lastName
+                    address.postcode= response.zip
+                    address.region= response.region
+                    address.street= [
+                            response.address,
+                            response.address2
+                        ]
+
+                    selectShippingAddress(address)
+                    shippingSaveProcessor.saveShippingInformation();
+                }catch(err) {
+                    console.log(err)
+                }
                 console.log('onChangedDeliveryAddress');
             },
             onPaymentSuccess: function (response) {
@@ -132,12 +205,10 @@ define(
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
-                 console.log('onPaymentFailure');
+                 console.log('onPaymentFailure')
             },
             onPaymentDenied: function (response) {
                  console.log("onPaymentDenied");
-            },
-            onBeforeSubmit: function (data) {
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
@@ -206,7 +277,6 @@ define(
                     async: false,
                     dataType: 'json',
                     context: this,
-
                     /**
                      * @param {Object} response
                      */
@@ -245,6 +315,9 @@ define(
                         if (response.error) {
                             messageList.addErrorMessage({ message: response.message });
                             success = false;
+                            return;
+                        }
+                        if (response.ecster_key == undefined) {
                             return;
                         }
                         this.key = response.ecster_key

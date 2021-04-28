@@ -5,10 +5,10 @@
 */
 -->
 <div id="ecsterpay-checkout-left" class="ecsterpay-checkout-left">
-    <div class="ecsterpay-checkout-address-step-title step-title" data-bind="i18n: 'Review'" data-role="title"></div>    
+    <div class="ecsterpay-checkout-address-step-title step-title" data-bind="i18n: 'Review'" data-role="title"></div>
     <div id="ecsterpay-checkout-step-address" class="step-content" data-role="content">
         <!-- Inline address form -->
-        <render args="shippingFormTemplate" />         
+        <render args="shippingFormTemplate" />
     </div>
     <!-- ko if: isPurchaseTypeOptional() -->
     <div id="ecsterpay-checkout-purchase-type" class="step-content purchase-type" data-role="content">
@@ -16,7 +16,7 @@
         <render args="purchaseTypeFormTemplate" />
     </div>
     <!-- /ko -->
-    <div id="ecsterpay-checkout-step-shipping-method" class="step-content shipping-method" data-bind="fadeVisible: visible(), blockLoader: isLoading" role="presentation">    
+    <div id="ecsterpay-checkout-step-shipping-method" class="step-content shipping-method" data-bind="fadeVisible: visible(), blockLoader: isLoading" role="presentation">
         <div class="ecsterpay-checkout-fieldset-title fieldset-title" data-bind="i18n: 'Select Shipment Method'" data-role="title"></div>
         <!-- ko foreach: getRegion('before-shipping-method-form') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
@@ -37,7 +37,7 @@
                 <!-- /ko -->
             </form>
             <!-- /ko -->
-            <!-- ko ifnot: rates().length > 0 --><div class="no-quotes-block"><!-- ko i18n: 'Sorry, no quotes are available for this order at this time'--><!-- /ko --></div><!-- /ko -->
+            <!-- ko ifnot: rates().length > 0 --><div class="no-quotes-block"><!-- ko i18n: 'Sorry, no shipping methods are available for this order at this time'--><!-- /ko --></div><!-- /ko -->
         </div>
     </div>
     <!-- ko foreach: getRegion('after-shipping-method-form') -->

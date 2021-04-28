@@ -160,7 +160,8 @@
                     </field>
                     <field id="order_status_fully_delivered" translate="label" type="select" sortOrder="55"
                            showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Order Status - Delivered</label>
+                        <label>Order Status - Fully Delivered</label>
+                        <comment><![CDATA[Note that Fully Delivered in ecster is NOT delivered in Magento. It just means that the order is payed.]]></comment>
                         <source_model>Evalent\EcsterPay\Model\System\Config\Source\Order\Status</source_model>
                         <config_path>payment/ecsterpay/order_status_fully_delivered</config_path>
                     </field>

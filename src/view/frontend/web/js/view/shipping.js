@@ -14,7 +14,6 @@ define(
         'Magento_Checkout/js/action/select-billing-address',
         'Evalent_EcsterPay/js/model/shipping-service',
         'Magento_Checkout/js/action/select-shipping-method',
-        'Evalent_EcsterPay/js/action/set-shipping-information-override',
         'Evalent_EcsterPay/js/action/set-shipping-information',
         'Evalent_EcsterPay/js/model/checkout-data-resolver',
         'uiRegistry',
@@ -35,7 +34,6 @@ define(
         selectBillingAddress,
         shippingService,
         selectShippingMethodAction,
-        setShippingInformation,
         setShippingInformationAction,
         checkoutDataResolver,
         registry,
@@ -146,18 +144,28 @@ define(
                 }
 
                 shippingAddress = quote.shippingAddress();
+
+                let payload = {
+                    addressInformation: {
+                        shipping_address: quote.shippingAddress(),
+                        billing_address: quote.billingAddress(),
+                        shipping_method_code: quote.shippingMethod() ? quote.shippingMethod()['method_code'] : null,
+                        shipping_carrier_code: quote.shippingMethod() ? quote.shippingMethod()['carrier_code'] : null
+                    }
+                };
                 addressData = addressConverter.formAddressDataToQuoteAddress(
                     this.source.get('shippingAddress')
                 );
 
-                for (var field in addressData) {
-                    if (addressData.hasOwnProperty(field)
-                        && shippingAddress.hasOwnProperty(field)
-                        && typeof addressData[field] != 'function'
-                    ) {
-                        shippingAddress[field] = addressData[field];
-                    }
-                }
+                // This does not work in our setup as we are not using any form fields
+                // for (var field in addressData) {
+                //     if (addressData.hasOwnProperty(field)
+                //         && shippingAddress.hasOwnProperty(field)
+                //         && typeof addressData[field] != 'function'
+                //     ) {
+                //         shippingAddress[field] = addressData[field];
+                //     }
+                // }
 
                 selectShippingAddress(shippingAddress);
                 selectBillingAddress(shippingAddress);

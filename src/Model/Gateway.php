@@ -6,6 +6,7 @@
 namespace Evalent\EcsterPay\Model;
 
 use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Sales\Model\Order\Payment;
 
 class Gateway extends AbstractMethod
 {
@@ -21,7 +22,7 @@ class Gateway extends AbstractMethod
     /**
      * @inheritdoc
      */
-    protected $_canUseCheckout = false;
+    protected $_canUseCheckout = true;
 
     /**
      * @inheritdoc
@@ -38,5 +39,15 @@ class Gateway extends AbstractMethod
      */
     protected $_infoBlockType = \Evalent\EcsterPay\Block\Payment\Info::class;
 
+    public function canRefund()
+    {
+        $paymentInfo = $this->getInfoInstance();
+        if ($paymentInfo instanceof Payment) {
+            if ($paymentInfo->getOrder()->getEcsterPaymentType() == "SWISH") {
+                return false;
+            }
+        }
+        return $this->_canRefund;
+    }
 
 }

@@ -13,11 +13,17 @@ use Exception;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\AreaList;
 use Magento\Framework\App\State;
+use Magento\Framework\DataObject;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 
 class SalesOrderStatusUpdate
@@ -40,60 +46,109 @@ class SalesOrderStatusUpdate
     /**
      * @var \Psr\Log\LoggerInterface
      */
-    private $logger;
+    protected $logger;
 
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    private $quoteRepository;
+    protected $quoteRepository;
+
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    protected $orderRepository;
 
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * @var \Evalent\EcsterPay\Model\Checkout
      */
-    private $ecsterCheckout;
+    protected $ecsterCheckout;
 
     /**
      * @var \Magento\Framework\App\AreaList
      */
-    private $areaList;
+    protected $areaList;
 
     /**
      * @var \Magento\Framework\App\State
      */
-    private $appState;
+    protected $appState;
+
+    /**
+     * @var \Magento\Sales\Model\Service\InvoiceService
+     */
+    protected $invoiceService;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender
+     */
+    protected $invoiceSender;
+
+    /**
+     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository;
 
     /**
      * @var \Evalent\EcsterPay\Model\ResourceModel\TransactionHistory\CollectionFactory
      */
-    private $transactionsHistoryCollection;
+    protected $transactionsHistoryCollection;
+
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    protected $registry;
+
+    /**
+     * @var \Magento\Sales\Api\OrderStatusHistoryRepositoryInterface
+     */
+    protected $historyRepository;
+
+    /**
+     * @var \Magento\Framework\DB\Transaction
+     */
+    protected $transaction;
 
     public function __construct(
         Order $order,
+        OrderStatusHistoryRepositoryInterface $historyRepository,
         EcsterPayHelper $helper,
+        \Magento\Framework\DB\Transaction $transaction,
+        \Magento\Framework\Registry $registry,
         EcsterApi $ecsterApi,
         LoggerInterface $logger,
         CartRepositoryInterface $quoteRepository,
+        OrderRepositoryInterface $orderRepository,
         EventManagerInterface $eventManager,
         Checkout $ecsterCheckout,
         AreaList $areaList,
         State $state,
-        CollectionFactory $transactionsHistoryCollection
+        CollectionFactory $transactionsHistoryCollection,
+        InvoiceRepositoryInterface $invoiceRepository,
+        InvoiceService $invoiceService,
+        InvoiceSender $invoiceSender
     ) {
         $this->_order = $order;
         $this->helper = $helper;
         $this->ecsterApi = $ecsterApi;
         $this->logger = $logger;
         $this->quoteRepository = $quoteRepository;
+        $this->orderRepository = $orderRepository;
         $this->eventManager = $eventManager;
         $this->ecsterCheckout = $ecsterCheckout;
         $this->areaList = $areaList;
         $this->appState = $state;
         $this->transactionsHistoryCollection = $transactionsHistoryCollection;
+        $this->invoiceSender = $invoiceSender;
+        $this->invoiceService = $invoiceService;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->registry = $registry;
+        $this->transaction = $transaction;
+        $this->historyRepository = $historyRepository;
     }
 
     /**
@@ -107,7 +162,7 @@ class SalesOrderStatusUpdate
     {
         $response = (array)json_decode($responseJson);
         if (isset($response['status'])) {
-            $order = $this->_order->load($response['orderId'], 'ecster_internal_reference');
+            $order = $this->loadOrderFromResponse($response);
 
             if ($order && $order->getId()) {
                 $message = null;
@@ -129,11 +184,20 @@ class SalesOrderStatusUpdate
                 } catch (Exception $e) {
                 }
 
+                // If the order is fully delivered in ecster we want to create invoice
+                if (!$order->hasInvoices() && $response['status'] == "FULLY_DELIVERED" && isset($response['event']) && $response['event'] == "FULL_DEBIT") {
+                    try {
+                        $this->createInvoiceFromOen($order, $response, $ecsterOrder);
+                    } catch (LocalizedException $e) {
+                        $this->logger->error(self::LOGGER_PREFIX . __("Unable to create invoice. %1", $e->getMessage()));
+                    }
+                }
 
                 $assignedStatus = $this->helper->getOenStatus(
                     $response['status'],
                     $order->getStoreId()
                 );
+
 
                 if (!$assignedStatus) {
                     $this->logger->info(self::LOGGER_PREFIX . "Couldn't get assigned status.");
@@ -171,7 +235,7 @@ class SalesOrderStatusUpdate
                 ];
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
-            } elseif ($secondTry && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
+            } elseif ($secondTry && isset($response['event']) && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
                 //This fixes the issue with payment with Swish where the user is not redirected to the success page
                 // and thus we need to create the order through the OEN request
                 $this->logger->info(self::LOGGER_PREFIX . "Creating order for response: " . $responseJson);
@@ -185,6 +249,53 @@ class SalesOrderStatusUpdate
         } else {
             throw new Exception(__(self::LOGGER_PREFIX . "Status Error"));
         }
+    }
+
+    protected function loadOrderFromResponse($responseData)
+    {
+        // First we try with ecster_internal_reference
+        $order = $this->_order->load($responseData['orderId'], 'ecster_internal_reference');
+        if ($order && $order->getId()) {
+            return $order;
+        }
+        // Then we try if the order is already created. This occurs on SWISH payments
+        $order = $this->_order->loadByIncrementId($responseData['orderReference']);
+        // If we find the order on orderReference we need to update the order according to the ecster data
+        if ($order && $order->getId()) {
+            $order = $this->updateOrderFromEcster($order, $responseData['orderId']);
+        }
+
+        return $order;
+
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @param string $ecsterOrderId
+     */
+    private function updateOrderFromEcster($order, $ecsterOrderId)
+    {
+        $ecsterOrder = (array)$this->ecsterApi->getOrder($ecsterOrderId);
+
+        $order->setEcsterInternalReference($ecsterOrderId);
+
+        if (!is_null($ecsterOrder['properties'])) {
+            $orderProperties = (array)$ecsterOrder['properties'];
+
+            $order->setEcsterProperties(serialize($orderProperties));
+            $order->setEcsterPaymentType($orderProperties['method']);
+
+            $extraFee = 0;
+            switch ($orderProperties['method']) {
+                case "CARD":
+                    break;
+                case "INVOICE":
+                    $extraFee = $orderProperties['invoiceFee'] / 100;
+                    $order->setEcsterExtraFee($extraFee);
+                    break;
+            }
+        }
+        return $this->orderRepository->save($order);
     }
 
     public function orderStatusUpdate($order, $status, $message = null, $state = null)
@@ -204,6 +315,78 @@ class SalesOrderStatusUpdate
         } catch (Exception $ex) {
             return $ex->getMessage();
         }
+    }
+
+    /**
+     * @var \Magento\Sales\Model\Order $order
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function createInvoiceFromOen($order, $responseData, $ecsterOrder)
+    {
+        /** @var \Magento\Sales\Model\Order\Invoice $invoice */
+        $invoice = $this->invoiceService->prepareInvoice($order);
+        if (isset($responseData['transactionId'])) {
+            $invoice->setTransactionId($responseData['transactionId']);
+            $invoice->setEcsterDebitReference($responseData['transactionId']);
+        }
+        $invoice->register();
+        $invoice = $this->invoiceRepository->save($invoice);
+        $this->logger->info(print_r($ecsterOrder, true));
+
+        if ($ecsterOrder->transactions) {
+            foreach ($ecsterOrder->transactions as $transaction) {
+                if ($transaction->id == $responseData['transactionId']) {
+                    $transactionHistoryData = [
+                        'id'               => null,
+                        'order_id'         => $order->getId(),
+                        'entity_type'      => 'invoice',
+                        'entity_id'        => $invoice->getId(),
+                        'amount'           => $invoice->getGrandTotal(),
+                        'transaction_type' => $this->ecsterApi::ECSTER_OMA_TYPE_DEBIT,
+                        'request_params'   => serialize($responseData),
+                        'order_status'     => $responseData['status'],
+                        'transaction_id'   => $transaction->id,
+                        'response_params'  => serialize((array)$ecsterOrder),
+                    ];
+                    $this->helper->addTransactionHistory($transactionHistoryData);
+                    break;
+                }
+            }
+        }
+
+        $this->registry->register('current_invoice', $invoice);
+        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+
+        // If the user select "PENDING_PAYMENT" to be the OEN update on Pending payment the order does not change to
+        // processing when invoice is created,
+        if ($order->getState() == Order::STATE_PENDING_PAYMENT) {
+            $order->setState(Order::STATE_NEW);
+        }
+        $invoice->getOrder()->setIsInProcess(true);
+
+        $transactionSave = $this->transaction->addObject(
+            $invoice
+        )->addObject(
+            $invoice->getOrder()
+        );
+
+        $transactionSave->save();
+
+        try {
+            //Send Invoice mail to customer
+            $this->invoiceSender->send($invoice);
+            $orderHistory = $order->addStatusHistoryComment(
+                __('Notified customer about invoice creation #%1.', $invoice->getId())
+            )->setIsCustomerNotified(true);
+            $this->historyRepository->save($orderHistory);
+        } catch (\Exception $e) {
+            $orderHistory= $order->addStatusHistoryComment(
+                __('Unable notify customer about invoice creation #%1. Error message: %2', $invoice->getId(), $e->getMessage())
+            )->setIsCustomerNotified(false);
+            $this->historyRepository->save($orderHistory);
+        }
+        $this->logger->info(self::LOGGER_PREFIX . __("Created invoice for order %1", $order->getId()));
     }
 
     protected function createOrderFromOen($oenData)

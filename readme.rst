@@ -2,6 +2,11 @@
 Ecster Pay Module for Magento 2
 ===============================
 
+Documentation
+=============
+
+You can find our more detailed documentation `here <https://docs-ecster.evalent.net/>`_
+
 Installation
 ============
 

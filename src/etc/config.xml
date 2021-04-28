@@ -28,7 +28,7 @@
                 <default_country>SE</default_country>
                 <!--<default_shipping_method>flatrate_flatrate</default_shipping_method>-->
                 <order_status_ready>processing</order_status_ready>
-                <order_status_pending_payment>pending_payment</order_status_pending_payment>
+                <order_status_pending_payment>pending</order_status_pending_payment>
                 <order_status_pending_decision>payment_review</order_status_pending_decision>
                 <order_status_pending_signature>payment_review</order_status_pending_signature>
                 <order_status_pending_processing/>

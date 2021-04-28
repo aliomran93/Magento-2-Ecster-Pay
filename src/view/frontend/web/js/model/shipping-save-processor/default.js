@@ -44,7 +44,6 @@ define(
                     }
                 }
 
-
                 selectBillingAddressAction(quote.shippingAddress());
 
                 return storage.post(
