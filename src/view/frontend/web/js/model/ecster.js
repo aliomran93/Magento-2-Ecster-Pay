@@ -9,7 +9,7 @@ define(
         'Evalent_EcsterPay/js/model/shipping-save-processor/default',
         'Evalent_EcsterPay/js/action/select-shipping-address',
         'Evalent_EcsterPay/js/action/select-billing-address',
-        'Evalent_EcsterPay/js/action/place-order',
+        'Evalent_EcsterPay/js/action/validate-quote',
         'Magento_Ui/js/model/messages',
         'Evalent_EcsterPay/js/model/quote',
         'Evalent_EcsterPay/js/model/config',
@@ -26,7 +26,7 @@ define(
         shippingSaveProcessor,
         selectShippingAddress,
         selectBillingAddress,
-        placeOrderAction,
+        validateQuoteAction,
         Messages,
         quote,
         ecsterConfig,
@@ -95,34 +95,36 @@ define(
                         this.onPaymentMethodSelected(response);
                     }, this),
                     onBeforeSubmit: $.proxy(function (data, storeCallbackFn) {
-                        if (data.paymentMethod.type === "SWISH") {
-                            var placeOrder = placeOrderAction({method: "ecsterpay"}, new Messages())
-                            $.when(placeOrder).done(
-                                function () {
+                        var validateQuote = validateQuoteAction()
+                        $.when(validateQuote).done(
+                            function (response) {
+                                if (response.error) {
+                                    $(window).scrollTop(0);
+                                    messageList.addErrorMessage({message: response.message});
+                                    storeCallbackFn(false, {})
+                                } else {
                                     storeCallbackFn(true, {})
                                 }
-                            ).fail(
-                                function (response) {
-                                    $(window).scrollTop(0);
-                                    storeCallbackFn(false, {})
-                                    if (response.responseJSON && response.responseJSON.message) {
-                                        messageList.addErrorMessage({message: response.responseJSON.message});
-                                    } else {
-                                        messageList.addErrorMessage({message: "Something went wrong. Try again and if the problem persists please contact the support for more information"});
-                                    }
-                                    return false;
+                            }
+                        ).fail(
+                            function (response) {
+                                $(window).scrollTop(0);
+                                storeCallbackFn(false, {})
+                                if (response.responseJSON && response.responseJSON.message) {
+                                    messageList.addErrorMessage({message: response.responseJSON.message});
+                                } else {
+                                    messageList.addErrorMessage({message: "Something went wrong. Try again and if the problem persists please contact the support for more information"});
                                 }
-                            );
-                        } else {
-                            storeCallbackFn(true, {})
-                        }
+                                storeCallbackFn(false, {})
+                            }
+                        );
                     }, this)
                 });
             },
             onCheckoutStartInit: function (response) {
                 fullScreenLoader.startLoader();
                 this.isUpdating(true)
-                console.log("onCheckoutStartInit");
+                 console.log("onCheckoutStartInit");
             },
             onCheckoutStartSuccess: function (response) {
                 this.isUpdating(false)
@@ -132,22 +134,22 @@ define(
             onCheckoutStartFailure: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                console.log("onCheckoutStartFailure");
+                 console.log("onCheckoutStartFailure");
             },
             onCheckoutUpdateInit: function (response) {
                 this.isUpdating(true)
                 fullScreenLoader.startLoader();
-                console.log("onCheckoutUpdateInit");
+                 console.log("onCheckoutUpdateInit");
             },
             onCheckoutInitUpdateCart: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.startLoader();
-                console.log("onCheckoutInitUpdateCart");
+                 console.log("onCheckoutInitUpdateCart");
             },
             onCheckoutFinishUpdateCart: function (response) {
                 this.isUpdating(false)
                 fullScreenLoader.stopLoader();
-                console.log("onCheckoutFinishUpdateCart");
+                 console.log("onCheckoutFinishUpdateCart");
             },
             onCheckoutUpdateSuccess: function (response) {
                 fullScreenLoader.stopLoader();
@@ -155,7 +157,7 @@ define(
                 console.log("onCheckoutUpdateSuccess");
             },
             onCustomerAuthenticated: function (response) {
-                console.log("onCustomerAuthenticated");
+                 console.log("onCustomerAuthenticated");
             },
             onPaymentMethodSelected: function (response) {
                 console.log("onPaymentMethodSelected");
@@ -187,9 +189,9 @@ define(
                     address.postcode= response.zip
                     address.region= response.region
                     address.street= [
-                        response.address,
-                        response.address2
-                    ]
+                            response.address,
+                            response.address2
+                        ]
 
                     selectShippingAddress(address)
                     shippingSaveProcessor.saveShippingInformation();
@@ -203,10 +205,10 @@ define(
                 window.location.href = ecsterConfig.successUrl + 'ecster-reference/' + response.internalReference;
             },
             onPaymentFailure: function (response) {
-                console.log('onPaymentFailure');
+                 console.log('onPaymentFailure')
             },
             onPaymentDenied: function (response) {
-                console.log("onPaymentDenied");
+                 console.log("onPaymentDenied");
             },
             initEcsterDiv: function () {
                 $('#ecster-pay-ctr').html('');
@@ -315,12 +317,9 @@ define(
                             success = false;
                             return;
                         }
-                        console.log(response.ecster_key)
                         if (response.ecster_key == undefined) {
-                            console.log("Return")
                             return;
                         }
-                        console.log("NOT Return")
                         this.key = response.ecster_key
                         quote.setEcsterCartKey(response.ecster_key);
                         updateCartCallBack(response.ecster_key)
