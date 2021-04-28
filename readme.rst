@@ -38,7 +38,7 @@ Add the below to the "require" section of your composer.json file.
 .. code:: json
 
 
-  "evalent/module-ecsterpay": "1.0.11-beta.* as 1.0.10"
+  "evalent/module-ecsterpay": "1.1.1-beta.* as 1.1.0"
 
 
 The ``as 1.0.0`` part is only required if you specified ``"minimum-stability": "stable"``
