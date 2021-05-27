@@ -10,13 +10,17 @@ use Evalent\EcsterPay\Model\Api\Ecster;
 use Evalent\EcsterPay\Model\Api\Ecster as EcsterApi;
 use Evalent\EcsterPay\Model\ResourceModel\TransactionHistory\CollectionFactory;
 use Exception;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\AreaList;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
+use Magento\Framework\DB\Transaction;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -113,12 +117,17 @@ class SalesOrderStatusUpdate
      */
     protected $transaction;
 
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
     public function __construct(
         Order $order,
         OrderStatusHistoryRepositoryInterface $historyRepository,
         EcsterPayHelper $helper,
-        \Magento\Framework\DB\Transaction $transaction,
-        \Magento\Framework\Registry $registry,
+        Transaction $transaction,
+        Registry $registry,
         EcsterApi $ecsterApi,
         LoggerInterface $logger,
         CartRepositoryInterface $quoteRepository,
@@ -130,7 +139,8 @@ class SalesOrderStatusUpdate
         CollectionFactory $transactionsHistoryCollection,
         InvoiceRepositoryInterface $invoiceRepository,
         InvoiceService $invoiceService,
-        InvoiceSender $invoiceSender
+        InvoiceSender $invoiceSender,
+        SearchCriteriaBuilder $searchCriteriaBuilder = null
     ) {
         $this->_order = $order;
         $this->helper = $helper;
@@ -149,6 +159,7 @@ class SalesOrderStatusUpdate
         $this->registry = $registry;
         $this->transaction = $transaction;
         $this->historyRepository = $historyRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder ?? ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
     }
 
     /**
@@ -380,7 +391,7 @@ class SalesOrderStatusUpdate
                 __('Notified customer about invoice creation #%1.', $invoice->getId())
             )->setIsCustomerNotified(true);
             $this->historyRepository->save($orderHistory);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $orderHistory= $order->addStatusHistoryComment(
                 __('Unable notify customer about invoice creation #%1. Error message: %2', $invoice->getId(), $e->getMessage())
             )->setIsCustomerNotified(false);
@@ -402,13 +413,26 @@ class SalesOrderStatusUpdate
         }
         $response = (array)$this->ecsterApi->getOrder($oenData['orderId']);
         if ($response['id'] == $oenData['orderId']) {
-            $quoteId = str_replace(Ecster::ECSTER_ORDER_PREFIX, "", $response['orderReference']);
-            try {
-                /** @var \Magento\Quote\Model\Quote $quote */
-                $quote = $this->quoteRepository->get($quoteId);
-            } catch (NoSuchEntityException $e) {
-                $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not find quote with id $quoteId");
-                return;
+            $quoteId = $response['orderReference'];
+            if (strpos($quoteId, Ecster::ECSTER_ORDER_PREFIX) !== false) {
+                $quoteId = str_replace(Ecster::ECSTER_ORDER_PREFIX, "", $response['orderReference']);
+                try {
+                    /** @var \Magento\Quote\Model\Quote $quote */
+                    $quote = $this->quoteRepository->get($quoteId);
+                } catch (NoSuchEntityException $e) {
+                    $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not find quote with id $quoteId");
+                    return;
+                }
+            } else {
+                // As we added an "Reserve order id" function in the frontend we need to check against this as well
+                // otherwise some mobile customers might not get their order
+                $searchCriteria = $this->searchCriteriaBuilder->addFilter('reserved_order_id', $quoteId)->create();
+                $quotes = $this->quoteRepository->getList($searchCriteria)->getItems();
+                if (empty($quotes)) {
+                    $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not find quote with reserved order id $quoteId");
+                    return;
+                }
+                $quote = $quotes[0];
             }
 
             if (!$quote->getIsActive()) {
