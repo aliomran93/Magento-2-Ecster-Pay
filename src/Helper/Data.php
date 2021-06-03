@@ -460,6 +460,7 @@ class Data extends PaymentHelper
 
             return $transactionHistoryFactory;
         } catch (\Exception $e) {
+            
             return;
         }
     }

@@ -63,7 +63,7 @@ class SalesOrderCancelAfter implements ObserverInterface
                             'order_status' => $responseParams->orderStatus,
                             'request_params' => serialize($requestParams),
                             'transaction_id' => $responseParams->transaction->id,
-                            'response_params' => serialize((array)$responseParams)
+                            'response_params' => serialize((array)$responseParams),
                         ];
 
                         $this->_helper->addTransactionHistory($transactionHistoryData);
