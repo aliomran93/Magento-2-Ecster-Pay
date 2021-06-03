@@ -163,37 +163,42 @@ class SalesOrderStatusUpdate
     }
 
     /**
-     * @param      $responseJson
-     * @param bool $secondTry
+     * @param array $response
+     * @param bool  $secondTry
      *
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      */
-    public function process($responseJson, $secondTry = false)
+    public function process($response, $secondTry = false)
     {
-        $response = (array)json_decode($responseJson);
         if (isset($response['status'])) {
+            // We don't want to apply an OEN twice even if they shouldn't be sent twice
+            // This is also due to the 10 second sleep function as Ecster expect a 200 response in 5 seconds. This helps to ignore the second call due to this
+            if ($this->checkIfOenAlreadyApplied($response)) {
+                $this->logger->info(__(self::LOGGER_PREFIX . "The OEN update have already been processed"));
+                return;
+            }
+
             $order = $this->loadOrderFromResponse($response);
 
             if ($order && $order->getId()) {
                 $message = null;
                 $state = null;
 
-                // We don't want to apply an OEN twice even if they shouldn't be sent twice
-                // This is also due to the 10 second sleep function as Ecster expect a 200 response in 5 seconds. This helps to ignore the second call due to this
-                if ($this->checkIfOenAlreadyApplied($order->getId(), $response)) {
-                    $this->logger->info(__(self::LOGGER_PREFIX . "The OEN update have already been processed"));
-                    return;
-                }
-
                 try {
                     $ecsterOrder = $this->ecsterApi->getOrder($response['orderId']);
-                    if ($ecsterOrder->status != $response['status']) {
-                        $this->logger->info(__(self::LOGGER_PREFIX . "The OEN status does not match the one fetched from Ecster. Ignore Call"));
-                        return;
-                    }
                 } catch (Exception $e) {
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Couldn't get order from Ecster %1", $e->getMessage() ), $e);
                 }
+
+                if ($ecsterOrder->id != $order->getData('ecster_internal_reference')) {
+                    $this->logger->info(__(self::LOGGER_PREFIX . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call"));
+                    throw new LocalizedException(self::LOGGER_PREFIX . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call");
+                }
+                if ($ecsterOrder->status != $response['status']) {
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "The OEN status does not match the one fetched from Ecster. Ignore Call"));
+                }
+
 
                 // If the order is fully delivered in ecster we want to create invoice
                 if (!$order->hasInvoices() && $response['status'] == "FULLY_DELIVERED" && isset($response['event']) && $response['event'] == "FULL_DEBIT") {
@@ -211,13 +216,11 @@ class SalesOrderStatusUpdate
 
 
                 if (!$assignedStatus) {
-                    $this->logger->info(self::LOGGER_PREFIX . "Couldn't get assigned status.");
-                    return;
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Couldn't get assigned status."));
                 }
 
                 if ($order->getStatus() == $assignedStatus) {
-                    $this->logger->info(self::LOGGER_PREFIX . "Status is the same as order. Ignored");
-                    return;
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Status is the same as order. Ignored"));
                 }
 
                 $state = $this->helper->getOenStatus($response['status'], $order->getStoreId());
@@ -243,16 +246,17 @@ class SalesOrderStatusUpdate
                     'order_status' => $response['status'],
                     'transaction_id' => null,
                     'response_params' => serialize($response),
+                    'timetamp' => $response['time']
                 ];
 
                 $this->helper->addTransactionHistory($transactionHistoryData);
             } elseif ($secondTry && isset($response['event']) && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
                 //This fixes the issue with payment with Swish where the user is not redirected to the success page
                 // and thus we need to create the order through the OEN request
-                $this->logger->info(self::LOGGER_PREFIX . "Creating order for response: " . $responseJson);
+                $this->logger->info(self::LOGGER_PREFIX . "Creating order for response");
                 $this->createOrderFromOen($response);
             } else {
-                throw new LocalizedException(__(
+                throw new NoSuchEntityException(__(
                     self::LOGGER_PREFIX . "Could not find order by %1 Ecster reference number.",
                     $response['orderId']
                 ));
@@ -272,7 +276,12 @@ class SalesOrderStatusUpdate
         // Then we try if the order is already created. This occurs on SWISH payments
         $order = $this->_order->loadByIncrementId($responseData['orderReference']);
         // If we find the order on orderReference we need to update the order according to the ecster data
-        if ($order && $order->getId()) {
+        if ($order
+            && $order->getId()
+            && !$order->getData('ecster_internal_reference')
+            && $order->getData('ecster_payment_type') == "SWISH"
+            && $responseData['status'] == "FULLY_DELIVERED"
+        ) {
             $order = $this->updateOrderFromEcster($order, $responseData['orderId']);
         }
 
@@ -469,11 +478,11 @@ class SalesOrderStatusUpdate
         }
     }
 
-    protected function checkIfOenAlreadyApplied($orderId, $oenResponse)
+    protected function checkIfOenAlreadyApplied($oenResponse)
     {
         $previousOenUpdates = $this->transactionsHistoryCollection->create()
             ->addFieldToSelect('*')
-            ->addFieldToFilter('order_id', $orderId);
+            ->addFieldToFilter('timestamp', $oenResponse['time']);
         /** @var \Evalent\EcsterPay\Model\TransactionHistory $previousOenUpdate */
         foreach ($previousOenUpdates as $previousOenUpdate) {
             $previousResponse = @unserialize($previousOenUpdate->getData('response_params'));

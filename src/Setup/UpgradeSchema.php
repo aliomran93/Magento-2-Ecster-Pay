@@ -41,6 +41,46 @@ class UpgradeSchema implements UpgradeSchemaInterface
             );
         }
 
+        if (version_compare($context->getVersion(), '1.1.0', '<')) {
+            $setup->getConnection()->changeColumn(
+                $setup->getTable('evalent_ecsterpay_transaction_history'),
+                'order_id',
+                'order_id',
+                ['unsigned' => true, 'nullable' => true, 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 'comment' => 'Order Id'],
+            );
+
+            $setup->getConnection()->changeColumn(
+                $setup->getTable('evalent_ecsterpay_transaction_history'),
+                'entity_id',
+                'entity_id',
+                ['nullable' => true, 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, 'comment' => 'Entity id'],
+            );
+            $setup->getConnection()->changeColumn(
+                $setup->getTable('evalent_ecsterpay_transaction_history'),
+                'entity_type',
+                'entity_type',
+                ['nullable' => true, 'size' => 16, 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 'comment' => 'Entity Type'],
+            );
+            $setup->getConnection()->changeColumn(
+                $setup->getTable('evalent_ecsterpay_transaction_history'),
+                'amount',
+                'amount',
+                ['nullable' => true, 'size' => [12, 4], 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL, 'comment' => 'Amount'],
+            );
+            
+            
+            $setup->getConnection()->addColumn(
+                $setup->getTable('evalent_ecsterpay_transaction_history'),
+                'timestamp',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 255,
+                    'nullable' => true,
+                    'comment' => 'Timetamp of the OEN update.',
+                ]
+            );
+        }
+
         $installer->endSetup();
     }
 }
