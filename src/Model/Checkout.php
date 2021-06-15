@@ -374,7 +374,7 @@ class Checkout extends Onepage
 
         $this->invoiceSender->send($invoice);
         //Send Invoice mail to customer
-        $order->addStatusHistoryComment(
+        $order->addCommentToStatusHistory(
             __('Notified customer about invoice creation #%1.', $invoice->getId())
         )
             ->setIsCustomerNotified(true);

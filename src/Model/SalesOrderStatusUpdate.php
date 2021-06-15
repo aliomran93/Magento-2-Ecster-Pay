@@ -3,6 +3,7 @@
  * Copyright © Evalent Group AB, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Evalent\EcsterPay\Model;
 
 use Evalent\EcsterPay\Helper\Data as EcsterPayHelper;
@@ -15,7 +16,6 @@ use Magento\Framework\App\Area;
 use Magento\Framework\App\AreaList;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\State;
-use Magento\Framework\DataObject;
 use Magento\Framework\DB\Transaction;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -159,7 +159,8 @@ class SalesOrderStatusUpdate
         $this->registry = $registry;
         $this->transaction = $transaction;
         $this->historyRepository = $historyRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder ?? ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder ??
+            ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
     }
 
     /**
@@ -175,7 +176,8 @@ class SalesOrderStatusUpdate
             // We don't want to apply an OEN twice even if they shouldn't be sent twice
             // This is also due to the 10 second sleep function as Ecster expect a 200 response in 5 seconds. This helps to ignore the second call due to this
             if ($this->checkIfOenAlreadyApplied($response)) {
-                $this->logger->info(__(self::LOGGER_PREFIX . "The OEN update have already been processed"));
+                $this->logger->info(__(self::LOGGER_PREFIX
+                    . "The OEN update have already been processed"));
                 return;
             }
 
@@ -186,14 +188,18 @@ class SalesOrderStatusUpdate
                 $state = null;
 
                 try {
-                    $ecsterOrder = $this->ecsterApi->getOrder($response['orderId']);
+                    $ecsterOrder
+                        = $this->ecsterApi->getOrder($response['orderId']);
                 } catch (Exception $e) {
-                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Couldn't get order from Ecster %1", $e->getMessage() ), $e);
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Couldn't get order from Ecster %1", $e->getMessage()), $e);
                 }
 
-                if ($ecsterOrder->id != $order->getData('ecster_internal_reference')) {
-                    $this->logger->info(__(self::LOGGER_PREFIX . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call"));
-                    throw new LocalizedException(self::LOGGER_PREFIX . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call");
+                if ($ecsterOrder->id
+                    != $order->getData('ecster_internal_reference')
+                ) {
+                    $this->logger->info(__(self::LOGGER_PREFIX
+                        . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call"));
+                    throw new LocalizedException(__(self::LOGGER_PREFIX . "The OEN orderId does not match magento order ecster_internal_reference. Ignore Call"));
                 }
                 if ($ecsterOrder->status != $response['status']) {
                     throw new LocalizedException(__(self::LOGGER_PREFIX . "The OEN status does not match the one fetched from Ecster. Ignore Call"));
@@ -201,7 +207,11 @@ class SalesOrderStatusUpdate
 
 
                 // If the order is fully delivered in ecster we want to create invoice
-                if (!$order->hasInvoices() && $response['status'] == "FULLY_DELIVERED" && isset($response['event']) && $response['event'] == "FULL_DEBIT") {
+                if (!$order->hasInvoices()
+                    && $response['status'] == "FULLY_DELIVERED"
+                    && isset($response['event'])
+                    && $response['event'] == "FULL_DEBIT"
+                ) {
                     try {
                         $this->createInvoiceFromOen($order, $response, $ecsterOrder);
                     } catch (LocalizedException $e) {
@@ -216,7 +226,8 @@ class SalesOrderStatusUpdate
 
 
                 if (!$assignedStatus) {
-                    throw new LocalizedException(__(self::LOGGER_PREFIX . "Couldn't get assigned status."));
+                    throw new LocalizedException(__(self::LOGGER_PREFIX
+                        . "Couldn't get assigned status."));
                 }
 
                 if ($order->getStatus() == $assignedStatus) {
@@ -236,28 +247,34 @@ class SalesOrderStatusUpdate
                 $this->orderStatusUpdate($order, $assignedStatus, $message, $state);
 
                 $transactionHistoryData = [
-                    'id' => null,
-                    'order_id' => $order->getId(),
-                    'entity_type' => 'order',
-                    'entity_id' => $order->getId(),
-                    'amount' => $order->getGrandTotal(),
+                    'id'               => null,
+                    'order_id'         => $order->getId(),
+                    'entity_type'      => 'order',
+                    'entity_id'        => $order->getId(),
+                    'amount'           => $order->getGrandTotal(),
                     'transaction_type' => EcsterApi::ECSTER_OMA_TYPE_OEN_UPDATE,
-                    'request_params' => null,
-                    'order_status' => $response['status'],
-                    'transaction_id' => null,
-                    'response_params' => serialize($response),
-                    'timetamp' => $response['time']
+                    'request_params'   => null,
+                    'order_status'     => $response['status'],
+                    'transaction_id'   => null,
+                    'response_params'  => serialize($response),
+                    'timestamp'         => $response['time'],
                 ];
 
+
                 $this->helper->addTransactionHistory($transactionHistoryData);
-            } elseif ($secondTry && isset($response['event']) && $response['event'] == "FULL_DEBIT" && $response['status'] == 'FULLY_DELIVERED') {
+            } elseif ($secondTry && isset($response['event'])
+                && $response['event'] == "FULL_DEBIT"
+                && $response['status'] == 'FULLY_DELIVERED'
+            ) {
                 //This fixes the issue with payment with Swish where the user is not redirected to the success page
                 // and thus we need to create the order through the OEN request
-                $this->logger->info(self::LOGGER_PREFIX . "Creating order for response");
+                $this->logger->info(self::LOGGER_PREFIX
+                    . "Creating order for response");
                 $this->createOrderFromOen($response);
             } else {
                 throw new NoSuchEntityException(__(
-                    self::LOGGER_PREFIX . "Could not find order by %1 Ecster reference number.",
+                    self::LOGGER_PREFIX
+                    . "Could not find order by %1 Ecster reference number.",
                     $response['orderId']
                 ));
             }
@@ -274,7 +291,8 @@ class SalesOrderStatusUpdate
             return $order;
         }
         // Then we try if the order is already created. This occurs on SWISH payments
-        $order = $this->_order->loadByIncrementId($responseData['orderReference']);
+        $order
+            = $this->_order->loadByIncrementId($responseData['orderReference']);
         // If we find the order on orderReference we need to update the order according to the ecster data
         if ($order
             && $order->getId()
@@ -291,7 +309,7 @@ class SalesOrderStatusUpdate
 
     /**
      * @param \Magento\Sales\Model\Order $order
-     * @param string $ecsterOrderId
+     * @param string                     $ecsterOrderId
      */
     private function updateOrderFromEcster($order, $ecsterOrderId)
     {
@@ -318,8 +336,12 @@ class SalesOrderStatusUpdate
         return $this->orderRepository->save($order);
     }
 
-    public function orderStatusUpdate($order, $status, $message = null, $state = null)
-    {
+    public function orderStatusUpdate(
+        $order,
+        $status,
+        $message = null,
+        $state = null
+    ) {
         try {
             if (is_null($state)) {
                 $state = Order::STATE_PROCESSING;
@@ -338,9 +360,9 @@ class SalesOrderStatusUpdate
     }
 
     /**
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @var \Magento\Sales\Model\Order $order
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function createInvoiceFromOen($order, $responseData, $ecsterOrder)
     {
@@ -368,6 +390,7 @@ class SalesOrderStatusUpdate
                         'order_status'     => $responseData['status'],
                         'transaction_id'   => $transaction->id,
                         'response_params'  => serialize((array)$ecsterOrder),
+                        'timestamp'        => $responseData['time'] ?? null
                     ];
                     $this->helper->addTransactionHistory($transactionHistoryData);
                     break;
@@ -376,7 +399,8 @@ class SalesOrderStatusUpdate
         }
 
         $this->registry->register('current_invoice', $invoice);
-        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+        $invoice->getOrder()
+            ->setCustomerNoteNotify(!empty($data['send_email']));
 
         // If the user select "PENDING_PAYMENT" to be the OEN update on Pending payment the order does not change to
         // processing when invoice is created,
@@ -396,17 +420,18 @@ class SalesOrderStatusUpdate
         try {
             //Send Invoice mail to customer
             $this->invoiceSender->send($invoice);
-            $orderHistory = $order->addStatusHistoryComment(
+            $orderHistory = $order->addCommentToStatusHistory(
                 __('Notified customer about invoice creation #%1.', $invoice->getId())
             )->setIsCustomerNotified(true);
             $this->historyRepository->save($orderHistory);
         } catch (Exception $e) {
-            $orderHistory= $order->addStatusHistoryComment(
+            $orderHistory = $order->addCommentToStatusHistory(
                 __('Unable notify customer about invoice creation #%1. Error message: %2', $invoice->getId(), $e->getMessage())
             )->setIsCustomerNotified(false);
             $this->historyRepository->save($orderHistory);
         }
-        $this->logger->info(self::LOGGER_PREFIX . __("Created invoice for order %1", $order->getId()));
+        $this->logger->info(self::LOGGER_PREFIX
+            . __("Created invoice for order %1", $order->getId()));
     }
 
     protected function createOrderFromOen($oenData)
@@ -429,23 +454,28 @@ class SalesOrderStatusUpdate
                     /** @var \Magento\Quote\Model\Quote $quote */
                     $quote = $this->quoteRepository->get($quoteId);
                 } catch (NoSuchEntityException $e) {
-                    $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not find quote with id $quoteId");
+                    $this->logger->info(self::LOGGER_PREFIX
+                        . "Create Order: Could not find quote with id $quoteId");
                     return;
                 }
             } else {
                 // As we added an "Reserve order id" function in the frontend we need to check against this as well
                 // otherwise some mobile customers might not get their order
-                $searchCriteria = $this->searchCriteriaBuilder->addFilter('reserved_order_id', $quoteId)->create();
-                $quotes = $this->quoteRepository->getList($searchCriteria)->getItems();
+                $searchCriteria
+                    = $this->searchCriteriaBuilder->addFilter('reserved_order_id', $quoteId)->create();
+                $quotes = $this->quoteRepository->getList($searchCriteria)
+                    ->getItems();
                 if (empty($quotes)) {
-                    $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not find quote with reserved order id $quoteId");
+                    $this->logger->info(self::LOGGER_PREFIX
+                        . "Create Order: Could not find quote with reserved order id $quoteId");
                     return;
                 }
                 $quote = $quotes[0];
             }
 
             if (!$quote->getIsActive()) {
-                $this->logger->info(self::LOGGER_PREFIX . "Create Order: Could not create order from quote $quoteId cause it was not active");
+                $this->logger->info(self::LOGGER_PREFIX
+                    . "Create Order: Could not create order from quote $quoteId cause it was not active");
                 return;
             }
 
@@ -456,7 +486,9 @@ class SalesOrderStatusUpdate
             }
 
             // Check so the totals still match, so the quote has not been tempered with
-            if (number_format(((float)$response['amount'])/100, 2, '.', '') != number_format($quote->getGrandTotal(), 2, '.', '')) {
+            if (number_format(((float)$response['amount']) / 100, 2, '.', '')
+                != number_format($quote->getGrandTotal(), 2, '.', '')
+            ) {
                 $this->logger->info("Ecster OEN Create Order: Could not create order from quote $quoteId cause the totals differed.");
                 return;
             }
@@ -472,7 +504,7 @@ class SalesOrderStatusUpdate
                 'checkout_onepage_controller_success_action',
                 [
                     'order_ids' => [$order->getId()],
-                    'order' => $order->getId(),
+                    'order'     => $order->getId(),
                 ]
             );
         }
@@ -485,11 +517,14 @@ class SalesOrderStatusUpdate
             ->addFieldToFilter('timestamp', $oenResponse['time']);
         /** @var \Evalent\EcsterPay\Model\TransactionHistory $previousOenUpdate */
         foreach ($previousOenUpdates as $previousOenUpdate) {
-            $previousResponse = @unserialize($previousOenUpdate->getData('response_params'));
+            $previousResponse
+                = @unserialize($previousOenUpdate->getData('response_params'));
             if ($previousResponse) {
                 // We see if the request was already processed by checking if the status and timestamp are the same
-                if (isset($previousResponse['time']) && isset($oenResponse['time'])
-                    && isset($previousResponse['status']) && isset($oenResponse['status'])
+                if (isset($previousResponse['time'])
+                    && isset($oenResponse['time'])
+                    && isset($previousResponse['status'])
+                    && isset($oenResponse['status'])
                     && $previousResponse['time'] == $oenResponse['time']
                     && $previousResponse['status'] == $oenResponse['status']
                 ) {
