@@ -168,7 +168,7 @@ define(
                     address.email = response.email
                     address.telephone = response.cellular
                     selectShippingAddress(address)
-                    // selectBillingAddress(address)
+                    selectBillingAddress(address)
                     shippingSaveProcessor.saveShippingInformation();
                 }catch(err) {
                     console.log(err)
