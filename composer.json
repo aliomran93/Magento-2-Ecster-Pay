@@ -7,7 +7,7 @@
     ],
     "require": {
         "magento/module-checkout": "100.*",
-        "laminas/laminas-log": "^2.13",
+        "laminas/laminas-log": "^2.7",
         "guzzlehttp/guzzle": "~6.3",
         "ext-json": "*"
     },
