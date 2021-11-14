@@ -6,9 +6,10 @@
         "OSL-3.0"
     ],
     "require": {
-      "magento/module-checkout": "100.*",
-      "guzzlehttp/guzzle": "~6.3",
-      "ext-json": "*"
+        "magento/module-checkout": "100.*",
+        "laminas/laminas-log": "^2.13",
+        "guzzlehttp/guzzle": "~6.3",
+        "ext-json": "*"
     },
     "autoload": {
       "files": [
