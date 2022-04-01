@@ -672,6 +672,11 @@ class Ecster
         $_rates = $address->getAllShippingRates();
         /** @var \Magento\Quote\Model\Quote\Address\Rate $_rate */
         foreach ($_rates as $_rate) {
+            // There are cases where third party modules restrict the shipping method but doesn't remove it.
+            // In those cases we don't want to send them to Ecster because it will throw an exception
+            if ($_rate->getMethod() === null) {
+                continue;
+            }
             $methodPrice = $this->taxHelper->getShippingPrice($_rate->getPrice(), true, $address);
             $shippingMethods[] = [
                 "id" => $_rate->getMethod(),
